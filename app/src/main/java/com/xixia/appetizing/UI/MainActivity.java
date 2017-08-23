@@ -7,7 +7,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.xixia.appetizing.R;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
     private FirebaseDatabase mFireBaseDatabase;
     private DatabaseReference mDatabaseReference;
 
