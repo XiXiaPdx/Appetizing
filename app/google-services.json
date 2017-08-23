@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "854939982939",
+    "firebase_url": "https://appetizingv2.firebaseio.com",
+    "project_id": "appetizingv2",
+    "storage_bucket": "appetizingv2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:854939982939:android:4d0837ff0188e1ed",
+        "android_client_info": {
+          "package_name": "com.xixia.appetizing"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "854939982939-osmevr65sep22lnqqt4ejr48oplebp9r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.xixia.appetizing",
+            "certificate_hash": "b79857b56f123ac1e8f34d536d6c53803c400b17"
+          }
+        },
+        {
+          "client_id": "854939982939-9g3ikj9479c0nagm8cjhqil6ge3ahokc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCY6w5CaSTBqzwLg4--aIbE4hy1k7ITxEE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "854939982939-9g3ikj9479c0nagm8cjhqil6ge3ahokc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
