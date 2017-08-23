@@ -21,7 +21,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".UI.BaseActivity" />
-        <activity android:name=".UI.SearchActivity"></activity>
+        <activity android:name=".UI.SearchActivity"
+            android:parentActivityName=".UI.MainActivity">
+            <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".UI.MainActivity" /></activity>
     </application>
 
 </manifest>
