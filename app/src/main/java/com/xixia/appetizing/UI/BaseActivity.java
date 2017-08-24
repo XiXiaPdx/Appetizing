@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.firebase.ui.auth.AuthUI;
 import com.xixia.appetizing.R;
 
 public abstract class BaseActivity extends AppCompatActivity {
@@ -23,6 +24,12 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        overridePendingTransition(R.anim.slide_from_left, R.anim.slide_to_right);
     }
 
     @Override
@@ -42,6 +49,9 @@ public abstract class BaseActivity extends AppCompatActivity {
                 Intent intent = new Intent (getBaseContext(), SearchActivity.class);
                 startActivity(intent);
                 overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
+                break;
+            case R.id.action_logout:
+                AuthUI.getInstance().signOut(this);
                 break;
             case android.R.id.home:
                 finish();

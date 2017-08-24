@@ -22,7 +22,8 @@
         </activity>
         <activity android:name=".UI.BaseActivity" />
         <activity android:name=".UI.SearchActivity"
-            android:parentActivityName=".UI.MainActivity">
+            android:parentActivityName=".UI.MainActivity"
+            android:screenOrientation="portrait">
             <meta-data
             android:name="android.support.PARENT_ACTIVITY"
             android:value=".UI.MainActivity" /></activity>
