@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Appetizing</string>
+    <string name="user_node">Users</string>
 </resources>

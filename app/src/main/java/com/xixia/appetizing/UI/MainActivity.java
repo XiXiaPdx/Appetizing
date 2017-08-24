@@ -11,13 +11,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.xixia.appetizing.Models.UserProfile;
 import com.xixia.appetizing.R;
 
 import java.util.Arrays;
 
 public class MainActivity extends BaseActivity {
     private FirebaseDatabase mFireBaseDatabase;
-    private DatabaseReference mDatabaseReference;
     private FirebaseAuth mFireBaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private static final int RC_SIGN_IN = 1;
@@ -26,14 +26,13 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mFireBaseDatabase = FirebaseDatabase.getInstance();
-        mDatabaseReference = mFireBaseDatabase.getReference();
         mFireBaseAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser currentUser = firebaseAuth.getCurrentUser();
                 if (currentUser != null){
-                    Toast.makeText(MainActivity.this, currentUser.getEmail(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, currentUser.getUid(), Toast.LENGTH_SHORT).show();
                 } else {
                     startActivityForResult(
                             AuthUI.getInstance()
@@ -54,6 +53,14 @@ public class MainActivity extends BaseActivity {
         super.onActivityResult(request, result, data);
         if (request == RC_SIGN_IN){
             if(result == RESULT_OK){
+                //account created for first time or user is logging in again. if created for first time, create profile.
+                // if first time, UID should be unique in FB under Users.
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                String username = user.getDisplayName();
+                String useremail = user.getEmail();
+                String userUID = user.getUid();
+                UserProfile newUser = new UserProfile(username, useremail, userUID);
+                mFireBaseDatabase.getReference(getString(R.string.user_node)).push().setValue(newUser);
 
             } else if (result == RESULT_CANCELED){
                 finish();
