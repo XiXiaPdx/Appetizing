@@ -3,6 +3,7 @@ package com.xixia.appetizing.UI;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
@@ -12,10 +13,19 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.xixia.appetizing.Constants;
+import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.Models.UserProfile;
 import com.xixia.appetizing.R;
+import com.xixia.appetizing.Services.UnSplashClient;
+import com.xixia.appetizing.Services.UnSplashServiceGenerator;
 
 import java.util.Arrays;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends BaseActivity {
     private FirebaseDatabase mFireBaseDatabase;
@@ -89,9 +99,21 @@ public class MainActivity extends BaseActivity {
         if (mAuthListener != null) {
             mFireBaseAuth.addAuthStateListener(mAuthListener);
         }
+        UnSplashClient client = UnSplashServiceGenerator.createService(UnSplashClient.class);
+        Call<List<SplashPic>> call = client.pictures(Constants.UNSPLASH_ID);
+        call.enqueue(new Callback<List<SplashPic>>() {
+            @Override
+            public void onResponse(Call<List<SplashPic>> call, Response<List<SplashPic>> response) {
+                Log.d("Success", response.body().toString());
+            }
+
+            @Override
+            public void onFailure(Call<List<SplashPic>> call, Throwable t) {
+                Log.d("ERROR", t.toString());
+            }
+        });
     }
-
-
+    
     @Override
     public void onPause(){
         super.onPause();
