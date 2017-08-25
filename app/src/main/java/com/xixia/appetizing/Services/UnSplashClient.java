@@ -5,6 +5,7 @@ import com.xixia.appetizing.Models.SplashPic;
 
 import java.util.List;
 
+import io.reactivex.Single;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
@@ -15,7 +16,7 @@ import retrofit2.http.Query;
 
 public interface UnSplashClient {
     @GET("?query=food&count=30")
-    Call<List<SplashPic>> pictures(
+    Single<List<SplashPic>> pictures(
             @Query(Constants.UNSPLASH_CLIENT_ID) String clientID
     );
 }

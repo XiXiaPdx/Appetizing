@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
@@ -23,6 +24,11 @@ import com.xixia.appetizing.Services.UnSplashServiceGenerator;
 import java.util.Arrays;
 import java.util.List;
 
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -59,6 +65,51 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
+    public void onResume(){
+        super.onResume();
+        if (mAuthListener != null) {
+            mFireBaseAuth.addAuthStateListener(mAuthListener);
+        }
+        UnSplashClient client = UnSplashServiceGenerator.createService(UnSplashClient.class);
+        Single<List<SplashPic>> call = client.pictures(Constants.UNSPLASH_ID);
+        call
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new SingleObserver<List<SplashPic>>() {
+            @Override
+            public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onSuccess(@io.reactivex.annotations.NonNull List<SplashPic> splashPics) {
+                Log.d("Success", splashPics.toString());
+            }
+
+            @Override
+            public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+                Log.d("ERROR", e.toString());
+
+            }
+        });
+
+
+//        Call<List<SplashPic>> call = client.pictures(Constants.UNSPLASH_ID);
+//        call.enqueue(new Callback<List<SplashPic>>() {
+//            @Override
+//            public void onResponse(Call<List<SplashPic>> call, Response<List<SplashPic>> response) {
+//                Toast.makeText(MainActivity.this, response.body().get(0).getId(), Toast.LENGTH_SHORT).show();
+//            }
+//
+//            @Override
+//            public void onFailure(Call<List<SplashPic>> call, Throwable t) {
+//                Log.d("ERROR", t.toString());
+//            }
+//        });
+    }
+
+
+    @Override
     public void onActivityResult(int request, int result, Intent data) {
         super.onActivityResult(request, result, data);
         if (request == RC_SIGN_IN) {
@@ -92,28 +143,6 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-
-    @Override
-    public void onResume(){
-        super.onResume();
-        if (mAuthListener != null) {
-            mFireBaseAuth.addAuthStateListener(mAuthListener);
-        }
-        UnSplashClient client = UnSplashServiceGenerator.createService(UnSplashClient.class);
-        Call<List<SplashPic>> call = client.pictures(Constants.UNSPLASH_ID);
-        call.enqueue(new Callback<List<SplashPic>>() {
-            @Override
-            public void onResponse(Call<List<SplashPic>> call, Response<List<SplashPic>> response) {
-                Log.d("Success", response.body().toString());
-            }
-
-            @Override
-            public void onFailure(Call<List<SplashPic>> call, Throwable t) {
-                Log.d("ERROR", t.toString());
-            }
-        });
-    }
-    
     @Override
     public void onPause(){
         super.onPause();
