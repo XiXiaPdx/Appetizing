@@ -19,6 +19,7 @@ import com.xixia.appetizing.Constants;
 import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.Models.UserProfile;
 import com.xixia.appetizing.R;
+import com.xixia.appetizing.Services.EndLessScrollListener;
 import com.xixia.appetizing.Services.UnSplashClient;
 import com.xixia.appetizing.Services.UnSplashServiceGenerator;
 
@@ -40,7 +41,8 @@ public class MainActivity extends BaseActivity {
     private static final int RC_SIGN_IN = 1;
     @BindView(R.id.PicsRecycler) RecyclerView mPicsRecyclerView;
     private SplashPicsAdapter mSplashPicsAdapter;
-    private StaggeredGridLayoutManager picGridLayOut;
+    private StaggeredGridLayoutManager mPicGridLayOut;
+    private EndLessScrollListener mEndLessScrollListener;
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,10 +50,16 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         mSplashPicsAdapter = new SplashPicsAdapter();
-        picGridLayOut = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        mPicsRecyclerView.setLayoutManager(picGridLayOut);
+        //what other features of staggered grid can we do???
+        mPicGridLayOut = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        mPicsRecyclerView.setLayoutManager(mPicGridLayOut);
         mFireBaseDatabase = FirebaseDatabase.getInstance();
         mFireBaseAuth = FirebaseAuth.getInstance();
+        setAuthListner();
+
+    }
+
+    public void setAuthListner(){
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -93,6 +101,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onSuccess(@io.reactivex.annotations.NonNull List<SplashPic> splashPics) {
                 mSplashPicsAdapter = new SplashPicsAdapter(getBaseContext(), splashPics);
+                //this picture setting deserves further research
                 mPicsRecyclerView.setHasFixedSize(true);
                 mPicsRecyclerView.setAdapter(mSplashPicsAdapter);
             }
