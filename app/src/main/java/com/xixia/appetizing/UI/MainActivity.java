@@ -23,6 +23,7 @@ import com.xixia.appetizing.Services.EndLessScrollListener;
 import com.xixia.appetizing.Services.UnSplashClient;
 import com.xixia.appetizing.Services.UnSplashServiceGenerator;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class MainActivity extends BaseActivity {
     private SplashPicsAdapter mSplashPicsAdapter;
     private StaggeredGridLayoutManager mPicGridLayOut;
     private EndLessScrollListener mEndLessScrollListener;
-
+    private List<SplashPic> mAllPictures = new ArrayList<>();
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +57,7 @@ public class MainActivity extends BaseActivity {
         mFireBaseDatabase = FirebaseDatabase.getInstance();
         mFireBaseAuth = FirebaseAuth.getInstance();
         setAuthListner();
-
+//        setRecyclerEndLessScroll();
     }
 
     public void setAuthListner(){
@@ -81,37 +82,55 @@ public class MainActivity extends BaseActivity {
         };
     }
 
+    public void setRecyclerEndLessScroll(){
+        mPicsRecyclerView.addOnScrollListener(new EndLessScrollListener(mPicGridLayOut) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+               unSplash30Call();
+            }
+        });
+    }
+
+    public void unSplash30Call(){
+
+        UnSplashClient client = UnSplashServiceGenerator.createService(UnSplashClient.class);
+        Single<List<SplashPic>> call = client.pictures(Constants.UNSPLASH_ID);
+        call
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<List<SplashPic>>() {
+                    @Override
+                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(@io.reactivex.annotations.NonNull List<SplashPic> splashPics) {
+                        mAllPictures.addAll(splashPics);
+                        Log.d("Size", String.valueOf(mAllPictures.size()));
+                        mSplashPicsAdapter = new SplashPicsAdapter(getBaseContext(), mAllPictures);
+                        //this picture setting deserves further research
+                        mPicsRecyclerView.setHasFixedSize(true);
+                        mPicsRecyclerView.setAdapter(mSplashPicsAdapter);
+                    }
+
+                    @Override
+                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+                        Log.d("ERROR", e.toString());
+
+                    }
+                });
+    }
+
     @Override
     public void onResume(){
         super.onResume();
         if (mAuthListener != null) {
             mFireBaseAuth.addAuthStateListener(mAuthListener);
         }
-        UnSplashClient client = UnSplashServiceGenerator.createService(UnSplashClient.class);
-        Single<List<SplashPic>> call = client.pictures(Constants.UNSPLASH_ID);
-        call
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new SingleObserver<List<SplashPic>>() {
-            @Override
-            public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
-
-            }
-
-            @Override
-            public void onSuccess(@io.reactivex.annotations.NonNull List<SplashPic> splashPics) {
-                mSplashPicsAdapter = new SplashPicsAdapter(getBaseContext(), splashPics);
-                //this picture setting deserves further research
-                mPicsRecyclerView.setHasFixedSize(true);
-                mPicsRecyclerView.setAdapter(mSplashPicsAdapter);
-            }
-
-            @Override
-            public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-                Log.d("ERROR", e.toString());
-
-            }
-        });
+        if(mAllPictures.size() == 0) {
+            unSplash30Call();
+        }
     }
 
 

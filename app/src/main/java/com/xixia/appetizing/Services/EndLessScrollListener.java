@@ -21,8 +21,6 @@ public abstract class EndLessScrollListener extends RecyclerView.OnScrollListene
     // Sets the starting page index
     private int startingPageIndex = 0;
 
-
-
     RecyclerView.LayoutManager mLayoutManager;
 
     public EndLessScrollListener(StaggeredGridLayoutManager layoutManager) {
@@ -98,7 +96,6 @@ public abstract class EndLessScrollListener extends RecyclerView.OnScrollListene
 
     // Defines the process for actually loading more data based on page
     public abstract void onLoadMore(int page, int totalItemsCount, RecyclerView view);
-
 
 }
 
