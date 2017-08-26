@@ -52,7 +52,7 @@ public abstract class EndLessScrollListener extends RecyclerView.OnScrollListene
         int[] lastVisibleItemPositions = ((StaggeredGridLayoutManager) mLayoutManager).findLastVisibleItemPositions(null);
         // get maximum element within the list
         lastVisibleItemPosition = getLastVisibleItem(lastVisibleItemPositions);
-
+        Log.d("LastVisible", String.valueOf(lastVisibleItemPosition));
         // If the total item count is zero and the previous isn't, assume the
         // list is invalidated and should be reset back to initial state
         if (totalItemCount < previousTotalItemCount) {
@@ -80,7 +80,7 @@ public abstract class EndLessScrollListener extends RecyclerView.OnScrollListene
         // threshold should reflect how many total columns there are too
         if (!loading && (lastVisibleItemPosition + visibleThreshold) > totalItemCount) {
             currentPage++;
-            if (currentPage > 0) {
+            if (currentPage > 1) {
                 onLoadMore(currentPage, totalItemCount, view);
                 loading = true;
             }

@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.R;
+import com.xixia.appetizing.Services.EndLessScrollListener;
 
 import java.util.ArrayList;
 import java.util.List;

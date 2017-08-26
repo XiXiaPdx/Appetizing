@@ -57,7 +57,6 @@ public class MainActivity extends BaseActivity {
         mFireBaseDatabase = FirebaseDatabase.getInstance();
         mFireBaseAuth = FirebaseAuth.getInstance();
         setAuthListner();
-//        setRecyclerEndLessScroll();
     }
 
     public void setAuthListner(){
@@ -83,12 +82,13 @@ public class MainActivity extends BaseActivity {
     }
 
     public void setRecyclerEndLessScroll(){
-        mPicsRecyclerView.addOnScrollListener(new EndLessScrollListener(mPicGridLayOut) {
+        mEndLessScrollListener = new EndLessScrollListener(mPicGridLayOut) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-               unSplash30Call();
+                unSplash30Call();
             }
-        });
+        };
+        mPicsRecyclerView.addOnScrollListener(mEndLessScrollListener);
     }
 
     public void unSplash30Call(){
@@ -107,6 +107,14 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void onSuccess(@io.reactivex.annotations.NonNull List<SplashPic> splashPics) {
                         mAllPictures.addAll(splashPics);
+
+                        mEndLessScrollListener = new EndLessScrollListener(mPicGridLayOut) {
+                            @Override
+                            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                                unSplash30Call();
+                            }
+                        };
+
                         Log.d("Size", String.valueOf(mAllPictures.size()));
                         mSplashPicsAdapter = new SplashPicsAdapter(getBaseContext(), mAllPictures);
                         //this picture setting deserves further research
@@ -131,6 +139,7 @@ public class MainActivity extends BaseActivity {
         if(mAllPictures.size() == 0) {
             unSplash30Call();
         }
+        setRecyclerEndLessScroll();
     }
 
 
@@ -161,7 +170,6 @@ public class MainActivity extends BaseActivity {
                     }
                 });
 
-
             } else if (result == RESULT_CANCELED) {
                 finish();
             }
@@ -173,6 +181,9 @@ public class MainActivity extends BaseActivity {
         super.onPause();
         if (mAuthListener != null) {
             mFireBaseAuth.removeAuthStateListener(mAuthListener);
+        }
+        if (mEndLessScrollListener != null){
+            mPicsRecyclerView.removeOnScrollListener(mEndLessScrollListener);
         }
     }
 
