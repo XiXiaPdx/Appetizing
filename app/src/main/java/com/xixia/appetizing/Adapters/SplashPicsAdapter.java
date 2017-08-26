@@ -2,6 +2,7 @@ package com.xixia.appetizing.Adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,6 +50,12 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
     @Override
     public int getItemCount() {
         return mPictures.size();
+    }
+
+    public void morePicturesLoaded(List<SplashPic> morePictures){
+        mPictures = morePictures;
+        Log.d("Size", String.valueOf(mPictures.size()));
+        notifyDataSetChanged();
     }
 
     public class PictureViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{

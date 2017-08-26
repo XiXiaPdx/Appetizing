@@ -20,6 +20,7 @@ import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.Models.UserProfile;
 import com.xixia.appetizing.R;
 import com.xixia.appetizing.Services.EndLessScrollListener;
+import com.xixia.appetizing.Services.SpinnerService;
 import com.xixia.appetizing.Services.UnSplashClient;
 import com.xixia.appetizing.Services.UnSplashServiceGenerator;
 
@@ -45,11 +46,13 @@ public class MainActivity extends BaseActivity {
     private StaggeredGridLayoutManager mPicGridLayOut;
     private EndLessScrollListener mEndLessScrollListener;
     private List<SplashPic> mAllPictures = new ArrayList<>();
+    private SpinnerService mSpinnerService;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        mSpinnerService = new SpinnerService(this);
         mSplashPicsAdapter = new SplashPicsAdapter();
         //what other features of staggered grid can we do???
         mPicGridLayOut = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
@@ -92,7 +95,7 @@ public class MainActivity extends BaseActivity {
     }
 
     public void unSplash30Call(){
-
+        mSpinnerService.showSpinner();
         UnSplashClient client = UnSplashServiceGenerator.createService(UnSplashClient.class);
         Single<List<SplashPic>> call = client.pictures(Constants.UNSPLASH_ID);
         call
@@ -106,20 +109,16 @@ public class MainActivity extends BaseActivity {
 
                     @Override
                     public void onSuccess(@io.reactivex.annotations.NonNull List<SplashPic> splashPics) {
+                        mSpinnerService.removeSpinner();
                         mAllPictures.addAll(splashPics);
-
-                        mEndLessScrollListener = new EndLessScrollListener(mPicGridLayOut) {
-                            @Override
-                            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                                unSplash30Call();
-                            }
-                        };
-
-                        Log.d("Size", String.valueOf(mAllPictures.size()));
-                        mSplashPicsAdapter = new SplashPicsAdapter(getBaseContext(), mAllPictures);
-                        //this picture setting deserves further research
-                        mPicsRecyclerView.setHasFixedSize(true);
-                        mPicsRecyclerView.setAdapter(mSplashPicsAdapter);
+                        if(mAllPictures.size() == 30) {
+                            mSplashPicsAdapter = new SplashPicsAdapter(getBaseContext(), mAllPictures);
+                            //this picture setting deserves further research
+                            mPicsRecyclerView.setHasFixedSize(true);
+                            mPicsRecyclerView.setAdapter(mSplashPicsAdapter);
+                        } else {
+                            mSplashPicsAdapter.morePicturesLoaded(mAllPictures);
+                        }
                     }
 
                     @Override
