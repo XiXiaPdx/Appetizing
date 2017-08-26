@@ -46,13 +46,12 @@ public class MainActivity extends BaseActivity {
     private StaggeredGridLayoutManager mPicGridLayOut;
     private EndLessScrollListener mEndLessScrollListener;
     private List<SplashPic> mAllPictures = new ArrayList<>();
-    private SpinnerService mSpinnerService;
+    private Boolean notCurrentlyLoading;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        mSpinnerService = new SpinnerService(this);
         mSplashPicsAdapter = new SplashPicsAdapter();
         //what other features of staggered grid can we do???
         mPicGridLayOut = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
@@ -88,14 +87,16 @@ public class MainActivity extends BaseActivity {
         mEndLessScrollListener = new EndLessScrollListener(mPicGridLayOut) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                unSplash30Call();
+                while(notCurrentlyLoading) {
+                    notCurrentlyLoading = false;
+                    unSplash30Call();
+                }
             }
         };
         mPicsRecyclerView.addOnScrollListener(mEndLessScrollListener);
     }
 
     public void unSplash30Call(){
-        mSpinnerService.showSpinner();
         UnSplashClient client = UnSplashServiceGenerator.createService(UnSplashClient.class);
         Single<List<SplashPic>> call = client.pictures(Constants.UNSPLASH_ID);
         call
@@ -109,7 +110,6 @@ public class MainActivity extends BaseActivity {
 
                     @Override
                     public void onSuccess(@io.reactivex.annotations.NonNull List<SplashPic> splashPics) {
-                        mSpinnerService.removeSpinner();
                         mAllPictures.addAll(splashPics);
                         if(mAllPictures.size() == 30) {
                             mSplashPicsAdapter = new SplashPicsAdapter(getBaseContext(), mAllPictures);
@@ -119,6 +119,7 @@ public class MainActivity extends BaseActivity {
                         } else {
                             mSplashPicsAdapter.morePicturesLoaded(mAllPictures);
                         }
+                        notCurrentlyLoading = true;
                     }
 
                     @Override
@@ -138,6 +139,7 @@ public class MainActivity extends BaseActivity {
         if(mAllPictures.size() == 0) {
             unSplash30Call();
         }
+        notCurrentlyLoading = true;
         setRecyclerEndLessScroll();
     }
 

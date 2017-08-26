@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
+import com.xixia.appetizing.Constants;
 import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.R;
 import com.xixia.appetizing.Services.EndLessScrollListener;
@@ -53,9 +54,10 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
     }
 
     public void morePicturesLoaded(List<SplashPic> morePictures){
+        int itemStart = mPictures.size();
         mPictures = morePictures;
         Log.d("Size", String.valueOf(mPictures.size()));
-        notifyDataSetChanged();
+        notifyItemRangeInserted(itemStart, morePictures.size());
     }
 
     public class PictureViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -69,7 +71,14 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
         };
 
         public void bindPicture (SplashPic picture){
-            Picasso.with(pictureViewContext).load(picture.getUrls().getRegular()).into(mPictureView);
+            Picasso
+                    .with(pictureViewContext)
+                    .load(picture.getUrls()
+                            .getRegular())
+                    .resize(Constants.MAX_Width, Constants.MAX_Height)
+                    .onlyScaleDown()
+                    .centerCrop()
+                    .into(mPictureView);
         }
 
         @Override
