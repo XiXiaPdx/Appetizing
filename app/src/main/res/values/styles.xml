@@ -16,6 +16,28 @@
         <item name="colorControlActivated">@color/colorPrimaryDark</item>
         <item name="colorControlHighlight">@color/colorLightBlue</item>
         <item name="android:windowBackground">@color/cardview_dark_background</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:textColorPrimary">@color/colorPrimaryDark</item>
+        <item name="android:textColorSecondary">@color/colorLightBlue</item>
+        <item name="android:textColorHint">@color/colorLightBlue</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="FirebaseUI.Text">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/colorLightBlue</item>
+    </style>
+
+    <style name="FirebaseUI.TextInputEditText.EmailField">
+        <item name="android:inputType">textEmailAddress</item>
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="FirebaseUI.TextInputEditText.PasswordField">
+        <item name="android:inputType">textPassword</item>
+        <item name="android:textSize">24sp</item>
     </style>
 
 </resources>

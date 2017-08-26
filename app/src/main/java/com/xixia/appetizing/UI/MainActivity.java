@@ -3,9 +3,9 @@ package com.xixia.appetizing.UI;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
-import android.widget.Toast;
-
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -14,6 +14,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.xixia.appetizing.Adapters.SplashPicsAdapter;
 import com.xixia.appetizing.Constants;
 import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.Models.UserProfile;
@@ -24,24 +25,31 @@ import com.xixia.appetizing.Services.UnSplashServiceGenerator;
 import java.util.Arrays;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MainActivity extends BaseActivity {
     private FirebaseDatabase mFireBaseDatabase;
     private FirebaseAuth mFireBaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private static final int RC_SIGN_IN = 1;
+    @BindView(R.id.PicsRecycler) RecyclerView mPicsRecyclerView;
+    private SplashPicsAdapter mSplashPicsAdapter;
+    private StaggeredGridLayoutManager picGridLayOut;
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+        mSplashPicsAdapter = new SplashPicsAdapter();
+        picGridLayOut = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        mPicsRecyclerView.setLayoutManager(picGridLayOut);
         mFireBaseDatabase = FirebaseDatabase.getInstance();
         mFireBaseAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -84,7 +92,9 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public void onSuccess(@io.reactivex.annotations.NonNull List<SplashPic> splashPics) {
-                Log.d("Success", splashPics.toString());
+                mSplashPicsAdapter = new SplashPicsAdapter(getBaseContext(), splashPics);
+                mPicsRecyclerView.setHasFixedSize(true);
+                mPicsRecyclerView.setAdapter(mSplashPicsAdapter);
             }
 
             @Override
@@ -93,20 +103,6 @@ public class MainActivity extends BaseActivity {
 
             }
         });
-
-
-//        Call<List<SplashPic>> call = client.pictures(Constants.UNSPLASH_ID);
-//        call.enqueue(new Callback<List<SplashPic>>() {
-//            @Override
-//            public void onResponse(Call<List<SplashPic>> call, Response<List<SplashPic>> response) {
-//                Toast.makeText(MainActivity.this, response.body().get(0).getId(), Toast.LENGTH_SHORT).show();
-//            }
-//
-//            @Override
-//            public void onFailure(Call<List<SplashPic>> call, Throwable t) {
-//                Log.d("ERROR", t.toString());
-//            }
-//        });
     }
 
 
