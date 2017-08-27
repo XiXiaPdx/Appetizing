@@ -64,7 +64,7 @@ public class MainActivity extends BaseActivity {
         mFireBaseAuth = FirebaseAuth.getInstance();
         setAuthListner();
         mAllPictures = AppDataSingleton.getmAllPictures();
-        mSplashPicsAdapter = new SplashPicsAdapter(getBaseContext(), mAllPictures);
+        mSplashPicsAdapter = new SplashPicsAdapter(this, mAllPictures);
         //this picture setting deserves further research
         mPicsRecyclerView.setHasFixedSize(true);
         mPicsRecyclerView.setAdapter(mSplashPicsAdapter);

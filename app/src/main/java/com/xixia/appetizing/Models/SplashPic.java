@@ -8,7 +8,7 @@ import org.parceler.Parcel;
 @Parcel
 public class SplashPic {
     private String id;
-    private String description;
+    private String foodDescription;
     private PicUrls urls;
     private PhotographerName user;
     private PhotographerPage links;
@@ -23,12 +23,12 @@ public class SplashPic {
         this.id = id;
     }
 
-    public String getDescription() {
-        return description;
+    public String getFoodDescription() {
+        return foodDescription;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setFoodDescription(String foodDescription) {
+        this.foodDescription = foodDescription;
     }
 
     public PicUrls getUrls() {

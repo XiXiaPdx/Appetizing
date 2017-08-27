@@ -1,6 +1,9 @@
 package com.xixia.appetizing.Adapters;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -61,12 +64,14 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
     public class PictureViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         @BindView(R.id.pictureItemView) ImageView mPictureView;
         @BindView(R.id.photographer) TextView mPhotographerName;
+        @BindView(R.id.foodDescription) TextView mFoodDescription;
         private Context pictureViewContext;
 
         public PictureViewHolder(View itemView){
             super(itemView);
             ButterKnife.bind(this, itemView);
             pictureViewContext = itemView.getContext();
+            mPhotographerName.setOnClickListener(this);
         };
 
         public void bindPicture (SplashPic picture){
@@ -79,14 +84,22 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
                     .centerCrop()
                     .into(mPictureView);
             //set Name here
-            mPhotographerName.setText(picture.getUser().getFirst_name());
+            mPhotographerName.setText("by " + picture.getUser().getFirst_name());
+            if (picture.getFoodDescription() == null) {
+                mFoodDescription.setText("Describe this food");
+            }
         }
 
 
 
         @Override
         public void onClick(View view) {
-
+            if (view == mPhotographerName){
+                String url = mPictures.get(getAdapterPosition()).getLinks().getHtml();
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+                context.startActivity(intent);
+            }
         }
     }
 }
