@@ -13,7 +13,7 @@
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@+id/PicsRecycler" />
 
-    <android.support.v7.widget.RecyclerView
+    <com.xixia.appetizing.Services.SplashRecycler
         android:id="@+id/PicsRecycler"
         android:layout_width="0dp"
         android:layout_height="0dp"

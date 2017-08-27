@@ -20,7 +20,7 @@ import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.Models.UserProfile;
 import com.xixia.appetizing.R;
 import com.xixia.appetizing.Services.EndLessScrollListener;
-import com.xixia.appetizing.Services.SpinnerService;
+import com.xixia.appetizing.Services.SplashRecycler;
 import com.xixia.appetizing.Services.UnSplashClient;
 import com.xixia.appetizing.Services.UnSplashServiceGenerator;
 
@@ -41,7 +41,7 @@ public class MainActivity extends BaseActivity {
     private FirebaseAuth mFireBaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private static final int RC_SIGN_IN = 1;
-    @BindView(R.id.PicsRecycler) RecyclerView mPicsRecyclerView;
+    private  SplashRecycler mPicsRecyclerView;
     private SplashPicsAdapter mSplashPicsAdapter;
     private StaggeredGridLayoutManager mPicGridLayOut;
     private EndLessScrollListener mEndLessScrollListener;
@@ -52,6 +52,7 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        mPicsRecyclerView = findViewById(R.id.PicsRecycler);
         mSplashPicsAdapter = new SplashPicsAdapter();
         //what other features of staggered grid can we do???
         mPicGridLayOut = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
@@ -139,7 +140,6 @@ public class MainActivity extends BaseActivity {
         if(mAllPictures.size() == 0) {
             unSplash30Call();
         }
-        notCurrentlyLoading = true;
         setRecyclerEndLessScroll();
     }
 
