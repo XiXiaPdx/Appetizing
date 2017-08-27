@@ -1,9 +1,11 @@
 package com.xixia.appetizing.Models;
 
+import org.parceler.Parcel;
+
 /**
  * Created by macbook on 8/24/17.
  */
-
+@Parcel
 public class PicUrls {
     private String full;
     private String regular;

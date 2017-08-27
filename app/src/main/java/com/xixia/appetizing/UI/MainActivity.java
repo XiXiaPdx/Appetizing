@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
+
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -19,16 +20,18 @@ import com.xixia.appetizing.Constants;
 import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.Models.UserProfile;
 import com.xixia.appetizing.R;
+import com.xixia.appetizing.Services.AppDataSingleton;
 import com.xixia.appetizing.Services.EndLessScrollListener;
-import com.xixia.appetizing.Services.SplashRecycler;
+import com.xixia.appetizing.Services.SplashCustomRecyclerView;
 import com.xixia.appetizing.Services.UnSplashClient;
 import com.xixia.appetizing.Services.UnSplashServiceGenerator;
+
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
@@ -41,7 +44,7 @@ public class MainActivity extends BaseActivity {
     private FirebaseAuth mFireBaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private static final int RC_SIGN_IN = 1;
-    private  SplashRecycler mPicsRecyclerView;
+    private SplashCustomRecyclerView mPicsRecyclerView;
     private SplashPicsAdapter mSplashPicsAdapter;
     private StaggeredGridLayoutManager mPicGridLayOut;
     private EndLessScrollListener mEndLessScrollListener;
@@ -60,6 +63,12 @@ public class MainActivity extends BaseActivity {
         mFireBaseDatabase = FirebaseDatabase.getInstance();
         mFireBaseAuth = FirebaseAuth.getInstance();
         setAuthListner();
+        mAllPictures = AppDataSingleton.getmAllPictures();
+        mSplashPicsAdapter = new SplashPicsAdapter(getBaseContext(), mAllPictures);
+        //this picture setting deserves further research
+        mPicsRecyclerView.setHasFixedSize(true);
+        mPicsRecyclerView.setAdapter(mSplashPicsAdapter);
+        notCurrentlyLoading = true;
     }
 
     public void setAuthListner(){
@@ -112,14 +121,8 @@ public class MainActivity extends BaseActivity {
                     @Override
                     public void onSuccess(@io.reactivex.annotations.NonNull List<SplashPic> splashPics) {
                         mAllPictures.addAll(splashPics);
-                        if(mAllPictures.size() == 30) {
-                            mSplashPicsAdapter = new SplashPicsAdapter(getBaseContext(), mAllPictures);
-                            //this picture setting deserves further research
-                            mPicsRecyclerView.setHasFixedSize(true);
-                            mPicsRecyclerView.setAdapter(mSplashPicsAdapter);
-                        } else {
-                            mSplashPicsAdapter.morePicturesLoaded(mAllPictures);
-                        }
+                        AppDataSingleton.setmAllPictures(mAllPictures);
+                        mSplashPicsAdapter.morePicturesLoaded(mAllPictures);
                         notCurrentlyLoading = true;
                     }
 
@@ -137,12 +140,8 @@ public class MainActivity extends BaseActivity {
         if (mAuthListener != null) {
             mFireBaseAuth.addAuthStateListener(mAuthListener);
         }
-        if(mAllPictures.size() == 0) {
-            unSplash30Call();
-        }
         setRecyclerEndLessScroll();
     }
-
 
     @Override
     public void onActivityResult(int request, int result, Intent data) {

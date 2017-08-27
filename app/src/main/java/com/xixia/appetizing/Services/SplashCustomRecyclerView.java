@@ -9,16 +9,16 @@ import android.util.AttributeSet;
  * Created by macbook on 8/26/17.
  */
 
-public class SplashRecycler extends RecyclerView {
-    public SplashRecycler(Context context) {
+public class SplashCustomRecyclerView extends RecyclerView {
+    public SplashCustomRecyclerView(Context context) {
         super(context);
     }
 
-    public SplashRecycler(Context context, @Nullable AttributeSet attrs) {
+    public SplashCustomRecyclerView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public SplashRecycler(Context context, @Nullable AttributeSet attrs, int defStyle) {
+    public SplashCustomRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
