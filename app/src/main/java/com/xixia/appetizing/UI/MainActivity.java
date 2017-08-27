@@ -1,5 +1,6 @@
 package com.xixia.appetizing.UI;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -181,33 +182,51 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks, O
     @Override
     public void onActivityResult(int request, int result, Intent data) {
         super.onActivityResult(request, result, data);
-        if (request == RC_SIGN_IN) {
-            if (result == RESULT_OK) {
-                final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                final DatabaseReference mUserRef = mFireBaseDatabase.getReference(getString(R.string.user_node));
+        switch (request){
+            case RC_SIGN_IN:
+                switch (result){
+                    case RESULT_OK:
+                        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                        final DatabaseReference mUserRef = mFireBaseDatabase.getReference(getString(R.string.user_node));
 
-                //query for current user UID. If it exists, the snapshot will be NOT NULl. No new profile created. If null, new user and new profile created.
-                mUserRef.orderByChild("mUserUID").equalTo(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.getValue() == null){
-                            String username = user.getDisplayName();
-                            String useremail = user.getEmail();
-                            String userUID = user.getUid();
-                            UserProfile newUser = new UserProfile(username, useremail, userUID);
-                            mUserRef.child(userUID).setValue(newUser);
-                        }
-                    }
+                        //query for current user UID. If it exists, the snapshot will be NOT NULl. No new profile created. If null, new user and new profile created.
+                        mUserRef.orderByChild("mUserUID").equalTo(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.getValue() == null){
+                                    String username = user.getDisplayName();
+                                    String useremail = user.getEmail();
+                                    String userUID = user.getUid();
+                                    UserProfile newUser = new UserProfile(username, useremail, userUID);
+                                    mUserRef.child(userUID).setValue(newUser);
+                                }
+                            }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
 
-                    }
-                });
-
-            } else if (result == RESULT_CANCELED) {
-                finish();
-            }
+                            }
+                        });
+                        break;
+                    case RESULT_CANCELED:
+                        finish();
+                        break;
+                }
+                break;
+            case 1000:
+                switch (result) {
+                    case Activity.RESULT_OK:
+                        // All required changes were successfully made
+                        getLocation();
+                        break;
+                    case Activity.RESULT_CANCELED:
+                        // The user was asked to change settings, but chose not to
+                        Toast.makeText(this, "Location Service not Enabled", Toast.LENGTH_SHORT).show();
+                        break;
+                    default:
+                        break;
+                }
+                break;
         }
     }
 
