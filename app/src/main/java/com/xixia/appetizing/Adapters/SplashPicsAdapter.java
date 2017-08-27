@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.xixia.appetizing.Constants;
@@ -59,6 +60,7 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
 
     public class PictureViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         @BindView(R.id.pictureItemView) ImageView mPictureView;
+        @BindView(R.id.photographer) TextView mPhotographerName;
         private Context pictureViewContext;
 
         public PictureViewHolder(View itemView){
@@ -76,7 +78,11 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
                     .onlyScaleDown()
                     .centerCrop()
                     .into(mPictureView);
+            //set Name here
+            mPhotographerName.setText(picture.getUser().getFirst_name());
         }
+
+
 
         @Override
         public void onClick(View view) {

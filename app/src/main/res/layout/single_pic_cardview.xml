@@ -1,25 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/card_view"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="400dp"
     android:layout_marginBottom="16dp"
     card_view:cardCornerRadius="8dp"
     card_view:cardUseCompatPadding="true">
 
-    <RelativeLayout
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/pictureItemView"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
             android:scaleType="centerCrop"
-            android:src="@mipmap/ic_launcher_round" />
+            android:src="@mipmap/ic_launcher_round"
+            card_view:layout_constraintBottom_toBottomOf="parent"
+            card_view:layout_constraintHorizontal_bias="0.5"
+            card_view:layout_constraintLeft_toLeftOf="parent"
+            card_view:layout_constraintRight_toRightOf="parent"
+            card_view:layout_constraintTop_toTopOf="parent"
+            card_view:layout_constraintVertical_bias="0.003" />
 
-    </RelativeLayout>
+        <TextView
+            android:id="@+id/photographer"
+            android:layout_width="179dp"
+            android:layout_height="24dp"
+            android:layout_marginLeft="-7dp"
+            android:layout_marginTop="8dp"
+            android:text="TextView"
+            card_view:layout_constraintLeft_toLeftOf="@+id/pictureItemView"
+            card_view:layout_constraintTop_toBottomOf="@+id/pictureItemView" />
+
+    </android.support.constraint.ConstraintLayout>
 
 </android.support.v7.widget.CardView>

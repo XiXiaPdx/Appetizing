@@ -10,6 +10,8 @@ public class SplashPic {
     private String id;
     private String description;
     private PicUrls urls;
+    private PhotographerName user;
+    private PhotographerPage links;
 
     public SplashPic (){}
 
@@ -35,5 +37,13 @@ public class SplashPic {
 
     public void setUrls(PicUrls urls) {
         this.urls = urls;
+    }
+
+    public PhotographerName getUser() {
+        return user;
+    }
+
+    public PhotographerPage getLinks() {
+        return links;
     }
 }
