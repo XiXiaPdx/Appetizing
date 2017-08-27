@@ -326,9 +326,9 @@ public class MainActivity extends BaseActivity implements ConnectionCallbacks, O
                 * For this we'll implement Location Listener and override onLocationChanged*/
                 Log.i("Current Location", "No data for location found");
 
-                if (!mGoogleApiClient.isConnected())
-                    mGoogleApiClient.connect();
-                    LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, MainActivity.this);
+//                if (!mGoogleApiClient.isConnected())
+//                    mGoogleApiClient.connect();
+//                    LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, MainActivity.this);
             }
         }
     }
