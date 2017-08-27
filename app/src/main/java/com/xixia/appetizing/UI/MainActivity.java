@@ -179,9 +179,9 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onPause(){
         super.onPause();
-//        if (mAuthListener != null) {
-//            mFireBaseAuth.removeAuthStateListener(mAuthListener);
-//        }
+        if (mAuthListener != null) {
+            mFireBaseAuth.removeAuthStateListener(mAuthListener);
+        }
         if (mEndLessScrollListener != null){
             mPicsRecyclerView.removeOnScrollListener(mEndLessScrollListener);
         }

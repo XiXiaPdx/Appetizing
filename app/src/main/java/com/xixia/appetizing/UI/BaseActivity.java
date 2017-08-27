@@ -44,13 +44,17 @@ public abstract class BaseActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // action with ID action_refresh was selected
             case R.id.action_settings:
-                Toast.makeText(this, "Settings Selected", Toast.LENGTH_SHORT)
-                        .show();
-                Intent intent = new Intent (getBaseContext(), SearchActivity.class);
-                startActivity(intent);
-                overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
+                if(getClass() != SearchActivity.class) {
+                    Intent intent = new Intent(getBaseContext(), SearchActivity.class);
+                    startActivity(intent);
+                    overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
+                }
                 break;
             case R.id.action_logout:
+                Intent intent = new Intent(getBaseContext(), MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
                 AuthUI.getInstance().signOut(this);
                 break;
             case android.R.id.home:
