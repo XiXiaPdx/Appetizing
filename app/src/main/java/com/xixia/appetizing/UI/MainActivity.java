@@ -8,10 +8,13 @@ import android.location.Location;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
@@ -34,6 +37,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 import com.xixia.appetizing.Adapters.SplashPicsAdapter;
 import com.xixia.appetizing.Constants;
 import com.xixia.appetizing.Models.SplashPic;
@@ -50,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
@@ -68,14 +73,17 @@ public class MainActivity extends BaseActivity {
     private EndLessScrollListener mEndLessScrollListener;
     private List<SplashPic> mAllPictures = new ArrayList<>();
     private Boolean notCurrentlyLoading;
-    private GoogleApiClient mGoogleApiClient;
-    private Location mLastLocation;
-    private LocationRequest mLocationRequest;
+    private BottomSheetBehavior mBottomSheetBehavior;
+    @BindView(R.id.bottom_sheet) View mBottomSheet;
+    @BindView(R.id.largeSplashPic) ImageView mLargeSpashPic;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        mBottomSheetBehavior=BottomSheetBehavior.from(mBottomSheet);
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        mBottomSheetBehavior.setPeekHeight(0);
         mPicsRecyclerView = findViewById(R.id.PicsRecycler);
         mSplashPicsAdapter = new SplashPicsAdapter();
         //what other features of staggered grid can we do???
@@ -90,6 +98,18 @@ public class MainActivity extends BaseActivity {
         mPicsRecyclerView.setHasFixedSize(true);
         mPicsRecyclerView.setAdapter(mSplashPicsAdapter);
         notCurrentlyLoading = true;
+        changePic();
+    }
+
+    public void changePic(){
+        Picasso
+                .with(this)
+                .load(mAllPictures.get(0).getUrls()
+                        .getRegular())
+                .resize(Constants.MAX_Width+250, Constants.MAX_Height+250)
+                .onlyScaleDown()
+                .centerCrop()
+                .into(mLargeSpashPic);
     }
 
     public void setAuthListner(){
