@@ -2,14 +2,9 @@ package com.xixia.appetizing.UI;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.IntentSender;
-import android.content.pm.PackageManager;
-import android.location.Location;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
@@ -18,18 +13,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStates;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -62,7 +45,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements SplashPicsAdapter.OpenBottomSheet {
     private FirebaseDatabase mFireBaseDatabase;
     private FirebaseAuth mFireBaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -82,7 +65,7 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         mBottomSheetBehavior=BottomSheetBehavior.from(mBottomSheet);
-        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         mBottomSheetBehavior.setPeekHeight(0);
         mPicsRecyclerView = findViewById(R.id.PicsRecycler);
         mSplashPicsAdapter = new SplashPicsAdapter();
@@ -98,13 +81,12 @@ public class MainActivity extends BaseActivity {
         mPicsRecyclerView.setHasFixedSize(true);
         mPicsRecyclerView.setAdapter(mSplashPicsAdapter);
         notCurrentlyLoading = true;
-        changePic();
     }
 
-    public void changePic(){
+    public void changePic(int pictureIndex){
         Picasso
                 .with(this)
-                .load(mAllPictures.get(0).getUrls()
+                .load(mAllPictures.get(pictureIndex).getUrls()
                         .getRegular())
                 .resize(Constants.MAX_Width+250, Constants.MAX_Height+250)
                 .onlyScaleDown()
@@ -245,5 +227,11 @@ public class MainActivity extends BaseActivity {
         if (mEndLessScrollListener != null){
             mPicsRecyclerView.removeOnScrollListener(mEndLessScrollListener);
         }
+    }
+
+    @Override
+    public void openSheet(int pictureIndex) {
+        changePic(pictureIndex);
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 }

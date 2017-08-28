@@ -1,6 +1,5 @@
 package com.xixia.appetizing.Adapters;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -28,11 +27,13 @@ import butterknife.ButterKnife;
 public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.PictureViewHolder>{
     private List<SplashPic> mPictures;
     private Context context;
+    private OpenBottomSheet mOpenBottomsheet;
 
     public SplashPicsAdapter(){}
 
     public SplashPicsAdapter(Context context, List<SplashPic> pictures) {
         super ();
+        mOpenBottomsheet = (OpenBottomSheet) context;
         this.context = context;
         mPictures = pictures;
     }
@@ -72,6 +73,7 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
             ButterKnife.bind(this, itemView);
             pictureViewContext = itemView.getContext();
             mPhotographerName.setOnClickListener(this);
+            mPictureView.setOnClickListener(this);
         };
 
         public void bindPicture (SplashPic picture){
@@ -100,6 +102,14 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
                 intent.setData(Uri.parse(url));
                 context.startActivity(intent);
             }
+
+            if (view == mPictureView) {
+                mOpenBottomsheet.openSheet(getAdapterPosition());
+            }
         }
+    }
+
+    public interface OpenBottomSheet {
+        public void openSheet(int adapterPosition);
     }
 }
