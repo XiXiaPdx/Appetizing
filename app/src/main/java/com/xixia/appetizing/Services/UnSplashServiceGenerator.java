@@ -2,6 +2,8 @@ package com.xixia.appetizing.Services;
 
 import com.xixia.appetizing.Constants;
 
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -22,7 +24,7 @@ public class UnSplashServiceGenerator {
     private static Retrofit retrofit = builder.build();
 
     private static OkHttpClient.Builder httpClient =
-            new OkHttpClient.Builder();
+            new OkHttpClient.Builder().connectTimeout(5, TimeUnit.MINUTES);
 
     private static HttpLoggingInterceptor logging =
             new HttpLoggingInterceptor()

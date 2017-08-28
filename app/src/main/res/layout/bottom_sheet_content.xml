@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:paddingBottom="50dp">
 
     <android.support.v7.widget.CardView
         android:id="@+id/cardViewLargePic"
@@ -20,12 +21,14 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="8dp">
 
-        <ImageView
+                                                         <ImageView
             android:id="@+id/largeSplashPic"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             app:srcCompat="@mipmap/ic_launcher_round" />
+
+
     </android.support.v7.widget.CardView>
     <ImageButton
         android:id="@+id/searchButton"
@@ -49,11 +52,27 @@
         android:background="@drawable/edit_circle"
         android:src="@drawable/ic_mode_edit_white_48dp"
         android:scaleType="centerCrop"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/cardViewLargePic"
         android:layout_marginBottom="8dp"
         android:layout_marginRight="8dp"
         app:layout_constraintRight_toRightOf="parent"
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@+id/searchButton"
         app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/descriptionText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_textview"
+        android:text="TextView fdlksa;fjds;laf"
+        android:textSize="18sp"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/cardViewLargePic"
+        android:layout_marginLeft="24dp"
+        app:layout_constraintLeft_toLeftOf="@+id/cardViewLargePic"
+        android:layout_marginRight="24dp"
+        app:layout_constraintRight_toRightOf="@+id/cardViewLargePic" />
 </android.support.constraint.ConstraintLayout>
