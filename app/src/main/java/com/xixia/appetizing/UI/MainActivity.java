@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -98,7 +99,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 .onlyScaleDown()
                 .centerCrop()
                 .into(mLargeSpashPic);
-        mCardView.setLayoutParams(new LinearLayout.LayoutParams(circleDiameter,circleDiameter));
+        mCardView.setLayoutParams(new ConstraintLayout.LayoutParams(circleDiameter,circleDiameter));
         mCardView.setRadius(circleDiameter/2);
     }
 
@@ -239,6 +240,11 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
     @Override
     public void openSheet(int pictureIndex) {
+        switch (mBottomSheetBehavior.getState()){
+            case BottomSheetBehavior.STATE_EXPANDED:
+                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                break;
+        }
         changePic(pictureIndex);
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
