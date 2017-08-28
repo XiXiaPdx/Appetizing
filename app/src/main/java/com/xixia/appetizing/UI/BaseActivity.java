@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.xixia.appetizing.R;
+import com.xixia.appetizing.Services.GpsService;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
@@ -45,6 +46,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             // action with ID action_refresh was selected
             case R.id.action_settings:
                 if(getClass() != SearchActivity.class) {
+                    GpsService.getLocation(this);
                     Intent intent = new Intent(getBaseContext(), SearchActivity.class);
                     startActivity(intent);
                     overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
