@@ -1,15 +1,18 @@
 package com.xixia.appetizing.UI;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
@@ -59,6 +62,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     private BottomSheetBehavior mBottomSheetBehavior;
     @BindView(R.id.bottom_sheet) View mBottomSheet;
     @BindView(R.id.largeSplashPic) ImageView mLargeSpashPic;
+    @BindView(R.id.cardViewLargePic) CardView mCardView;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,6 +88,8 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     }
 
     public void changePic(int pictureIndex){
+        android.view.Display display = ((android.view.WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        int circleDiameter = (int)((double) display.getWidth()* .8);
         Picasso
                 .with(this)
                 .load(mAllPictures.get(pictureIndex).getUrls()
@@ -92,6 +98,8 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 .onlyScaleDown()
                 .centerCrop()
                 .into(mLargeSpashPic);
+        mCardView.setLayoutParams(new LinearLayout.LayoutParams(circleDiameter,circleDiameter));
+        mCardView.setRadius(circleDiameter/2);
     }
 
     public void setAuthListner(){

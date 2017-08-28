@@ -6,14 +6,14 @@
 
     <android.support.v7.widget.CardView
         android:id="@+id/cardViewLargePic"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
         android:elevation="12dp"
         android:innerRadius="0dp"
         android:shape="ring"
         android:layout_gravity="center_horizontal"
         android:thicknessRatio="1.9"
-        app:cardCornerRadius="150dp">
+        app:cardCornerRadius="125dp">
 
         <ImageView
             android:id="@+id/largeSplashPic"
