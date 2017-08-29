@@ -8,6 +8,7 @@ import java.util.List;
 import io.reactivex.Single;
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Headers;
 import retrofit2.http.Query;
 
 /**
@@ -15,6 +16,7 @@ import retrofit2.http.Query;
  */
 
 public interface UnSplashClient {
+    @Headers("Accept-Version: v1")
     @GET("?query=food&count=30")
     Single<List<SplashPic>> pictures(
             @Query(Constants.UNSPLASH_CLIENT_ID) String clientID

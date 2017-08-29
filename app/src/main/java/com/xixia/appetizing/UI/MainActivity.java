@@ -18,7 +18,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
@@ -35,6 +34,7 @@ import com.squareup.picasso.Picasso;
 import com.xixia.appetizing.Adapters.SplashPicsAdapter;
 import com.xixia.appetizing.Constants;
 import com.xixia.appetizing.Models.SplashPic;
+import com.xixia.appetizing.Models.UserDescription;
 import com.xixia.appetizing.Models.UserProfile;
 import com.xixia.appetizing.R;
 import com.xixia.appetizing.Services.AppDataSingleton;
@@ -60,6 +60,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     private FirebaseDatabase mFireBaseDatabase;
     private FirebaseAuth mFireBaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private FirebaseUser mFirebaseUser;
     private static final int RC_SIGN_IN = 1;
     private SplashCustomRecyclerView mPicsRecyclerView;
     private SplashPicsAdapter mSplashPicsAdapter;
@@ -68,6 +69,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     private List<SplashPic> mAllPictures = new ArrayList<>();
     private Boolean notCurrentlyLoading;
     private BottomSheetBehavior mBottomSheetBehavior;
+    private SplashPic mSelectedPic;
     @BindView(R.id.bottom_sheet) View mBottomSheet;
     @BindView(R.id.largeSplashPic) ImageView mLargeSpashPic;
     @BindView(R.id.cardViewLargePic) CardView mCardView;
@@ -85,7 +87,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         mEditButton.setOnClickListener(this);
         mSubmitEditButton.setOnClickListener(this);
         mSearchButton.setOnClickListener(this);
-
         Animation in = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left);
         Animation out = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
         mViewSwitcher.setInAnimation(in);
@@ -109,31 +110,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         notCurrentlyLoading = true;
     }
 
-    public void changePic(int pictureIndex){
-        android.view.Display display = ((android.view.WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        int circleDiameter = (int)((double) display.getWidth()* .8);
-        SplashPic selectedPic = mAllPictures.get(pictureIndex);
-
-        Picasso
-                .with(this)
-                .load(selectedPic.getUrls()
-                        .getRegular())
-                .resize(Constants.MAX_Width+250, Constants.MAX_Height+250)
-                .onlyScaleDown()
-                .centerCrop()
-                .into(mLargeSpashPic);
-        mCardView.setLayoutParams(new ConstraintLayout.LayoutParams(circleDiameter,circleDiameter));
-        mCardView.setRadius(circleDiameter/2);
-        try {
-            String foodDescription = selectedPic.getFoodDescription();
-            if (foodDescription.length() == 0){
-                mDescriptionText.setText(getString(R.string.what_to_eat));
-            } else
-            mDescriptionText.setText(foodDescription);
-        } catch (NullPointerException e){
-
-        }
-    }
 
     public void setAuthListner(){
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -141,6 +117,8 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser currentUser = firebaseAuth.getCurrentUser();
                 if (currentUser != null){
+                    mFirebaseUser = currentUser;
+
                 } else {
                     startActivityForResult(
                             AuthUI.getInstance()
@@ -215,17 +193,17 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             case RC_SIGN_IN:
                 switch (result){
                     case RESULT_OK:
-                        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                        mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                         final DatabaseReference mUserRef = mFireBaseDatabase.getReference(getString(R.string.user_node));
 
                         //query for current user UID. If it exists, the snapshot will be NOT NULl. No new profile created. If null, new user and new profile created.
-                        mUserRef.orderByChild("mUserUID").equalTo(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        mUserRef.orderByChild("mUserUID").equalTo(mFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 if (dataSnapshot.getValue() == null){
-                                    String username = user.getDisplayName();
-                                    String useremail = user.getEmail();
-                                    String userUID = user.getUid();
+                                    String username = mFirebaseUser.getDisplayName();
+                                    String useremail = mFirebaseUser.getEmail();
+                                    String userUID = mFirebaseUser.getUid();
                                     UserProfile newUser = new UserProfile(username, useremail, userUID);
                                     mUserRef.child(userUID).setValue(newUser);
                                 }
@@ -277,8 +255,33 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 break;
         }
-        changePic(pictureIndex);
+        setLargePic(pictureIndex);
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+    }
+
+    public void setLargePic(int pictureIndex){
+        android.view.Display display = ((android.view.WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        int circleDiameter = (int)((double) display.getWidth()* .8);
+        mSelectedPic = mAllPictures.get(pictureIndex);
+        Picasso
+                .with(this)
+                .load(mSelectedPic.getUrls()
+                        .getRegular())
+                .resize(Constants.MAX_Width+250, Constants.MAX_Height+250)
+                .onlyScaleDown()
+                .centerCrop()
+                .into(mLargeSpashPic);
+        mCardView.setLayoutParams(new ConstraintLayout.LayoutParams(circleDiameter,circleDiameter));
+        mCardView.setRadius(circleDiameter/2);
+        try {
+            String foodDescription = mSelectedPic.getFoodDescription();
+            if (foodDescription.length() == 0){
+                mDescriptionText.setText(getString(R.string.what_to_eat));
+            } else
+                mDescriptionText.setText(foodDescription);
+        } catch (NullPointerException e){
+
+        }
     }
 
     @Override
@@ -290,13 +293,29 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 mEditTextField.requestFocus();
                 imm.showSoftInput(mEditTextField, InputMethodManager.SHOW_IMPLICIT);
             } else {
-                imm.hideSoftInputFromWindow(mEditTextField.getWindowToken(), 0);
-                mViewSwitcher.showNext();
+                closeKeyShowNext(imm);
             }
         }
         if(view == mSubmitEditButton){
             String foodDescription = mEditTextField.getText().toString().trim();
-            Toast.makeText(this,foodDescription, Toast.LENGTH_SHORT).show();
+            if(foodDescription.length()!=0) {
+                saveDescriptionToFirebase(foodDescription);
+                closeKeyShowNext(imm);
+            } else
+                Toast.makeText(this, "Need a description", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void closeKeyShowNext(InputMethodManager imm){
+        imm.hideSoftInputFromWindow(mEditTextField.getWindowToken(), 0);
+        mEditTextField.setText("");
+        mViewSwitcher.showNext();
+    }
+
+    public void saveDescriptionToFirebase(String foodDescription){
+        Log.d("SAVE Thjis", foodDescription);
+         DatabaseReference mUserDescriptionsRef = mFireBaseDatabase.getReference(getString(R.string.user_food_description));
+        UserDescription newDescription = new UserDescription(mSelectedPic.getId(), foodDescription);
+         mUserDescriptionsRef.child(mFirebaseUser.getUid()).child(mSelectedPic.getId()).setValue(newDescription);
     }
 }
