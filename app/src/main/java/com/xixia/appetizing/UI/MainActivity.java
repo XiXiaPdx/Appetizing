@@ -12,9 +12,16 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewSwitcher;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
@@ -49,7 +56,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class MainActivity extends BaseActivity implements SplashPicsAdapter.OpenBottomSheet {
+public class MainActivity extends BaseActivity implements SplashPicsAdapter.OpenBottomSheet, View.OnClickListener {
     private FirebaseDatabase mFireBaseDatabase;
     private FirebaseAuth mFireBaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -64,11 +71,20 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     @BindView(R.id.bottom_sheet) View mBottomSheet;
     @BindView(R.id.largeSplashPic) ImageView mLargeSpashPic;
     @BindView(R.id.cardViewLargePic) CardView mCardView;
+    @BindView(R.id.descriptionText) TextView mDescriptionText;
+    @BindView(R.id.viewSwitcher) ViewSwitcher mViewSwitcher;
+    @BindView(R.id.editDescriptionButton) ImageButton mEditButton;
+    @BindView(R.id.editDescriptionText) EditText mEditTextField;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        mEditButton.setOnClickListener(this);
+        Animation in = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left);
+        Animation out = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
+        mViewSwitcher.setInAnimation(in);
+        mViewSwitcher.setOutAnimation(out);
         mBottomSheetBehavior=BottomSheetBehavior.from(mBottomSheet);
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         mBottomSheetBehavior.setPeekHeight(0);
@@ -91,9 +107,11 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     public void changePic(int pictureIndex){
         android.view.Display display = ((android.view.WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         int circleDiameter = (int)((double) display.getWidth()* .8);
+        SplashPic selectedPic = mAllPictures.get(pictureIndex);
+
         Picasso
                 .with(this)
-                .load(mAllPictures.get(pictureIndex).getUrls()
+                .load(selectedPic.getUrls()
                         .getRegular())
                 .resize(Constants.MAX_Width+250, Constants.MAX_Height+250)
                 .onlyScaleDown()
@@ -101,6 +119,15 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 .into(mLargeSpashPic);
         mCardView.setLayoutParams(new ConstraintLayout.LayoutParams(circleDiameter,circleDiameter));
         mCardView.setRadius(circleDiameter/2);
+        try {
+            String foodDescription = selectedPic.getFoodDescription();
+            if (foodDescription.length() == 0){
+                mDescriptionText.setText(getString(R.string.what_to_eat));
+            } else
+            mDescriptionText.setText(foodDescription);
+        } catch (NullPointerException e){
+
+        }
     }
 
     public void setAuthListner(){
@@ -247,5 +274,20 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         }
         changePic(pictureIndex);
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+    }
+
+    @Override
+    public void onClick(View view) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (view == mEditButton){
+            if (mViewSwitcher.getCurrentView() == mDescriptionText ) {
+                mViewSwitcher.showNext();
+                mEditTextField.requestFocus();
+                imm.showSoftInput(mEditTextField, InputMethodManager.SHOW_IMPLICIT);
+            } else {
+                imm.hideSoftInputFromWindow(mEditTextField.getWindowToken(), 0);
+                mViewSwitcher.showNext();
+            }
+        }
     }
 }

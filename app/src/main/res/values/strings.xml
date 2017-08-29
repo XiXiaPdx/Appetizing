@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Appetizing</string>
     <string name="user_node">Users</string>
+    <string name="what_to_eat">Describe food, then find food.</string>
 </resources>
