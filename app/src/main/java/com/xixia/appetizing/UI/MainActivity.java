@@ -23,8 +23,10 @@ import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -67,6 +69,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     private StaggeredGridLayoutManager mPicGridLayOut;
     private EndLessScrollListener mEndLessScrollListener;
     private List<SplashPic> mAllPictures = new ArrayList<>();
+    private List<UserDescription> mDescribedPictures = new ArrayList<>();
     private Boolean notCurrentlyLoading;
     private BottomSheetBehavior mBottomSheetBehavior;
     private SplashPic mSelectedPic;
@@ -118,7 +121,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 FirebaseUser currentUser = firebaseAuth.getCurrentUser();
                 if (currentUser != null){
                     mFirebaseUser = currentUser;
-
+                    setDescribedPictures();
                 } else {
                     startActivityForResult(
                             AuthUI.getInstance()
@@ -206,7 +209,8 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                                     String userUID = mFirebaseUser.getUid();
                                     UserProfile newUser = new UserProfile(username, useremail, userUID);
                                     mUserRef.child(userUID).setValue(newUser);
-                                }
+                                } else
+                                    setDescribedPictures();
                             }
 
                             @Override
@@ -248,7 +252,27 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         }
     }
 
-    @Override
+    public void setDescribedPictures(){
+        DatabaseReference mUserDescriptionsRef = mFireBaseDatabase.getReference(getString(R.string.user_food_description));
+        mUserDescriptionsRef.child(mFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot describedPicture: dataSnapshot.getChildren()) {
+                    UserDescription description  = describedPicture.getValue(UserDescription.class);
+                    mDescribedPictures.add(description);
+                    Log.d("descriptions", description.getFoodDescription());
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+        @Override
     public void openSheet(int pictureIndex) {
         switch (mBottomSheetBehavior.getState()){
             case BottomSheetBehavior.STATE_EXPANDED:
@@ -313,7 +337,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     }
 
     public void saveDescriptionToFirebase(String foodDescription){
-        Log.d("SAVE Thjis", foodDescription);
          DatabaseReference mUserDescriptionsRef = mFireBaseDatabase.getReference(getString(R.string.user_food_description));
         UserDescription newDescription = new UserDescription(mSelectedPic.getId(), foodDescription);
          mUserDescriptionsRef.child(mFirebaseUser.getUid()).child(mSelectedPic.getId()).setValue(newDescription);
