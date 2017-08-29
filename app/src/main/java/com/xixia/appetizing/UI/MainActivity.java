@@ -75,12 +75,17 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     @BindView(R.id.viewSwitcher) ViewSwitcher mViewSwitcher;
     @BindView(R.id.editDescriptionButton) ImageButton mEditButton;
     @BindView(R.id.editDescriptionText) EditText mEditTextField;
+    @BindView(R.id.submitEdit) ImageButton mSubmitEditButton;
+    @BindView(R.id.searchButton) ImageButton mSearchButton;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         mEditButton.setOnClickListener(this);
+        mSubmitEditButton.setOnClickListener(this);
+        mSearchButton.setOnClickListener(this);
+
         Animation in = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left);
         Animation out = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
         mViewSwitcher.setInAnimation(in);
@@ -288,6 +293,10 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 imm.hideSoftInputFromWindow(mEditTextField.getWindowToken(), 0);
                 mViewSwitcher.showNext();
             }
+        }
+        if(view == mSubmitEditButton){
+            String foodDescription = mEditTextField.getText().toString().trim();
+            Toast.makeText(this,foodDescription, Toast.LENGTH_SHORT).show();
         }
     }
 }
