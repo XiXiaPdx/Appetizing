@@ -323,15 +323,14 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
         @Override
     public void openSheet(int pictureIndex) {
+            Log.d("PICTURE", "NUMBER "+ String.valueOf(pictureIndex));
         switch (mBottomSheetBehavior.getState()){
             case BottomSheetBehavior.STATE_EXPANDED:
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 break;
-            case BottomSheetBehavior.STATE_COLLAPSED:
-                setLargePic(pictureIndex);
-                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                break;
         }
+            setLargePic(pictureIndex);
+            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
     public void setBottomSheetCallBack(){
@@ -339,7 +338,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
                 if(mViewSwitcher.getCurrentView() != mDescriptionText && newState == 4) {
-                    Log.d("NOT ", String.valueOf(newState));
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     closeKeyShowNext(imm);
                 }
@@ -366,16 +364,14 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 .into(mLargeSpashPic);
         mCardView.setLayoutParams(new ConstraintLayout.LayoutParams(circleDiameter,circleDiameter));
         mCardView.setRadius(circleDiameter/2);
-        try {
-            String foodDescription = mSelectedPic.getFoodDescription();
-            if (foodDescription.length() == 0){
+        String foodDescription = mSelectedPic.getFoodDescription();
+            if (foodDescription == null || foodDescription.length() == 0){
                 mDescriptionText.setText(getString(R.string.what_to_eat));
+                Log.d("IF BLANK  DESCRIPTION", mDescriptionText.getText().toString());
             } else {
                 mDescriptionText.setText(foodDescription);
+                Log.d("NOT BLANK  DESCRIPTION", mDescriptionText.getText().toString());
             }
-        } catch (NullPointerException e){
-
-        }
     }
 
     @Override
