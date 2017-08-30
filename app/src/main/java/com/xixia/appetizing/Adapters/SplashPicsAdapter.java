@@ -62,6 +62,10 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
         notifyItemRangeInserted(itemStart, morePictures.size());
     }
 
+    public void descriptionAdded(int position){
+        notifyItemChanged(position);
+    }
+
     public class PictureViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         @BindView(R.id.pictureItemView) ImageView mPictureView;
         @BindView(R.id.photographer) TextView mPhotographerName;
@@ -89,7 +93,8 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
             mPhotographerName.setText("by " + picture.getUser().getFirst_name());
             if (picture.getFoodDescription() == null) {
                 mFoodDescription.setText("Describe this food");
-            }
+            } else
+                mFoodDescription.setText(picture.getFoodDescription());
         }
 
 

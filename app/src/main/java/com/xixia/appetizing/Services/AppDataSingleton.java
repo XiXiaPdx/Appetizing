@@ -1,7 +1,9 @@
 package com.xixia.appetizing.Services;
 
 import com.xixia.appetizing.Models.SplashPic;
+import com.xixia.appetizing.Models.DescribedPicture;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,7 +16,8 @@ public class AppDataSingleton {
         return ourInstance;
     }
 
-    public static List<SplashPic> mAllPictures;
+    private static List<SplashPic> mAllPictures;
+    private static List<DescribedPicture> mDescribedPictures = new ArrayList<>();
 
 
     private AppDataSingleton() {
@@ -26,5 +29,29 @@ public class AppDataSingleton {
 
     public static void setmAllPictures(List<SplashPic> mAllPictures) {
         AppDataSingleton.mAllPictures = mAllPictures;
+    }
+
+
+    public static void addToDescribedPictures(DescribedPicture pic){
+        AppDataSingleton.mDescribedPictures.size();
+        pic.getFoodDescription();
+        AppDataSingleton.mDescribedPictures.add(pic);
+    }
+
+    public static List<DescribedPicture> getmDescribedPictures() {
+        return mDescribedPictures;
+    }
+
+    public static void setmDescribedPictures(List<DescribedPicture> mDescribedPictures) {
+        AppDataSingleton.mDescribedPictures = mDescribedPictures;
+    }
+
+    public static void clearmDescribedPictures() {
+        AppDataSingleton.mDescribedPictures = new ArrayList<>();
+    }
+
+    public static void clearAppData(){
+        clearmDescribedPictures();
+        AppDataSingleton.mAllPictures = new ArrayList<>();
     }
 }

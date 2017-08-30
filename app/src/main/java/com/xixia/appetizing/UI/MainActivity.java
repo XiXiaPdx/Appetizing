@@ -23,7 +23,6 @@ import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -36,7 +35,7 @@ import com.squareup.picasso.Picasso;
 import com.xixia.appetizing.Adapters.SplashPicsAdapter;
 import com.xixia.appetizing.Constants;
 import com.xixia.appetizing.Models.SplashPic;
-import com.xixia.appetizing.Models.UserDescription;
+import com.xixia.appetizing.Models.DescribedPicture;
 import com.xixia.appetizing.Models.UserProfile;
 import com.xixia.appetizing.R;
 import com.xixia.appetizing.Services.AppDataSingleton;
@@ -69,10 +68,10 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     private StaggeredGridLayoutManager mPicGridLayOut;
     private EndLessScrollListener mEndLessScrollListener;
     private List<SplashPic> mAllPictures = new ArrayList<>();
-    private List<UserDescription> mDescribedPictures = new ArrayList<>();
     private Boolean notCurrentlyLoading;
     private BottomSheetBehavior mBottomSheetBehavior;
     private SplashPic mSelectedPic;
+    private ChildEventListener mDescribedFoodListener;
     @BindView(R.id.bottom_sheet) View mBottomSheet;
     @BindView(R.id.largeSplashPic) ImageView mLargeSpashPic;
     @BindView(R.id.cardViewLargePic) CardView mCardView;
@@ -104,24 +103,23 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         mPicsRecyclerView.setLayoutManager(mPicGridLayOut);
         mFireBaseDatabase = FirebaseDatabase.getInstance();
         mFireBaseAuth = FirebaseAuth.getInstance();
-        setAuthListner();
         mAllPictures = AppDataSingleton.getmAllPictures();
-        mSplashPicsAdapter = new SplashPicsAdapter(this, mAllPictures);
-        //this picture setting deserves further research
-        mPicsRecyclerView.setHasFixedSize(true);
-        mPicsRecyclerView.setAdapter(mSplashPicsAdapter);
+        setmPicsRecyclerView();
         notCurrentlyLoading = true;
+        Log.d("CREATE", "CREATE");
+        createAuthListener();
     }
 
-
-    public void setAuthListner(){
+    public void createAuthListener(){
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser currentUser = firebaseAuth.getCurrentUser();
                 if (currentUser != null){
                     mFirebaseUser = currentUser;
-                    setDescribedPictures();
+                    if (mDescribedFoodListener == null) {
+                        setDescribedPictures();
+                    }
                 } else {
                     startActivityForResult(
                             AuthUI.getInstance()
@@ -138,7 +136,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         };
     }
 
-    public void setRecyclerEndLessScroll(){
+    public void createRecyclerEndLessScroll(){
         mEndLessScrollListener = new EndLessScrollListener(mPicGridLayOut) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
@@ -148,7 +146,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 }
             }
         };
-        mPicsRecyclerView.addOnScrollListener(mEndLessScrollListener);
     }
 
     public void unSplash30Call(){
@@ -165,10 +162,16 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
                     @Override
                     public void onSuccess(@io.reactivex.annotations.NonNull List<SplashPic> splashPics) {
-                        mAllPictures.addAll(splashPics);
+                        //possible this might get triggered too soon when main loads...
+
+                        //filter new pics through described
+                        List<SplashPic> descriptionAddedPics =  matchNewPicsWithDescribed(splashPics);
+
+                        mAllPictures.addAll(descriptionAddedPics);
                         AppDataSingleton.setmAllPictures(mAllPictures);
                         mSplashPicsAdapter.morePicturesLoaded(mAllPictures);
                         notCurrentlyLoading = true;
+
                     }
 
                     @Override
@@ -180,18 +183,19 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     }
 
     @Override
-    public void onResume(){
-        super.onResume();
+    public void onStart(){
+        super.onStart();
+        Log.d("START", "STARt");
         if (mAuthListener != null) {
             mFireBaseAuth.addAuthStateListener(mAuthListener);
         }
-        setRecyclerEndLessScroll();
-        GpsService.getInstance(this);
     }
 
     @Override
     public void onActivityResult(int request, int result, Intent data) {
         super.onActivityResult(request, result, data);
+        Log.d("RESULT", "RESULT");
+
         switch (request){
             case RC_SIGN_IN:
                 switch (result){
@@ -242,8 +246,21 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     }
 
     @Override
+    public void onResume(){
+        super.onResume();
+        Log.d("onRESUME", "RESUME");
+        createRecyclerEndLessScroll();
+        if (mEndLessScrollListener != null){
+            mPicsRecyclerView.addOnScrollListener(mEndLessScrollListener);
+        }
+        GpsService.getInstance(this);
+    }
+
+    @Override
     public void onPause(){
         super.onPause();
+        Log.d("PAUSE", "PAUSE");
+
         if (mAuthListener != null) {
             mFireBaseAuth.removeAuthStateListener(mAuthListener);
         }
@@ -253,22 +270,51 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     }
 
     public void setDescribedPictures(){
-        DatabaseReference mUserDescriptionsRef = mFireBaseDatabase.getReference(getString(R.string.user_food_description));
-        mUserDescriptionsRef.child(mFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot describedPicture: dataSnapshot.getChildren()) {
-                    UserDescription description  = describedPicture.getValue(UserDescription.class);
-                    mDescribedPictures.add(description);
-                    Log.d("descriptions", description.getFoodDescription());
+        if (mDescribedFoodListener == null) {
+            DatabaseReference mUserDescriptionsRef = mFireBaseDatabase.getReference(getString(R.string.user_food_description));
+            mDescribedFoodListener = new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    DescribedPicture description = dataSnapshot.getValue(DescribedPicture.class);
+                    AppDataSingleton.addToDescribedPictures(description);
+                    //filter each described pic through allPictures and add description. notifyitemchanged on that position.
+                    Log.d("SIZE", String.valueOf(AppDataSingleton.getmDescribedPictures().size()));
+                    matchDescriptionWithAllPics(description);
                 }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-            }
-        });
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            };
+            mUserDescriptionsRef.child(mFirebaseUser.getUid()).addChildEventListener(mDescribedFoodListener);
+        }
+    }
+
+    public void setmPicsRecyclerView(){
+        Log.d("RECYCLER", "RECYCLER");
+        mSplashPicsAdapter = new SplashPicsAdapter(this, mAllPictures);
+//        mPicsRecyclerView.setHasFixedSize(true);
+        mPicsRecyclerView.setAdapter(mSplashPicsAdapter);
+    }
+
+    public void addDescribedPicture(){
+        DatabaseReference mUserDescriptionsRef = mFireBaseDatabase.getReference(getString(R.string.user_food_description));
 
     }
 
@@ -338,7 +384,38 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
     public void saveDescriptionToFirebase(String foodDescription){
          DatabaseReference mUserDescriptionsRef = mFireBaseDatabase.getReference(getString(R.string.user_food_description));
-        UserDescription newDescription = new UserDescription(mSelectedPic.getId(), foodDescription);
+        DescribedPicture newDescription = new DescribedPicture(mSelectedPic.getId(), foodDescription);
          mUserDescriptionsRef.child(mFirebaseUser.getUid()).child(mSelectedPic.getId()).setValue(newDescription);
     }
+
+    public void matchDescriptionWithAllPics(DescribedPicture description){
+        int count = 0;
+        for(SplashPic pic: mAllPictures){
+            if(pic.getId().equals(description.getPicID())){
+                pic.setFoodDescription(description.getFoodDescription());
+                mSplashPicsAdapter.descriptionAdded(count);
+            }
+            count++;
+        }
+    }
+
+    public List<SplashPic> matchNewPicsWithDescribed(List<SplashPic> newPics){
+        int newPicCount = 0;
+        List <DescribedPicture> allDescribed = AppDataSingleton.getmDescribedPictures();
+        List<SplashPic> modifiedPics = new ArrayList<>();
+        for(SplashPic pic: newPics){
+            for (DescribedPicture description: allDescribed){
+             if (pic.getId().equals(description.getPicID())){
+                 Log.d("MATCH MATCH", "MATCH");
+                 pic.setFoodDescription(description.getFoodDescription());
+                 modifiedPics.add(pic);
+                 break;
+             }
+            }
+            Log.d("Picture Number", String.valueOf(newPicCount));
+            newPicCount++;
+        }
+        return modifiedPics;
+    }
+
 }

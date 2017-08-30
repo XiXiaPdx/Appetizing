@@ -4,13 +4,13 @@ package com.xixia.appetizing.Models;
  * Created by macbook on 8/29/17.
  */
 
-public class UserDescription {
+public class DescribedPicture {
     private String picID;
     private String foodDescription;
 
-    public UserDescription(){}
+    public DescribedPicture(){}
 
-    public UserDescription(String picID, String foodDescription){
+    public DescribedPicture(String picID, String foodDescription){
         this.picID = picID;
         this.foodDescription = foodDescription;
     }

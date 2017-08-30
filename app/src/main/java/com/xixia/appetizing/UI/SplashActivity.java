@@ -4,15 +4,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.xixia.appetizing.Adapters.SplashPicsAdapter;
 import com.xixia.appetizing.Constants;
 import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.R;
 import com.xixia.appetizing.Services.AppDataSingleton;
 import com.xixia.appetizing.Services.UnSplashClient;
 import com.xixia.appetizing.Services.UnSplashServiceGenerator;
-
-import org.parceler.Parcels;
 
 import java.util.List;
 
@@ -27,6 +24,7 @@ import io.reactivex.schedulers.Schedulers;
  */
 
 public class SplashActivity extends BaseActivity {
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         unSplash30Call();

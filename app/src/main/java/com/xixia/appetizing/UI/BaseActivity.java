@@ -4,16 +4,14 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.xixia.appetizing.R;
-import com.xixia.appetizing.Services.GpsService;
+import com.xixia.appetizing.Services.AppDataSingleton;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
@@ -30,6 +28,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     public void onBackPressed(){
         super.onBackPressed();
+        ifMainClearAppData();
         overridePendingTransition(R.anim.slide_from_left, R.anim.slide_to_right);
     }
 
@@ -46,13 +45,13 @@ public abstract class BaseActivity extends AppCompatActivity {
             // action with ID action_refresh was selected
             case R.id.action_settings:
                 if(getClass() != SearchActivity.class) {
-                    GpsService.getLocation(this);
                     Intent intent = new Intent(getBaseContext(), SearchActivity.class);
                     startActivity(intent);
                     overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
                 }
                 break;
             case R.id.action_logout:
+                AppDataSingleton.clearmDescribedPictures();
                 Intent intent = new Intent(getBaseContext(), MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
@@ -60,6 +59,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 AuthUI.getInstance().signOut(this);
                 break;
             case android.R.id.home:
+                ifMainClearAppData();
                 finish();
                 overridePendingTransition(R.anim.slide_from_left, R.anim.slide_to_right);
                 break;
@@ -71,6 +71,12 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected boolean useToolbar() {
         return true;
+    }
+
+    public void ifMainClearAppData(){
+        if (getClass() == MainActivity.class){
+            AppDataSingleton.clearmDescribedPictures();
+        }
     }
 
     @Override
