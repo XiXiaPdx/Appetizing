@@ -188,9 +188,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     public void onStart(){
         super.onStart();
         Log.d("START", "STARt");
-        if (mAuthListener != null) {
-            mFireBaseAuth.addAuthStateListener(mAuthListener);
-        }
     }
 
     @Override
@@ -252,6 +249,10 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     public void onResume(){
         super.onResume();
         Log.d("onRESUME", "RESUME");
+        if (mAuthListener != null) {
+            Log.d("AUTHLISTENER", "AUTHLISTNER ADDED");
+            mFireBaseAuth.addAuthStateListener(mAuthListener);
+        }
         createRecyclerEndLessScroll();
         if (mEndLessScrollListener != null){
             mPicsRecyclerView.addOnScrollListener(mEndLessScrollListener);
@@ -316,14 +317,8 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         mPicsRecyclerView.setAdapter(mSplashPicsAdapter);
     }
 
-    public void addDescribedPicture(){
-        DatabaseReference mUserDescriptionsRef = mFireBaseDatabase.getReference(getString(R.string.user_food_description));
-
-    }
-
         @Override
     public void openSheet(int pictureIndex) {
-            Log.d("PICTURE", "NUMBER "+ String.valueOf(pictureIndex));
         switch (mBottomSheetBehavior.getState()){
             case BottomSheetBehavior.STATE_EXPANDED:
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -367,10 +362,8 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         String foodDescription = mSelectedPic.getFoodDescription();
             if (foodDescription == null || foodDescription.length() == 0){
                 mDescriptionText.setText(getString(R.string.what_to_eat));
-                Log.d("IF BLANK  DESCRIPTION", mDescriptionText.getText().toString());
             } else {
                 mDescriptionText.setText(foodDescription);
-                Log.d("NOT BLANK  DESCRIPTION", mDescriptionText.getText().toString());
             }
     }
 
