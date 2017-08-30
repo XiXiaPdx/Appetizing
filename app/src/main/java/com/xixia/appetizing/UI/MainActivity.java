@@ -96,6 +96,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         mBottomSheetBehavior=BottomSheetBehavior.from(mBottomSheet);
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         mBottomSheetBehavior.setPeekHeight(0);
+        setBottomSheetCallBack();
         mPicsRecyclerView = findViewById(R.id.PicsRecycler);
         mSplashPicsAdapter = new SplashPicsAdapter();
         //what other features of staggered grid can we do???
@@ -104,9 +105,9 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         mFireBaseDatabase = FirebaseDatabase.getInstance();
         mFireBaseAuth = FirebaseAuth.getInstance();
         mAllPictures = AppDataSingleton.getmAllPictures();
+        Log.d("CREATE", "SIZE OF PICTURES "+ mAllPictures.size());
         setmPicsRecyclerView();
         notCurrentlyLoading = true;
-        Log.d("CREATE", "CREATE");
         createAuthListener();
     }
 
@@ -137,6 +138,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     }
 
     public void createRecyclerEndLessScroll(){
+        Log.d("SCROLL CREATEd", "SCROLL CREATED");
         mEndLessScrollListener = new EndLessScrollListener(mPicGridLayOut) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
@@ -224,6 +226,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                         });
                         break;
                     case RESULT_CANCELED:
+                        Log.d("BACK ARROW", "BACK ARROW IN SIGN IN SCREEN");
                         finish();
                         break;
                 }
@@ -324,9 +327,29 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             case BottomSheetBehavior.STATE_EXPANDED:
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 break;
+            case BottomSheetBehavior.STATE_COLLAPSED:
+                setLargePic(pictureIndex);
+                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                break;
         }
-        setLargePic(pictureIndex);
-        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+    }
+
+    public void setBottomSheetCallBack(){
+        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                if(mViewSwitcher.getCurrentView() != mDescriptionText && newState == 4) {
+                    Log.d("NOT ", String.valueOf(newState));
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    closeKeyShowNext(imm);
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+            }
+        });
     }
 
     public void setLargePic(int pictureIndex){
@@ -347,8 +370,9 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             String foodDescription = mSelectedPic.getFoodDescription();
             if (foodDescription.length() == 0){
                 mDescriptionText.setText(getString(R.string.what_to_eat));
-            } else
+            } else {
                 mDescriptionText.setText(foodDescription);
+            }
         } catch (NullPointerException e){
 
         }
@@ -370,6 +394,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             String foodDescription = mEditTextField.getText().toString().trim();
             if(foodDescription.length()!=0) {
                 saveDescriptionToFirebase(foodDescription);
+                mDescriptionText.setText(foodDescription);
                 closeKeyShowNext(imm);
             } else
                 Toast.makeText(this, "Need a description", Toast.LENGTH_SHORT).show();
@@ -408,10 +433,10 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
              if (pic.getId().equals(description.getPicID())){
                  Log.d("MATCH MATCH", "MATCH");
                  pic.setFoodDescription(description.getFoodDescription());
-                 modifiedPics.add(pic);
                  break;
              }
             }
+            modifiedPics.add(pic);
             Log.d("Picture Number", String.valueOf(newPicCount));
             newPicCount++;
         }
