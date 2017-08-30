@@ -41,6 +41,7 @@ import com.xixia.appetizing.R;
 import com.xixia.appetizing.Services.AppDataSingleton;
 import com.xixia.appetizing.Services.EndLessScrollListener;
 import com.xixia.appetizing.Services.GpsService;
+import com.xixia.appetizing.Services.SpinnerService;
 import com.xixia.appetizing.Services.SplashCustomRecyclerView;
 import com.xixia.appetizing.Services.UnSplashClient;
 import com.xixia.appetizing.Services.UnSplashServiceGenerator;
@@ -72,6 +73,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     private BottomSheetBehavior mBottomSheetBehavior;
     private SplashPic mSelectedPic;
     private ChildEventListener mDescribedFoodListener;
+    private SpinnerService mSpinnerService;
     @BindView(R.id.bottom_sheet) View mBottomSheet;
     @BindView(R.id.largeSplashPic) ImageView mLargeSpashPic;
     @BindView(R.id.cardViewLargePic) CardView mCardView;
@@ -105,6 +107,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         mFireBaseDatabase = FirebaseDatabase.getInstance();
         mFireBaseAuth = FirebaseAuth.getInstance();
         mAllPictures = AppDataSingleton.getmAllPictures();
+        mSpinnerService = new SpinnerService(this);
         Log.d("CREATE", "SIZE OF PICTURES "+ mAllPictures.size());
         setmPicsRecyclerView();
         notCurrentlyLoading = true;
@@ -117,6 +120,8 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser currentUser = firebaseAuth.getCurrentUser();
                 if (currentUser != null){
+                    //If logout intent has to go to Main (which it currently does not...and working) a fix is add && mAllPictures is 0 or not 0, I forget. in the scenario of a logout and log back, the bug is the setDescribed is accidentally called twice. Once in AuthAttach and once in Result Ok for sign in. Need a boolean to only have one.
+                    Log.d("USER NOT NULL", "USER NOT NULL");
                     mFirebaseUser = currentUser;
                     if (mDescribedFoodListener == null) {
                         setDescribedPictures();
@@ -172,6 +177,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                         mAllPictures.addAll(descriptionAddedPics);
                         AppDataSingleton.setmAllPictures(mAllPictures);
                         mSplashPicsAdapter.morePicturesLoaded(mAllPictures);
+                        mSpinnerService.removeSpinner();
                         notCurrentlyLoading = true;
 
                     }
@@ -212,8 +218,17 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                                     String userUID = mFirebaseUser.getUid();
                                     UserProfile newUser = new UserProfile(username, useremail, userUID);
                                     mUserRef.child(userUID).setValue(newUser);
-                                } else
+                                } else {
+                                    //check if AllPictures is null.
+                                    if (mAllPictures.size()==0) {
+//                                        Intent intent = new Intent(getBaseContext(), SplashActivity.class);
+//                                        startActivity(intent);
+//                                        finish();
+                                        mSpinnerService.showSpinner();
+                                        unSplash30Call();
+                                    } else
                                     setDescribedPictures();
+                                }
                             }
 
                             @Override

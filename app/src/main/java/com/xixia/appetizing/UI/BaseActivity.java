@@ -51,8 +51,9 @@ public abstract class BaseActivity extends AppCompatActivity {
                 }
                 break;
             case R.id.action_logout:
-                AppDataSingleton.clearmDescribedPictures();
-                Intent intent = new Intent(getBaseContext(), MainActivity.class);
+                AppDataSingleton.clearAppData();
+                //current manual testing shows this basically restarts the app from fresh start
+                Intent intent = new Intent(getBaseContext(), SplashActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
                 overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
