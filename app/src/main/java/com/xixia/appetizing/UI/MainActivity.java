@@ -339,7 +339,9 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
+                    DescribedPicture description = dataSnapshot.getValue(DescribedPicture.class);
+                    AppDataSingleton.addToDescribedPictures(description);
+                    matchDescriptionWithAllPics(description);
                 }
 
                 @Override
