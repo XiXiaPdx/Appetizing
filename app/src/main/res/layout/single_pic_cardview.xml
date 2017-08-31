@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/card_view"
     android:layout_width="match_parent"
-    android:layout_height="400dp"
-    android:layout_marginBottom="16dp"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="0dp"
     card_view:cardCornerRadius="8dp"
     card_view:cardUseCompatPadding="true">
 
@@ -35,28 +35,28 @@
             android:id="@+id/photographer"
             android:layout_width="359dp"
             android:layout_height="24dp"
-            android:layout_marginLeft="0dp"
             android:layout_marginTop="8dp"
-            android:text="TextView"
+            android:text="@string/photographer_placeholder"
             card_view:layout_constraintLeft_toLeftOf="@+id/pictureItemView"
             card_view:layout_constraintTop_toBottomOf="@+id/pictureItemView" />
 
         <TextView
             android:id="@+id/foodDescription"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
-            android:layout_marginStart="8dp"
-            android:text="TextView"
+
+            android:text="@string/description_placeholder"
             android:textSize="20sp"
+            android:textColor="@color/colorPrimary"
             card_view:layout_constraintBottom_toBottomOf="parent"
-            card_view:layout_constraintLeft_toLeftOf="@+id/pictureItemView"
             card_view:layout_constraintRight_toRightOf="parent"
             card_view:layout_constraintTop_toBottomOf="@+id/photographer"
-            card_view:layout_constraintVertical_bias="0.0" />
+            card_view:layout_constraintVertical_bias="0.0"
+            android:layout_marginLeft="8dp"
+            card_view:layout_constraintLeft_toLeftOf="parent"
+            card_view:layout_constraintHorizontal_bias="1.0" />
 
     </android.support.constraint.ConstraintLayout>
 

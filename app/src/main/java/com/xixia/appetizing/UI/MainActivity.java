@@ -3,6 +3,7 @@ package com.xixia.appetizing.UI;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
@@ -45,10 +46,16 @@ import com.xixia.appetizing.Services.SpinnerService;
 import com.xixia.appetizing.Services.SplashCustomRecyclerView;
 import com.xixia.appetizing.Services.UnSplashClient;
 import com.xixia.appetizing.Services.UnSplashServiceGenerator;
+import com.yelp.clientlib.connection.YelpAPI;
+import com.yelp.clientlib.connection.YelpAPIFactory;
+import com.yelp.clientlib.entities.SearchResponse;
+import com.yelp.clientlib.entities.options.CoordinateOptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -57,6 +64,10 @@ import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends BaseActivity implements SplashPicsAdapter.OpenBottomSheet, View.OnClickListener {
     private FirebaseDatabase mFireBaseDatabase;
@@ -74,6 +85,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     private SplashPic mSelectedPic;
     private ChildEventListener mDescribedFoodListener;
     private SpinnerService mSpinnerService;
+    private YelpAPIFactory apiFactory;
     @BindView(R.id.bottom_sheet) View mBottomSheet;
     @BindView(R.id.largeSplashPic) ImageView mLargeSpashPic;
     @BindView(R.id.cardViewLargePic) CardView mCardView;
@@ -111,6 +123,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         Log.d("CREATE", "SIZE OF PICTURES "+ mAllPictures.size());
         setmPicsRecyclerView();
         notCurrentlyLoading = true;
+        yelpCall();
         createAuthListener();
     }
 
@@ -177,7 +190,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                         mAllPictures.addAll(descriptionAddedPics);
                         AppDataSingleton.setmAllPictures(mAllPictures);
                         mSplashPicsAdapter.morePicturesLoaded(mAllPictures);
-                        mSpinnerService.removeSpinner();
                         notCurrentlyLoading = true;
 
                     }
@@ -189,6 +201,31 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                     }
                 });
     }
+
+    public void yelpCall(){
+        apiFactory = new YelpAPIFactory(Constants.YELP_CONSUMER_KEY, Constants.YELP_CONSUMER_SECRET, Constants.YELP_TOKEN, Constants.YELP_TOKEN_SECRET);
+        YelpAPI yelpAPI = apiFactory.createAPI();
+        Map<String, String> params = new HashMap<>();
+        params.put("category_filter", "restaurants");
+        params.put("term", "bacon");
+        CoordinateOptions coordinate = CoordinateOptions.builder()
+                .latitude(45.0)
+                .longitude(-122.0).build();
+        Call<SearchResponse> call = yelpAPI.search("portland", params);
+        Callback<SearchResponse> callback = new Callback<SearchResponse>() {
+            @Override
+            public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
+                SearchResponse searchResponse = response.body();
+                Log.d("YELP", searchResponse.businesses().get(0).name());
+            }
+            @Override
+            public void onFailure(Call<SearchResponse> call, Throwable t) {
+                Log.d("FAILED YELP", t.toString());
+            }
+        };
+        call.enqueue(callback);
+    }
+
 
     @Override
     public void onStart(){
@@ -224,7 +261,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 //                                        Intent intent = new Intent(getBaseContext(), SplashActivity.class);
 //                                        startActivity(intent);
 //                                        finish();
-                                        mSpinnerService.showSpinner();
                                         unSplash30Call();
                                     } else
                                     setDescribedPictures();
@@ -403,6 +439,18 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             } else
                 Toast.makeText(this, "Need a description", Toast.LENGTH_SHORT).show();
         }
+        if(view == mSearchButton){
+            String searchPhrase = mDescriptionText.getText().toString().trim();
+            Log.d("Search", searchPhrase);
+            if (searchPhrase.contains("Describe food") || searchPhrase.length() == 0){
+                Toast.makeText(this, "There is no description to search for!", Toast.LENGTH_SHORT).show();
+            } else {
+                Intent webPageIntent = new Intent(Intent.ACTION_VIEW);
+                webPageIntent.setData(Uri.parse("http://www.google.com"));
+                startActivity(webPageIntent);
+            }
+
+        }
     }
 
     public void closeKeyShowNext(InputMethodManager imm){
@@ -421,7 +469,11 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         int count = 0;
         for(SplashPic pic: mAllPictures){
             if(pic.getId().equals(description.getPicID())){
-                pic.setFoodDescription(description.getFoodDescription());
+                //this isn't permanent change...???
+//                pic.setFoodDescription(description.getFoodDescription());
+                // this permanently changes the data in the app that this picture is now described.
+                mAllPictures.get(count).setFoodDescription(description.getFoodDescription());
+                AppDataSingleton.setmAllPictures(mAllPictures);
                 mSplashPicsAdapter.descriptionAdded(count);
             }
             count++;
@@ -446,5 +498,4 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         }
         return modifiedPics;
     }
-
 }

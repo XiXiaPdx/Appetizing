@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Appetizing</string>
+    <string name="description_placeholder">blank</string>
+    <string name="photographer_placeholder">photographer name and link goes here</string>
     <string name="user_node">Users</string>
     <string name="user_food_description">UserDescriptions</string>
     <string name="what_to_eat">Describe food, then find food.</string>

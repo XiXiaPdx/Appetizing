@@ -15,6 +15,8 @@ import com.squareup.picasso.Picasso;
 import com.xixia.appetizing.Constants;
 import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.R;
+import com.xixia.appetizing.Services.AppDataSingleton;
+
 import java.util.List;
 
 import butterknife.BindView;
@@ -63,6 +65,8 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
     }
 
     public void descriptionAdded(int position){
+        mPictures = AppDataSingleton.getmAllPictures();
+        Log.d("Description ADDED MATCH", "MATCH AT "+String.valueOf(position));
         notifyItemChanged(position);
     }
 
@@ -92,9 +96,14 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
             //set Name here
             mPhotographerName.setText("by " + picture.getUser().getFirst_name());
             if (picture.getFoodDescription() == null) {
-                mFoodDescription.setText("Describe this food");
-            } else
+                Log.d("Description NULL", "INVISIBLE");
+                mFoodDescription.setText("I can set text");
+                mFoodDescription.setVisibility(View.GONE);
+            } else {
+                Log.d("Make Visible", "VISIBLE NOW");
                 mFoodDescription.setText(picture.getFoodDescription());
+                mFoodDescription.setVisibility(View.VISIBLE);
+            }
         }
 
 

@@ -9,6 +9,8 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
+import se.akerfeldt.okhttp.signpost.OkHttpOAuthConsumer;
+import se.akerfeldt.okhttp.signpost.SigningInterceptor;
 
 /**
  * Created by macbook on 8/24/17.
@@ -39,4 +41,5 @@ public class UnSplashServiceGenerator {
         }
         return retrofit.create(serviceClass);
     }
+
 }
