@@ -48,6 +48,7 @@ import com.xixia.appetizing.Services.UnSplashClient;
 import com.xixia.appetizing.Services.UnSplashServiceGenerator;
 import com.yelp.clientlib.connection.YelpAPI;
 import com.yelp.clientlib.connection.YelpAPIFactory;
+import com.yelp.clientlib.entities.Business;
 import com.yelp.clientlib.entities.SearchResponse;
 import com.yelp.clientlib.entities.options.CoordinateOptions;
 
@@ -86,6 +87,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     private ChildEventListener mDescribedFoodListener;
     private SpinnerService mSpinnerService;
     private YelpAPIFactory apiFactory;
+    private CoordinateOptions mSearchCoordinate;
     @BindView(R.id.bottom_sheet) View mBottomSheet;
     @BindView(R.id.largeSplashPic) ImageView mLargeSpashPic;
     @BindView(R.id.cardViewLargePic) CardView mCardView;
@@ -208,15 +210,20 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         Map<String, String> params = new HashMap<>();
         params.put("category_filter", "restaurants");
         params.put("term", searchTerm);
-        CoordinateOptions coordinate = CoordinateOptions.builder()
-                .latitude(45.0)
-                .longitude(-122.0).build();
-        Call<SearchResponse> call = yelpAPI.search("portland", params);
+        Call<SearchResponse> call = yelpAPI.search(mSearchCoordinate, params);
         Callback<SearchResponse> callback = new Callback<SearchResponse>() {
             @Override
             public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
                 SearchResponse searchResponse = response.body();
-                Log.d("YELP", searchResponse.businesses().get(0).name());
+                StringBuilder stringBuilder = new StringBuilder();
+                int count = 0;
+                for (Business business: searchResponse.businesses()){
+                    stringBuilder.append(business.name()+", ");
+                    count++;
+                    if (count == 5){ break;}
+                }
+
+                Toast.makeText(MainActivity.this, stringBuilder.toString(), Toast.LENGTH_LONG).show();
             }
             @Override
             public void onFailure(Call<SearchResponse> call, Throwable t) {
@@ -383,7 +390,8 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     }
 
     @Override
-    public void revealSearchButton(){
+    public void revealSearchButton(CoordinateOptions coordinate){
+        mSearchCoordinate = coordinate;
         mSearchButton.setVisibility(View.VISIBLE);
     }
 
@@ -449,15 +457,11 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         }
         if(view == mSearchButton){
             String searchPhrase = mDescriptionText.getText().toString().trim();
-            Log.d("Search", searchPhrase);
             if (searchPhrase.contains("Describe food") || searchPhrase.length() == 0){
                 Toast.makeText(this, "There is no description to search for!", Toast.LENGTH_SHORT).show();
             } else {
-                Intent webPageIntent = new Intent(Intent.ACTION_VIEW);
-                webPageIntent.setData(Uri.parse("http://www.google.com"));
-                startActivity(webPageIntent);
+                yelpCall(mDescriptionText.getText().toString().trim());
             }
-
         }
     }
 

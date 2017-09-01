@@ -28,6 +28,7 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.yelp.clientlib.entities.options.CoordinateOptions;
 
 
 import static com.google.android.gms.common.api.GoogleApiClient.*;
@@ -126,12 +127,12 @@ public class GpsService implements OnConnectionFailedListener, ConnectionCallbac
 
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
-            Log.d("CONNECTED?????", Boolean.toString(mGoogleApiClient.isConnected()));
+//            Log.d("CONNECTED?????", Boolean.toString(mGoogleApiClient.isConnected()));
 
             if (mLastLocation != null) {
-                String location = "Latitude: " + String.valueOf(mLastLocation.getLatitude())+" Longitude: " + String.valueOf(mLastLocation.getLongitude());
-                Log.d("LATLONG", location);
-                Toast.makeText(locationContext, location, Toast.LENGTH_SHORT).show();
+//                String location = "Latitude: " + String.valueOf(mLastLocation.getLatitude())+" Longitude: " + String.valueOf(mLastLocation.getLongitude());
+//                Log.d("LATLONG", location);
+//                Toast.makeText(locationContext, location, Toast.LENGTH_SHORT).show();
             } else {
                 /*if there is no last known location. Which means the device has no data for the loction currently.
                 * So we will get the current location.
@@ -160,7 +161,7 @@ public class GpsService implements OnConnectionFailedListener, ConnectionCallbac
             if (!mGoogleApiClient.isConnected())
                 mGoogleApiClient.connect();
         }
-        Log.d("GETTING CURRNET", "GETING CURRENT");
+//        Log.d("GETTING CURRNET", "GETING CURRENT");
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, listener);
     }
 
@@ -169,7 +170,11 @@ public class GpsService implements OnConnectionFailedListener, ConnectionCallbac
         public void onLocationChanged(Location location) {
             mLastLocation = location;
             Log.d("CHANGED LOCATIOn", "Latitude: " + String.valueOf(mLastLocation.getLatitude())+" Longitude: " + String.valueOf(mLastLocation.getLongitude()));
-            mRevealSearch.revealSearchButton();
+            CoordinateOptions coordinate = CoordinateOptions.builder()
+                    .latitude(mLastLocation.getLatitude())
+                    .longitude(mLastLocation.getLongitude()).build();
+
+            mRevealSearch.revealSearchButton(coordinate);
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,listener);
         }
     };
@@ -197,6 +202,6 @@ public class GpsService implements OnConnectionFailedListener, ConnectionCallbac
     }
 
     public interface RevealSearch{
-        void revealSearchButton();
+        void revealSearchButton(CoordinateOptions coordinate);
     }
 }

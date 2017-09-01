@@ -19,7 +19,6 @@ public class AppDataSingleton {
     private static List<SplashPic> mAllPictures;
     private static List<DescribedPicture> mDescribedPictures = new ArrayList<>();
 
-
     private AppDataSingleton() {
     }
 
