@@ -1,5 +1,7 @@
 package com.xixia.appetizing.UI;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -190,7 +192,17 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                         mSubmitEditButton.animate().alpha(1.0f);
                     }
                 } else {
-                    mSubmitEditButton.setVisibility(View.INVISIBLE);
+                    mSubmitEditButton.setAlpha(1.0f);
+                    mSubmitEditButton.animate().alpha(0.0f)
+                            .setListener(new AnimatorListenerAdapter()
+                            {
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    super.onAnimationEnd(animation);
+                                    mSubmitEditButton.setVisibility(View.INVISIBLE);
+                                    mSubmitEditButton.animate().setListener(null);
+                                }
+                            });
                 }
             }
 

@@ -23,6 +23,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
 
     @Override
@@ -91,8 +92,14 @@ public abstract class BaseActivity extends AppCompatActivity {
         toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         if (toolbar != null) {
             if (useToolbar()) {
+                String activityName = getClass().getSimpleName();
+
                 setSupportActionBar(toolbar);
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                if (activityName.equals(MainActivity.class.getSimpleName())){
+                    getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                } else {
+                    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                }
             } else {
                 toolbar.setVisibility(View.GONE);
             }
