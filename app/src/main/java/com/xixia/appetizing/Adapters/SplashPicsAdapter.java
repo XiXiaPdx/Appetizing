@@ -16,6 +16,7 @@ import com.xixia.appetizing.Constants;
 import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.R;
 import com.xixia.appetizing.Services.AppDataSingleton;
+import com.xixia.appetizing.Services.GpsService;
 
 import java.util.List;
 
@@ -119,6 +120,7 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
 
             if (view == mPictureView) {
                 mOpenBottomsheet.openSheet(getAdapterPosition());
+                GpsService.getCurrentLocation();
             }
         }
     }

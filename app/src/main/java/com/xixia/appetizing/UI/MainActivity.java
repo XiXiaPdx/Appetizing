@@ -123,7 +123,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         Log.d("CREATE", "SIZE OF PICTURES "+ mAllPictures.size());
         setmPicsRecyclerView();
         notCurrentlyLoading = true;
-        yelpCall();
         createAuthListener();
     }
 
@@ -202,12 +201,13 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 });
     }
 
-    public void yelpCall(){
+    public void yelpCall(String searchTerm){
+        GpsService.getLocation(this);
         apiFactory = new YelpAPIFactory(Constants.YELP_CONSUMER_KEY, Constants.YELP_CONSUMER_SECRET, Constants.YELP_TOKEN, Constants.YELP_TOKEN_SECRET);
         YelpAPI yelpAPI = apiFactory.createAPI();
         Map<String, String> params = new HashMap<>();
         params.put("category_filter", "restaurants");
-        params.put("term", "bacon");
+        params.put("term", searchTerm);
         CoordinateOptions coordinate = CoordinateOptions.builder()
                 .latitude(45.0)
                 .longitude(-122.0).build();
@@ -283,7 +283,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 switch (result) {
                     case Activity.RESULT_OK:
                         // All required changes were successfully made
-                        GpsService.getLocation(this);
+//                        GpsService.getCurrentLocation();
                         break;
                     case Activity.RESULT_CANCELED:
                         // The user was asked to change settings, but chose not to

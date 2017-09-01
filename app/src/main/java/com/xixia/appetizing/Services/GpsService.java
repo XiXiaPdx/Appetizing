@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -22,6 +21,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
@@ -45,7 +45,7 @@ public class GpsService implements OnConnectionFailedListener, ConnectionCallbac
     private static GoogleApiClient mGoogleApiClient;
     private static Location mLastLocation;
     private static LocationRequest mLocationRequest;
-    private Context mContext;
+    private static Context mContext;
 
     private GpsService(Context context) {
         mContext = context;
@@ -61,44 +61,14 @@ public class GpsService implements OnConnectionFailedListener, ConnectionCallbac
             Toast.makeText(mContext, "Not Connected!", Toast.LENGTH_SHORT).show();
     }
 
+    private static LocationListener listener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            mLastLocation = location;
+            Log.d("CHANGED LOCATIOn", "Latitude: " + String.valueOf(mLastLocation.getLatitude())+" Longitude: " + String.valueOf(mLastLocation.getLongitude()));
+        }
+    };
 
-    // Not currently using this but its here for constant GPS updates
-    @Override
-    public void onLocationChanged(Location location) {
-        mLastLocation = location;
-        Log.d("CHANGED LOCATIOn", "Latitude: " + String.valueOf(mLastLocation.getLatitude())+" Longitude: " + String.valueOf(mLastLocation.getLongitude()));
-    }
-
-
-    @Override
-    public void onStatusChanged(String s, int i, Bundle bundle) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String s) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String s) {
-
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        settingRequest();
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
 
     /*Method to get the enable location settings dialog*/
     public void settingRequest() {
@@ -159,22 +129,65 @@ public class GpsService implements OnConnectionFailedListener, ConnectionCallbac
             return;
         } else {
             /*Getting the location after aquiring location service*/
+
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
+            Log.d("CONNECTED?????", Boolean.toString(mGoogleApiClient.isConnected()));
 
             if (mLastLocation != null) {
-                Log.d("LATLONG", "Latitude: " + String.valueOf(mLastLocation.getLatitude())+" Longitude: " + String.valueOf(mLastLocation.getLongitude()));
+                String location = "Latitude: " + String.valueOf(mLastLocation.getLatitude())+" Longitude: " + String.valueOf(mLastLocation.getLongitude());
+                Log.d("LATLONG", location);
+                Toast.makeText(locationContext, location, Toast.LENGTH_SHORT).show();
             } else {
                 /*if there is no last known location. Which means the device has no data for the loction currently.
                 * So we will get the current location.
                 * For this we'll implement Location Listener and override onLocationChanged*/
+
                 Log.i("Current Location", "No data for location found");
 
-//                if (!mGoogleApiClient.isConnected())
-//                    mGoogleApiClient.connect();
-//                    LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, MainActivity.this);
+                if (!mGoogleApiClient.isConnected())
+                    mGoogleApiClient.connect();
+                    LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, listener  );
             }
         }
     }
 
+    public static void getCurrentLocation(){
+        if (ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        } else {
+            if (!mGoogleApiClient.isConnected())
+                mGoogleApiClient.connect();
+        }
+        Log.d("GETTING CURRNET", "GETING CURRENT");
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, listener);
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        settingRequest();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mLastLocation = location;
+        Log.d("CHANGED LOCATIOn", "Latitude: " + String.valueOf(mLastLocation.getLatitude())+" Longitude: " + String.valueOf(mLastLocation.getLongitude()));
+    }
 }
