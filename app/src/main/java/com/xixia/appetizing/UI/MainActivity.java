@@ -105,6 +105,8 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         mEditButton.setOnClickListener(this);
         mSubmitEditButton.setOnClickListener(this);
         mSearchButton.setOnClickListener(this);
+        mDescriptionText.setOnClickListener(this);
+        mEditTextField.setOnClickListener(this);
         Animation in = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left);
         Animation out = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
         mViewSwitcher.setInAnimation(in);
@@ -420,7 +422,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 .with(this)
                 .load(mSelectedPic.getUrls()
                         .getRegular())
-                .resize(Constants.MAX_Width+250, Constants.MAX_Height+250)
+                .resize(Constants.MAX_Width*2, Constants.MAX_Height*2)
                 .onlyScaleDown()
                 .centerCrop()
                 .into(mLargeSpashPic);
@@ -437,7 +439,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     @Override
     public void onClick(View view) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (view == mEditButton){
+        if (view == mDescriptionText){
             if (mViewSwitcher.getCurrentView() == mDescriptionText ) {
                 mViewSwitcher.showNext();
                 mEditTextField.requestFocus();
@@ -445,6 +447,9 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             } else {
                 closeKeyShowNext(imm);
             }
+        }
+        if(view == mEditTextField){
+            closeKeyShowNext(imm);
         }
         if(view == mSubmitEditButton){
             String foodDescription = mEditTextField.getText().toString().trim();
