@@ -46,9 +46,11 @@ public class GpsService implements OnConnectionFailedListener, ConnectionCallbac
     private static Location mLastLocation;
     private static LocationRequest mLocationRequest;
     private static Context mContext;
+    private static RevealSearch mRevealSearch;
 
     private GpsService(Context context) {
         mContext = context;
+        mRevealSearch = (RevealSearch) context;
         mGoogleApiClient = new GoogleApiClient.Builder(mContext)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -60,14 +62,6 @@ public class GpsService implements OnConnectionFailedListener, ConnectionCallbac
         } else
             Toast.makeText(mContext, "Not Connected!", Toast.LENGTH_SHORT).show();
     }
-
-    private static LocationListener listener = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-            mLastLocation = location;
-            Log.d("CHANGED LOCATIOn", "Latitude: " + String.valueOf(mLastLocation.getLatitude())+" Longitude: " + String.valueOf(mLastLocation.getLongitude()));
-        }
-    };
 
 
     /*Method to get the enable location settings dialog*/
@@ -170,6 +164,17 @@ public class GpsService implements OnConnectionFailedListener, ConnectionCallbac
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, listener);
     }
 
+    private static LocationListener listener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            mLastLocation = location;
+            Log.d("CHANGED LOCATIOn", "Latitude: " + String.valueOf(mLastLocation.getLatitude())+" Longitude: " + String.valueOf(mLastLocation.getLongitude()));
+            mRevealSearch.revealSearchButton();
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,listener);
+        }
+    };
+
+
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         settingRequest();
@@ -189,5 +194,9 @@ public class GpsService implements OnConnectionFailedListener, ConnectionCallbac
     public void onLocationChanged(Location location) {
         mLastLocation = location;
         Log.d("CHANGED LOCATIOn", "Latitude: " + String.valueOf(mLastLocation.getLatitude())+" Longitude: " + String.valueOf(mLastLocation.getLongitude()));
+    }
+
+    public interface RevealSearch{
+        void revealSearchButton();
     }
 }

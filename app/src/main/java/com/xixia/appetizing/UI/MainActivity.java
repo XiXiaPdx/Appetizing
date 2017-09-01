@@ -69,7 +69,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends BaseActivity implements SplashPicsAdapter.OpenBottomSheet, View.OnClickListener {
+public class MainActivity extends BaseActivity implements SplashPicsAdapter.OpenBottomSheet, GpsService.RevealSearch, View.OnClickListener {
     private FirebaseDatabase mFireBaseDatabase;
     private FirebaseAuth mFireBaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -372,6 +372,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
         @Override
     public void openSheet(int pictureIndex) {
+            mSearchButton.setVisibility(View.INVISIBLE);
         switch (mBottomSheetBehavior.getState()){
             case BottomSheetBehavior.STATE_EXPANDED:
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -379,6 +380,11 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         }
             setLargePic(pictureIndex);
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+    }
+
+    @Override
+    public void revealSearchButton(){
+        mSearchButton.setVisibility(View.VISIBLE);
     }
 
     public void setBottomSheetCallBack(){
