@@ -11,6 +11,8 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -80,6 +82,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     private SplashPicsAdapter mSplashPicsAdapter;
     private StaggeredGridLayoutManager mPicGridLayOut;
     private EndLessScrollListener mEndLessScrollListener;
+    private TextWatcher mDescriptionTextWatcher;
     private List<SplashPic> mAllPictures = new ArrayList<>();
     private Boolean notCurrentlyLoading;
     private BottomSheetBehavior mBottomSheetBehavior;
@@ -93,7 +96,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     @BindView(R.id.cardViewLargePic) CardView mCardView;
     @BindView(R.id.descriptionText) TextView mDescriptionText;
     @BindView(R.id.viewSwitcher) ViewSwitcher mViewSwitcher;
-    @BindView(R.id.editDescriptionButton) ImageButton mEditButton;
+//    @BindView(R.id.editDescriptionButton) ImageButton mEditButton;
     @BindView(R.id.editDescriptionText) EditText mEditTextField;
     @BindView(R.id.submitEdit) ImageButton mSubmitEditButton;
     @BindView(R.id.searchButton) ImageButton mSearchButton;
@@ -102,7 +105,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        mEditButton.setOnClickListener(this);
         mSubmitEditButton.setOnClickListener(this);
         mSearchButton.setOnClickListener(this);
         mDescriptionText.setOnClickListener(this);
@@ -169,6 +171,36 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 }
             }
         };
+    }
+
+    public void setDescriptionTextWatcher(){
+        mDescriptionTextWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+
+                if (mEditTextField.getText().length() > 0) {
+                    if (mSubmitEditButton.getVisibility() == View.INVISIBLE) {
+                        mSubmitEditButton.setVisibility(View.VISIBLE);
+                        mSubmitEditButton.setAlpha(0.0f);
+                        mSubmitEditButton.animate().alpha(1.0f);
+                    }
+                } else {
+                    mSubmitEditButton.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        };
+        mEditTextField.addTextChangedListener(mDescriptionTextWatcher);
+
     }
 
     public void unSplash30Call(){
@@ -317,6 +349,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         if (mEndLessScrollListener != null){
             mPicsRecyclerView.addOnScrollListener(mEndLessScrollListener);
         }
+        setDescriptionTextWatcher();
         GpsService.getInstance(this);
     }
 
@@ -330,6 +363,9 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         }
         if (mEndLessScrollListener != null){
             mPicsRecyclerView.removeOnScrollListener(mEndLessScrollListener);
+        }
+        if (mDescriptionTextWatcher != null) {
+            mDescriptionText.removeTextChangedListener(mDescriptionTextWatcher);
         }
     }
 
@@ -382,6 +418,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         @Override
     public void openSheet(int pictureIndex) {
             mSearchButton.setVisibility(View.INVISIBLE);
+            mSubmitEditButton.setVisibility(View.INVISIBLE);
         switch (mBottomSheetBehavior.getState()){
             case BottomSheetBehavior.STATE_EXPANDED:
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -394,7 +431,12 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     @Override
     public void revealSearchButton(CoordinateOptions coordinate){
         mSearchCoordinate = coordinate;
-        mSearchButton.setVisibility(View.VISIBLE);
+        String searchPhrase = mDescriptionText.getText().toString().trim();
+        if (!searchPhrase.contains("Describe food") ){
+            mSearchButton.setVisibility(View.VISIBLE);
+            mSearchButton.setAlpha(0.0f);
+            mSearchButton.animate().alpha(1.0f);
+        }
     }
 
     public void setBottomSheetCallBack(){
@@ -449,24 +491,21 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             }
         }
         if(view == mEditTextField){
+            mSubmitEditButton.setVisibility(View.INVISIBLE);
             closeKeyShowNext(imm);
         }
         if(view == mSubmitEditButton){
             String foodDescription = mEditTextField.getText().toString().trim();
-            if(foodDescription.length()!=0) {
                 saveDescriptionToFirebase(foodDescription);
                 mDescriptionText.setText(foodDescription);
                 closeKeyShowNext(imm);
-            } else
-                Toast.makeText(this, "Need a description", Toast.LENGTH_SHORT).show();
+            mSearchButton.setVisibility(View.VISIBLE);
+            mSearchButton.setAlpha(0.0f);
+            mSearchButton.animate().alpha(1.0f);
         }
         if(view == mSearchButton){
             String searchPhrase = mDescriptionText.getText().toString().trim();
-            if (searchPhrase.contains("Describe food") || searchPhrase.length() == 0){
-                Toast.makeText(this, "There is no description to search for!", Toast.LENGTH_SHORT).show();
-            } else {
-                yelpCall(mDescriptionText.getText().toString().trim());
-            }
+            yelpCall(mDescriptionText.getText().toString().trim());
         }
     }
 

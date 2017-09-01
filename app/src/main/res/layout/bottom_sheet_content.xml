@@ -47,12 +47,12 @@
         android:layout_marginTop="8dp" />
 
     <ImageButton
-        android:id="@+id/editDescriptionButton"
-        android:padding="27dp"
+        android:id="@+id/submitEdit"
+        android:padding="25dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/edit_circle"
-        android:src="@drawable/ic_mode_edit_white_48dp"
+        android:src="@drawable/ic_done_black_48dp"
         android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="@+id/cardViewLargePic"
         android:layout_marginBottom="8dp"
@@ -104,7 +104,7 @@
             android:layout_marginBottom="5dp"
             android:layout_marginLeft="12dp"
             android:layout_marginRight="24dp"
-            android:layout_width="250dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/rounded_textview"
             android:textAlignment="center"
@@ -112,14 +112,14 @@
             android:textCursorDrawable="@null"
             android:textSize="18sp" />
 
-        <ImageButton
-            android:id="@+id/submitEdit"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:background="@drawable/search_circle"
-            android:padding="2dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_done_black_48dp" />
+        <!--<ImageButton-->
+            <!--android:id="@+id/submitEdit"-->
+            <!--android:layout_width="30dp"-->
+            <!--android:layout_height="30dp"-->
+            <!--android:background="@drawable/search_circle"-->
+            <!--android:padding="2dp"-->
+            <!--android:scaleType="centerCrop"-->
+            <!--android:src="@drawable/ic_done_black_48dp" />-->
     </LinearLayout>
 
 </ViewSwitcher>
