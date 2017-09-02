@@ -8,8 +8,8 @@
         android:icon="@drawable/fui_ic_phone_white_24dp"
         android:title="Refresh"/>
     <item
-        android:id="@+id/action_settings"
-        android:title="Settings">
+        android:id="@+id/action_instructions"
+        android:title="Instructions">
     </item>
     <item
         android:id="@+id/action_logout"

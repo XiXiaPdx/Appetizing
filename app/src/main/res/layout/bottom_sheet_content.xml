@@ -22,7 +22,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginStart="8dp">
 
-                                                         <ImageView
+        <ImageView
             android:id="@+id/largeSplashPic"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -111,15 +111,6 @@
             android:textColor="@color/white"
             android:textCursorDrawable="@null"
             android:textSize="18sp" />
-
-        <!--<ImageButton-->
-            <!--android:id="@+id/submitEdit"-->
-            <!--android:layout_width="30dp"-->
-            <!--android:layout_height="30dp"-->
-            <!--android:background="@drawable/search_circle"-->
-            <!--android:padding="2dp"-->
-            <!--android:scaleType="centerCrop"-->
-            <!--android:src="@drawable/ic_done_black_48dp" />-->
     </LinearLayout>
 
 </ViewSwitcher>

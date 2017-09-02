@@ -44,9 +44,9 @@ public abstract class BaseActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             // action with ID action_refresh was selected
-            case R.id.action_settings:
-                if(getClass() != SearchActivity.class) {
-                    Intent intent = new Intent(getBaseContext(), SearchActivity.class);
+            case R.id.action_instructions:
+                if(getClass() != InstructionsActivity.class) {
+                    Intent intent = new Intent(getBaseContext(), InstructionsActivity.class);
                     startActivity(intent);
                     overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
                 }

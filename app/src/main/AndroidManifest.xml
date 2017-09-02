@@ -30,7 +30,7 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
         </activity>
-        <activity android:name=".UI.SearchActivity"
+        <activity android:name=".UI.InstructionsActivity"
             android:parentActivityName=".UI.MainActivity"
             android:screenOrientation="portrait">
             <meta-data

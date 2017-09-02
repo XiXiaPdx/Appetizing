@@ -5,11 +5,13 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -87,18 +89,18 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     private TextWatcher mDescriptionTextWatcher;
     private List<SplashPic> mAllPictures = new ArrayList<>();
     private Boolean notCurrentlyLoading;
-    private BottomSheetBehavior mBottomSheetBehavior;
+    private CustomBottomSheet mBottomSheetBehavior;
     private SplashPic mSelectedPic;
     private ChildEventListener mDescribedFoodListener;
     private SpinnerService mSpinnerService;
     private YelpAPIFactory apiFactory;
     private CoordinateOptions mSearchCoordinate;
+    @BindView(R.id.coordinator) CoordinatorLayout mCoordinator;
     @BindView(R.id.bottom_sheet) View mBottomSheet;
     @BindView(R.id.largeSplashPic) ImageView mLargeSpashPic;
     @BindView(R.id.cardViewLargePic) CardView mCardView;
     @BindView(R.id.descriptionText) TextView mDescriptionText;
     @BindView(R.id.viewSwitcher) ViewSwitcher mViewSwitcher;
-//    @BindView(R.id.editDescriptionButton) ImageButton mEditButton;
     @BindView(R.id.editDescriptionText) EditText mEditTextField;
     @BindView(R.id.submitEdit) ImageButton mSubmitEditButton;
     @BindView(R.id.searchButton) ImageButton mSearchButton;
@@ -115,7 +117,8 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         Animation out = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
         mViewSwitcher.setInAnimation(in);
         mViewSwitcher.setOutAnimation(out);
-        mBottomSheetBehavior=BottomSheetBehavior.from(mBottomSheet);
+        mBottomSheetBehavior = new CustomBottomSheet(this);
+        mBottomSheetBehavior= (CustomBottomSheet) BottomSheetBehavior.from(mBottomSheet);
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         mBottomSheetBehavior.setPeekHeight(0);
         setBottomSheetCallBack();
@@ -260,6 +263,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         Callback<SearchResponse> callback = new Callback<SearchResponse>() {
             @Override
             public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
+                mSpinnerService.removeSpinner();
                 SearchResponse searchResponse = response.body();
                 StringBuilder stringBuilder = new StringBuilder();
                 int count = 0;
@@ -335,8 +339,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             case 1000:
                 switch (result) {
                     case Activity.RESULT_OK:
-                        // All required changes were successfully made
-//                        GpsService.getCurrentLocation();
+
                         break;
                     case Activity.RESULT_CANCELED:
                         // The user was asked to change settings, but chose not to
@@ -364,6 +367,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         setDescriptionTextWatcher();
         GpsService.getInstance(this);
     }
+
 
     @Override
     public void onPause(){
@@ -431,14 +435,16 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     public void openSheet(int pictureIndex) {
             mSearchButton.setVisibility(View.INVISIBLE);
             mSubmitEditButton.setVisibility(View.INVISIBLE);
-        switch (mBottomSheetBehavior.getState()){
+            switch (mBottomSheetBehavior.getState()){
             case BottomSheetBehavior.STATE_EXPANDED:
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 break;
         }
             setLargePic(pictureIndex);
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-    }
+            //this is just needed once, on first time open bottom sheet. Without, the stateChange callback doesn't pick up the changes in state for some reason
+            mCoordinator.setVisibility(View.VISIBLE);
+        }
 
     @Override
     public void revealSearchButton(CoordinateOptions coordinate){
@@ -459,6 +465,16 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     closeKeyShowNext(imm);
                 }
+
+                Log.d("STATE STATE", String.valueOf(newState));
+                if(newState == 4) {
+                    Log.d("GONE GONE GONE", "GONE GONE GONE");
+                    mCoordinator.setVisibility(View.GONE);
+                }
+                if(newState == 3) {
+                    Log.d("STATE VISIBLE", "STATE VISIBLE");
+                    mCoordinator.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override
@@ -466,6 +482,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
             }
         });
+
     }
 
     public void setLargePic(int pictureIndex){
@@ -516,6 +533,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             mSearchButton.animate().alpha(1.0f);
         }
         if(view == mSearchButton){
+            mSpinnerService.showSpinner();
             String searchPhrase = mDescriptionText.getText().toString().trim();
             yelpCall(mDescriptionText.getText().toString().trim());
         }
