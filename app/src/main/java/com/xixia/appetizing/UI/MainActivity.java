@@ -474,6 +474,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 if(newState == 3) {
                     Log.d("STATE VISIBLE", "STATE VISIBLE");
                     mCoordinator.setVisibility(View.VISIBLE);
+                    mLargeSpashPic.setScaleType(ImageView.ScaleType.CENTER);
                 }
             }
 

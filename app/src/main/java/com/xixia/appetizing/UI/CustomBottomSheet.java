@@ -25,11 +25,17 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
     private Context mContext;
     private static ScaleGestureDetector mScaleDetector;
     private static Matrix matrix;
+    private static View rootView;
+    private static ImageView largeSplashPic;
+    private static Boolean isScaling;
     public CustomBottomSheet(Context context) {
         super();
         mContext = context;
         mScaleDetector = new ScaleGestureDetector(mContext, new ScaleListener());
         matrix = new Matrix();
+        rootView = ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
+        largeSplashPic = rootView.findViewById(R.id.largeSplashPic);
+        isScaling = false;
     }
 
     public CustomBottomSheet(Context context, AttributeSet attrs) {
@@ -43,14 +49,20 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
        if(event.getPointerCount() == 2) {
            return true;
        }
+       if(isScaling){
+           if(event.getAction() == MotionEvent.ACTION_POINTER_UP || event.getAction() == MotionEvent.ACTION_UP) {
+               largeSplashPic.setScaleType(ImageView.ScaleType.CENTER);
+               isScaling = false;
+           }
+       }
                 return super.onInterceptTouchEvent(parent, child, event);
     }
 
     @Override
     public boolean onTouchEvent(CoordinatorLayout parent, V child, MotionEvent event){
         if(parent.isShown()) {
-            Log.d("TOUCH EVENT", event.toString());
-            CustomBottomSheet.mScaleDetector.onTouchEvent(event);
+            Log.d("TOUCH EVENT", child.toString());
+            mScaleDetector.onTouchEvent(event);
             return true;
         } else return false;
     }
@@ -60,20 +72,13 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-
-            Log.d("SCALING", detector.toString());
+            CustomBottomSheet.isScaling = true;
+            largeSplashPic.setScaleType(ImageView.ScaleType.MATRIX);
+            Log.d("SCALING", String.valueOf(detector.getScaleFactor()));
             float scaleFactor = detector.getScaleFactor();
-            scaleFactor = Math.max(0.1f, Math.min(scaleFactor, 5.0f));
+            scaleFactor = Math.max(0.01f, Math.min(scaleFactor, 5.0f));
             CustomBottomSheet.matrix.setScale(scaleFactor, scaleFactor);
-            View rootView = ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
-            ImageView largeSplashPic = rootView.findViewById(R.id.largeSplashPic);
             largeSplashPic.setImageMatrix(CustomBottomSheet.matrix);
-//            mScaleFactor *= detector.getScaleFactor();
-//
-//            // Don't let the object get too small or too large.
-//            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 5.0f));
-//
-//            invalidate();
             return true;
         }
     }
