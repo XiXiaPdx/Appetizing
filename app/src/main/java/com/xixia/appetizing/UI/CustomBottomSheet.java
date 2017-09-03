@@ -24,7 +24,7 @@ import butterknife.BindView;
 public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
     private Context mContext;
     private static ScaleGestureDetector mScaleDetector;
-    private static Matrix matrix;
+    private  Matrix matrix;
     private static View rootView;
     private static ImageView largeSplashPic;
     private static Boolean isScaling;
@@ -50,12 +50,12 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
            return true;
        }
        if(isScaling){
-           if(event.getAction() == MotionEvent.ACTION_POINTER_UP || event.getAction() == MotionEvent.ACTION_UP) {
+           if(event.getAction() == MotionEvent.ACTION_UP) {
                largeSplashPic.setScaleType(ImageView.ScaleType.CENTER);
                isScaling = false;
            }
        }
-                return super.onInterceptTouchEvent(parent, child, event);
+       return false;
     }
 
     @Override
@@ -69,16 +69,17 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
 
     private class ScaleListener
             extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        private float scaleFactor = 1.f;
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            CustomBottomSheet.isScaling = true;
+            isScaling = true;
             largeSplashPic.setScaleType(ImageView.ScaleType.MATRIX);
             Log.d("SCALING", String.valueOf(detector.getScaleFactor()));
-            float scaleFactor = detector.getScaleFactor();
+            scaleFactor *= detector.getScaleFactor();
             scaleFactor = Math.max(0.01f, Math.min(scaleFactor, 5.0f));
-            CustomBottomSheet.matrix.setScale(scaleFactor, scaleFactor);
-            largeSplashPic.setImageMatrix(CustomBottomSheet.matrix);
+            matrix.setScale(scaleFactor, scaleFactor);
+            largeSplashPic.setImageMatrix(matrix);
             return true;
         }
     }
