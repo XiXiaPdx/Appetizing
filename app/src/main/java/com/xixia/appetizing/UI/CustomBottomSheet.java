@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Matrix;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -24,10 +25,12 @@ import butterknife.BindView;
 public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
     private Context mContext;
     private static ScaleGestureDetector mScaleDetector;
-    private  Matrix matrix;
+    private  static Matrix matrix;
     private static View rootView;
     private static ImageView largeSplashPic;
     private static Boolean isScaling;
+    private float focusY;
+    private float focusX;
     public CustomBottomSheet(Context context) {
         super();
         mContext = context;
@@ -60,8 +63,15 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
 
     @Override
     public boolean onTouchEvent(CoordinatorLayout parent, V child, MotionEvent event){
+        final int action = event.getActionMasked();
+
         if(parent.isShown()) {
-            Log.d("TOUCH EVENT", child.toString());
+            if(action == MotionEvent.ACTION_MOVE && !mScaleDetector.isInProgress()){
+                Log.d("MOVING", "YYY: " + mScaleDetector.getFocusY() + "  XXX: " + mScaleDetector.getFocusX());
+                matrix.setTranslate(mScaleDetector.getFocusX(), mScaleDetector.getFocusY());
+                largeSplashPic.setImageMatrix(matrix);
+            }
+
             mScaleDetector.onTouchEvent(event);
             return true;
         } else return false;
@@ -75,10 +85,13 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
         public boolean onScale(ScaleGestureDetector detector) {
             isScaling = true;
             largeSplashPic.setScaleType(ImageView.ScaleType.MATRIX);
-            Log.d("SCALING", String.valueOf(detector.getScaleFactor()));
+            focusY = detector.getFocusY();
+            focusX = detector.getFocusX();
+            Log.d("SCALING", "YYY: "+focusY +"  XXX: "+focusX);
             scaleFactor *= detector.getScaleFactor();
             scaleFactor = Math.max(0.01f, Math.min(scaleFactor, 5.0f));
             matrix.setScale(scaleFactor, scaleFactor);
+
             largeSplashPic.setImageMatrix(matrix);
             return true;
         }
