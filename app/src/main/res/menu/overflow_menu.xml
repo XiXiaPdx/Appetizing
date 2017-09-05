@@ -2,12 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_refresh"
-        android:orderInCategory="100"
-        app:showAsAction="always"
-        android:icon="@drawable/fui_ic_phone_white_24dp"
-        android:title="Refresh"/>
-    <item
         android:id="@+id/action_instructions"
         android:title="Instructions">
     </item>
@@ -16,3 +10,12 @@
         android:title="Log Out">
     </item>
 </menu>
+
+    <!-- this adds an icon just to the left of the overflow menu 3 dots -->
+
+    <!--<item-->
+    <!--android:id="@+id/action_refresh"-->
+    <!--android:orderInCategory="100"-->
+    <!--app:showAsAction="always"-->
+    <!--android:icon="@drawable/fui_ic_phone_white_24dp"-->
+    <!--android:title="Refresh"/>-->
