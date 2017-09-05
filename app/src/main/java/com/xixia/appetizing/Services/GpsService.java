@@ -4,6 +4,7 @@ package com.xixia.appetizing.Services;
  * Created by macbook on 8/27/17.
  */
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.IntentSender;
@@ -28,6 +29,7 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.xixia.appetizing.Constants;
 import com.yelp.clientlib.entities.options.CoordinateOptions;
 
 
@@ -48,6 +50,7 @@ public class GpsService implements OnConnectionFailedListener, ConnectionCallbac
     private static LocationRequest mLocationRequest;
     private static Context mContext;
     private static RevealSearch mRevealSearch;
+    private static Status status;
 
     private GpsService(Context context) {
         mContext = context;
@@ -83,8 +86,12 @@ public class GpsService implements OnConnectionFailedListener, ConnectionCallbac
 
             @Override
             public void onResult(@NonNull LocationSettingsResult result) {
-                final Status status = result.getStatus();
+                status = result.getStatus();
+                Log.d("RESULT STATUS", status.toString());
                 final LocationSettingsStates state = result.getLocationSettingsStates();
+                Log.d("IS LOcation Usable?", Boolean.toString(state.isLocationUsable()));
+                Log.d("ON RESULT Call Back","PERMISSION: Fine Location: "+ String.valueOf(ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_FINE_LOCATION)));
+
                 switch (status.getStatusCode()) {
                     case LocationSettingsStatusCodes.SUCCESS:
                         // All location settings are satisfied. The client can
@@ -113,7 +120,16 @@ public class GpsService implements OnConnectionFailedListener, ConnectionCallbac
     }
 
     public static void getLocation(Context locationContext) {
+
+        Log.d("GET LOCATION","PERMISSION: Fine Location: "+ String.valueOf(ActivityCompat.checkSelfPermission(locationContext, android.Manifest.permission.ACCESS_FINE_LOCATION)));
+        Log.d("GET LOCATION","PERMISSION: Coarse Location: "+ String.valueOf(ActivityCompat.checkSelfPermission(locationContext, android.Manifest.permission.ACCESS_COARSE_LOCATION)));
+
+
         if (ActivityCompat.checkSelfPermission(locationContext, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(locationContext, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions((Activity)mContext, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, Constants.GET_LOCATION_PERMISSION);
+
+
+
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -147,9 +163,14 @@ public class GpsService implements OnConnectionFailedListener, ConnectionCallbac
         }
     }
 
+
     public static void getCurrentLocation(){
         if (ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
+
+            ActivityCompat.requestPermissions((Activity) mContext, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, Constants.GET_LOCATION_PERMISSION);
+
+
+                // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
             //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
@@ -161,7 +182,7 @@ public class GpsService implements OnConnectionFailedListener, ConnectionCallbac
             if (!mGoogleApiClient.isConnected())
                 mGoogleApiClient.connect();
         }
-//        Log.d("GETTING CURRNET", "GETING CURRENT");
+        Log.d("GETTING CURRNET", "GETING CURRENT");
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, listener);
     }
 

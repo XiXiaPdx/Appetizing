@@ -5,4 +5,5 @@
     <string name="user_node">Users</string>
     <string name="user_food_description">UserDescriptions</string>
     <string name="what_to_eat">Describe food, then find food.</string>
+    <string name="title_activity_maps">Map</string>
 </resources>

@@ -107,8 +107,6 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
             }
         }
 
-
-
         @Override
         public void onClick(View view) {
             if (view == mPhotographerName){

@@ -46,9 +46,13 @@ public abstract class BaseActivity extends AppCompatActivity {
             // action with ID action_refresh was selected
             case R.id.action_instructions:
                 if(getClass() != InstructionsActivity.class) {
-                    Intent intent = new Intent(getBaseContext(), InstructionsActivity.class);
+
+                    Intent intent = new Intent (this, MapsActivity.class);
                     startActivity(intent);
-                    overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
+                    overridePendingTransition(R.anim.slide_from_left, R.anim.slide_to_right);
+//                    Intent intent = new Intent(getBaseContext(), InstructionsActivity.class);
+//                    startActivity(intent);
+//                    overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
                 }
                 break;
             case R.id.action_logout:
