@@ -1,28 +1,23 @@
 package com.xixia.appetizing.UI;
 
 import android.content.Intent;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.transition.Fade;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
 
 import com.firebase.ui.auth.AuthUI;
 import com.xixia.appetizing.Adapters.InstructionPagerAdapter;
 import com.xixia.appetizing.R;
 import com.xixia.appetizing.Services.AppDataSingleton;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import com.xixia.appetizing.UI.InstructionFragments.InstructionOne;
+import com.xixia.appetizing.UI.InstructionFragments.InstructionThree;
+import com.xixia.appetizing.UI.InstructionFragments.InstructionTwo;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
@@ -61,9 +56,13 @@ public abstract class BaseActivity extends AppCompatActivity {
             case R.id.action_instructions:
 
                 ViewPager mViewPager = this.findViewById(R.id.viewpager);
+                mViewPager.setVisibility(View.VISIBLE);
+                mViewPager.setAlpha(0.0f);
+                mViewPager.animate().alpha(1.0f).setDuration(700);
 
                 mIPA.addFrag(new InstructionOne(), "ONE");
-                mIPA.addFrag(new InstructionOne(), "TWO");
+                mIPA.addFrag(new InstructionTwo(), "TWO");
+                mIPA.addFrag(new InstructionThree(), "THREE");
                 mViewPager.setAdapter(mIPA);
 
 
