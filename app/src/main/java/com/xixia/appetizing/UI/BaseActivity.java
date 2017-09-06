@@ -1,21 +1,31 @@
 package com.xixia.appetizing.UI;
 
 import android.content.Intent;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.transition.Fade;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 
 import com.firebase.ui.auth.AuthUI;
 import com.xixia.appetizing.R;
 import com.xixia.appetizing.Services.AppDataSingleton;
 
+import butterknife.BindView;
+
 public abstract class BaseActivity extends AppCompatActivity {
 
     Toolbar toolbar;
+    private FragmentManager mFragmentManager ;
+    @BindView(R.id.instructionFragmentFrame)
+    FrameLayout mInstructionFrame;
 
     //this will get the String name for the activity that is active
 //    String activityName = getClass().getSimpleName();
@@ -23,7 +33,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        mFragmentManager=getSupportFragmentManager();
     }
 
     @Override
@@ -45,15 +55,28 @@ public abstract class BaseActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // action with ID action_refresh was selected
             case R.id.action_instructions:
-                if(getClass() != InstructionsActivity.class) {
+                mInstructionFrame.setVisibility(View.VISIBLE);
+                mInstructionFrame.setAlpha(0.0f);
+                mInstructionFrame.animate().alpha(1.0f);
+                mInstructionFrame.animate().setDuration(700);
 
-                    Intent intent = new Intent (this, MapsActivity.class);
-                    startActivity(intent);
-                    overridePendingTransition(R.anim.slide_from_left, R.anim.slide_to_right);
-//                    Intent intent = new Intent(getBaseContext(), InstructionsActivity.class);
+                InstructionFragment fragment = InstructionFragment.newInstance();
+                Fade enterFade = new Fade ();
+                enterFade.setDuration(500);
+                fragment.setEnterTransition(enterFade);
+                // set transition fade for exit of fragment
+                Fade exitFade = new Fade();
+                exitFade.setDuration(200);
+                fragment.setExitTransition(exitFade);
+
+                mFragmentManager.beginTransaction().replace(R.id.instructionFragmentFrame, fragment).addToBackStack(null).commit();
+
+                //load instruction fragment in
+//                    Intent intent = new Intent (this, MapsActivity.class);
 //                    startActivity(intent);
-//                    overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
-                }
+//                    overridePendingTransition(R.anim.slide_from_left, R.anim.slide_to_right);
+
+
                 break;
             case R.id.action_logout:
                 AppDataSingleton.clearAppData();

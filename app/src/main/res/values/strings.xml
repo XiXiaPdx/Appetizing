@@ -6,4 +6,7 @@
     <string name="user_food_description">UserDescriptions</string>
     <string name="what_to_eat">Describe food, then find food.</string>
     <string name="title_activity_maps">Map</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorLightBlue"
     tools:context="com.xixia.appetizing.UI.MainActivity">
     <include layout="@layout/toolbar"
         android:layout_height="0dp"
@@ -25,6 +26,14 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
+
+    <FrameLayout
+        android:id="@+id/instructionFragmentFrame"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/include"
+        android:background="@color/colorPrimary"></FrameLayout>
 
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/coordinator"
