@@ -39,7 +39,7 @@
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
-            android:text="1. Scroll and find something you like to eat."
+            android:text="@string/instruction_sentence"
             android:textSize="30dp"
             android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"

@@ -6,6 +6,7 @@
     <string name="user_food_description">UserDescriptions</string>
     <string name="what_to_eat">Describe food, then find food.</string>
     <string name="title_activity_maps">Map</string>
+    <string name="instruction_sentence">1. Tap on picture that makes you hungry   2. Describe what the picture makes you want to eat    3. Search restaurants near you that might serve this food. </string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
