@@ -3,6 +3,8 @@ package com.xixia.appetizing.UI;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -15,17 +17,18 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import com.firebase.ui.auth.AuthUI;
+import com.xixia.appetizing.Adapters.InstructionPagerAdapter;
 import com.xixia.appetizing.R;
 import com.xixia.appetizing.Services.AppDataSingleton;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
     Toolbar toolbar;
     private FragmentManager mFragmentManager ;
-    @BindView(R.id.instructionFragmentFrame)
-    FrameLayout mInstructionFrame;
+    private InstructionPagerAdapter mIPA;
 
     //this will get the String name for the activity that is active
 //    String activityName = getClass().getSimpleName();
@@ -34,6 +37,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mFragmentManager=getSupportFragmentManager();
+        mIPA = new InstructionPagerAdapter(mFragmentManager);
     }
 
     @Override
@@ -55,21 +59,31 @@ public abstract class BaseActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // action with ID action_refresh was selected
             case R.id.action_instructions:
-                mInstructionFrame.setVisibility(View.VISIBLE);
-                mInstructionFrame.setAlpha(0.0f);
-                mInstructionFrame.animate().alpha(1.0f);
-                mInstructionFrame.animate().setDuration(700);
 
-                InstructionFragment fragment = InstructionFragment.newInstance();
-                Fade enterFade = new Fade ();
-                enterFade.setDuration(500);
-                fragment.setEnterTransition(enterFade);
-                // set transition fade for exit of fragment
-                Fade exitFade = new Fade();
-                exitFade.setDuration(200);
-                fragment.setExitTransition(exitFade);
+                ViewPager mViewPager = this.findViewById(R.id.viewpager);
 
-                mFragmentManager.beginTransaction().replace(R.id.instructionFragmentFrame, fragment).addToBackStack(null).commit();
+                mIPA.addFrag(new InstructionOne(), "ONE");
+                mIPA.addFrag(new InstructionOne(), "TWO");
+                mViewPager.setAdapter(mIPA);
+
+
+//                FrameLayout mInstructionFrame = this.findViewById(R.id.instructionFragmentFrame);
+
+//                mInstructionFrame.setVisibility(View.VISIBLE);
+//                mInstructionFrame.setAlpha(0.0f);
+//                mInstructionFrame.animate().alpha(1.0f);
+//                mInstructionFrame.animate().setDuration(700);
+//
+//                InstructionFragment fragment = InstructionFragment.newInstance();
+//                Fade enterFade = new Fade ();
+//                enterFade.setDuration(500);
+//                fragment.setEnterTransition(enterFade);
+//                // set transition fade for exit of fragment
+//                Fade exitFade = new Fade();
+//                exitFade.setDuration(200);
+//                fragment.setExitTransition(exitFade);
+//
+//                mFragmentManager.beginTransaction().replace(R.id.instructionFragmentFrame, fragment).addToBackStack(null).commit();
 
                 //load instruction fragment in
 //                    Intent intent = new Intent (this, MapsActivity.class);
