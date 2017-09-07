@@ -81,32 +81,6 @@ public abstract class BaseActivity extends AppCompatActivity {
                         return false;
                     }
                 });
-
-
-//                FrameLayout mInstructionFrame = this.findViewById(R.id.instructionFragmentFrame);
-
-//                mInstructionFrame.setVisibility(View.VISIBLE);
-//                mInstructionFrame.setAlpha(0.0f);
-//                mInstructionFrame.animate().alpha(1.0f);
-//                mInstructionFrame.animate().setDuration(700);
-//
-//                InstructionFragment fragment = InstructionFragment.newInstance();
-//                Fade enterFade = new Fade ();
-//                enterFade.setDuration(500);
-//                fragment.setEnterTransition(enterFade);
-//                // set transition fade for exit of fragment
-//                Fade exitFade = new Fade();
-//                exitFade.setDuration(200);
-//                fragment.setExitTransition(exitFade);
-//
-//                mFragmentManager.beginTransaction().replace(R.id.instructionFragmentFrame, fragment).addToBackStack(null).commit();
-
-                //load instruction fragment in
-//                    Intent intent = new Intent (this, MapsActivity.class);
-//                    startActivity(intent);
-//                    overridePendingTransition(R.anim.slide_from_left, R.anim.slide_to_right);
-
-
                 break;
             case R.id.action_logout:
                 AppDataSingleton.clearAppData();
