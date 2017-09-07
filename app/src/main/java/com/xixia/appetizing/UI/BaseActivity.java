@@ -1,5 +1,7 @@
 package com.xixia.appetizing.UI;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
@@ -66,7 +68,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 mViewPager = this.findViewById(R.id.viewpager);
                 mViewPager.setVisibility(View.VISIBLE);
                 mViewPager.setAlpha(0.0f);
-                mViewPager.animate().alpha(1.0f).translationY(toolbar.getHeight()).setDuration(500);
+                mViewPager.animate().alpha(1.0f).translationY(toolbar.getHeight()).setDuration(500).setListener(null);
 
                 mIPA.addFrag(new InstructionOne(), "ONE");
                 mIPA.addFrag(new InstructionTwo(), "TWO");
@@ -172,8 +174,13 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-            mViewPager.animate().alpha(0.0f).translationY(0).setDuration(500);
-//            mViewPager.setVisibility(View.GONE);
+            mViewPager.animate().alpha(0.0f).translationY(0).setDuration(500).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    mViewPager.setVisibility(View.GONE);
+                }
+            });
             return super.onSingleTapConfirmed(e);
         }
     }
