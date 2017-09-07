@@ -4,6 +4,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +29,6 @@ public class InstructionPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        Log.d("PAGER SiZe", "PGER SizE");
         return mFragmentList.size();
     }
 
@@ -40,4 +41,5 @@ public class InstructionPagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         return mFragmentTitleList.get(position);
     }
+
 }
