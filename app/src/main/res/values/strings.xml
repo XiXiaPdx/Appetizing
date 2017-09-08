@@ -6,9 +6,9 @@
     <string name="user_food_description">UserDescriptions</string>
     <string name="what_to_eat">Describe food, then find food.</string>
     <string name="title_activity_maps">Map</string>
-    <string name="instruction_one">Tap on picture that makes you hungry   </string>
-    <string name="instruction_two">Describe what YOU\'RE thinking of eating</string>
-    <string name="instruction_three">Search restaurants near you for that food</string>
+    <string name="instruction_one">1. Tap on picture that makes you hungry   </string>
+    <string name="instruction_two">2. Describe what YOU\'RE thinking of eating</string>
+    <string name="instruction_three">3. Search restaurants near you for that food</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
