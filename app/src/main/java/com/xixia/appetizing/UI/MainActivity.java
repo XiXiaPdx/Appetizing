@@ -6,21 +6,17 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Matrix;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.transition.Fade;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -45,6 +41,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 import com.xixia.appetizing.Adapters.SplashPicsAdapter;
 import com.xixia.appetizing.Constants;
+import com.xixia.appetizing.Models.Restaurant;
 import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.Models.DescribedPicture;
 import com.xixia.appetizing.Models.UserProfile;
@@ -62,6 +59,8 @@ import com.yelp.clientlib.entities.Business;
 import com.yelp.clientlib.entities.SearchResponse;
 import com.yelp.clientlib.entities.options.CoordinateOptions;
 
+import org.parceler.Parcels;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -75,7 +74,6 @@ import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -259,6 +257,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     }
 
     public void yelpCall(String searchTerm){
+        final List<Restaurant> searchedRestaurants= new ArrayList<>();
         apiFactory = new YelpAPIFactory(Constants.YELP_CONSUMER_KEY, Constants.YELP_CONSUMER_SECRET, Constants.YELP_TOKEN, Constants.YELP_TOKEN_SECRET);
         YelpAPI yelpAPI = apiFactory.createAPI();
         Map<String, String> params = new HashMap<>();
@@ -274,11 +273,19 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 int count = 0;
                 for (Business business: searchResponse.businesses()){
                     stringBuilder.append(business.name()+", ");
+                    Restaurant newRestaurant = createRestaurant(business);
+                    searchedRestaurants.add(newRestaurant);
                     count++;
                     if (count == 5){ break;}
                 }
 
                 Toast.makeText(MainActivity.this, stringBuilder.toString(), Toast.LENGTH_LONG).show();
+                Intent intent = new Intent (MainActivity.this, MapsActivity.class);
+                intent.putExtra("restaurants", Parcels.wrap(searchedRestaurants));
+                intent.putExtra("myLat", mSearchCoordinate.latitude());
+                intent.putExtra("myLong", mSearchCoordinate.longitude());
+                startActivity(intent);
+                overridePendingTransition(R.anim.slide_from_left, R.anim.slide_to_right);
             }
             @Override
             public void onFailure(Call<SearchResponse> call, Throwable t) {
@@ -286,6 +293,14 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             }
         };
         call.enqueue(callback);
+    }
+
+    public Restaurant createRestaurant(Business business){
+         Double mLat = business.location().coordinate().latitude();
+        Double mLong = business.location().coordinate().longitude();
+        String mName = business.name();
+
+        return new Restaurant(mLat, mLong, mName);
     }
 
 
@@ -501,9 +516,9 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 .with(this)
                 .load(mSelectedPic.getUrls()
                         .getRegular())
-                .resize(screenWidth, screenWidth)
-                .onlyScaleDown()
-                .centerCrop()
+//                .resize(50, 50)
+//                .onlyScaleDown()
+                .fit()
                 .into(mLargeSpashPic);
         mCardView.setLayoutParams(new ConstraintLayout.LayoutParams(circleDiameter,circleDiameter));
         mCardView.setRadius(circleDiameter/2);
