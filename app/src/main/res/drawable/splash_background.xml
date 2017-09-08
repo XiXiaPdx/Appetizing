@@ -5,6 +5,7 @@
         <bitmap
             android:gravity="center"
             android:scaleType="centerInside"
-            android:src="@drawable/splashback" />
+            android:src="@drawable/splashback"
+             />
     </item>
 </layer-list>

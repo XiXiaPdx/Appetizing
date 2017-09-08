@@ -88,6 +88,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 Intent intent = new Intent(getBaseContext(), SplashActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
+                finish();
                 overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
                 AuthUI.getInstance().signOut(this);
                 break;

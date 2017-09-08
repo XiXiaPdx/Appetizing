@@ -495,8 +495,8 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     public void setLargePic(int pictureIndex){
         android.view.Display display = ((android.view.WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         int circleDiameter = (int)((double) display.getWidth()* .8);
-        int screenWidth = getWindowManager().getDefaultDisplay().getWidth();
-        Log.d("WDITH", String.valueOf(screenWidth));
+
+        int screenWidth = display.getWidth();
         mSelectedPic = mAllPictures.get(pictureIndex);
         Picasso
                 .with(this)

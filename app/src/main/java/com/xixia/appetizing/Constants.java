@@ -21,8 +21,8 @@ public class Constants {
     public static final String YELP_LOCATION_QUERY_PARAMETER = "location";
     public static final String YELP_FOOD_QUERY_PARAMETER = "term";
     public static final String PREFERENCES_LOCATION_KEY = "location";
-    public static final int MAX_Width = 500;
-    public static final int MAX_Height = 500;
+    public static final int MAX_Width = 350;
+    public static final int MAX_Height = 350;
     public static final int GET_LOCATION_PERMISSION = 1;
 
 }
