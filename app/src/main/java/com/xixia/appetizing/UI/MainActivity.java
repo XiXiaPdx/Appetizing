@@ -259,7 +259,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     }
 
     public void yelpCall(String searchTerm){
-        GpsService.getLocation(this);
         apiFactory = new YelpAPIFactory(Constants.YELP_CONSUMER_KEY, Constants.YELP_CONSUMER_SECRET, Constants.YELP_TOKEN, Constants.YELP_TOKEN_SECRET);
         YelpAPI yelpAPI = apiFactory.createAPI();
         Map<String, String> params = new HashMap<>();

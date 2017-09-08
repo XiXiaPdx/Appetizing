@@ -55,7 +55,7 @@ public class SplashActivity extends BaseActivity {
         }
     }
 
-    private void displayWarningDialog() {
+    public void displayWarningDialog() {
         AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
         builder.setMessage("Appetizing requires an Internet connection to start")
                 .setTitle("No Internet")

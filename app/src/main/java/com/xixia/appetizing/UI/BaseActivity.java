@@ -2,7 +2,12 @@ package com.xixia.appetizing.UI;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -30,9 +35,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     private InstructionPagerAdapter mIPA;
     private GestureDetector mTapListener;
     private ViewPager mViewPager;
-
-    //this will get the String name for the activity that is active
-//    String activityName = getClass().getSimpleName();
+    private AlertDialog mAlertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +43,16 @@ public abstract class BaseActivity extends AppCompatActivity {
         mFragmentManager=getSupportFragmentManager();
         mIPA = new InstructionPagerAdapter(mFragmentManager);
         mTapListener = new GestureDetector(this, new TapListener());
+        registerReceiver(broadcastReceiver, new IntentFilter("INTERNET_LOST"));
     }
+
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            displayWarningDialog();
+            unregisterReceiver(broadcastReceiver);
+        }
+    };
 
     @Override
     public void onBackPressed(){
@@ -155,5 +167,26 @@ public abstract class BaseActivity extends AppCompatActivity {
             });
             return super.onSingleTapConfirmed(e);
         }
+    }
+
+    public void displayWarningDialog() {
+        AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        builder.setMessage("Many Appetizing capabilities will not work without internet")
+                .setTitle("No Internet")
+                .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int i) {
+                                dialog.dismiss();
+                            }
+                        }
+                );
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        unregisterReceiver(broadcastReceiver);
     }
 }
