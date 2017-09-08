@@ -8,23 +8,20 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.widget.ImageView;
 
 import com.firebase.ui.auth.AuthUI;
 import com.xixia.appetizing.Adapters.InstructionPagerAdapter;
 import com.xixia.appetizing.R;
 import com.xixia.appetizing.Services.AppDataSingleton;
-import com.xixia.appetizing.UI.InstructionFragments.InstructionOne;
-import com.xixia.appetizing.UI.InstructionFragments.InstructionThree;
-import com.xixia.appetizing.UI.InstructionFragments.InstructionTwo;
+import com.xixia.appetizing.Fragments.InstructionOne;
+import com.xixia.appetizing.Fragments.InstructionThree;
+import com.xixia.appetizing.Fragments.InstructionTwo;
 
 public abstract class BaseActivity extends AppCompatActivity {
 

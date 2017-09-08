@@ -1,4 +1,4 @@
-package com.xixia.appetizing.UI.InstructionFragments;
+package com.xixia.appetizing.Fragments;
 
 
 import android.os.Bundle;
