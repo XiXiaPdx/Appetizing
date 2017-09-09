@@ -56,8 +56,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         mRestaurants = Parcels.unwrap(getIntent().getParcelableExtra("restaurants"));
-        mLat = getIntent().getDoubleExtra("myLat", 0.00);
-        mLong = getIntent().getDoubleExtra("myLong",0.00);
         mSearchTerm = getIntent().getStringExtra("searchTerm");
         Log.d("SEARCH TERM", mSearchTerm);
     }
@@ -89,27 +87,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             buildGoogleApiClient();
             mMap.setMyLocationEnabled(true);
         }
-
-
-//        mMap.getUiSettings().setAllGesturesEnabled(true);
-//        LatLng currentLocation = new LatLng(mLat, mLong);
-//        mMap.addMarker(new MarkerOptions().position(currentLocation).title("Your Location"));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation,13));
-//
-//        int count = 0;
-//        for (Restaurant restaurant: mRestaurants){
-//           addToMap(restaurant);
-//            count++;
-//            if (count == 5){ break;}
-//        }
-
-    }
-
-    public void addToMap(Restaurant restaurant){
-        Restaurant currentRestaurant = restaurant;
-        LatLng restaurantLocation = new LatLng(restaurant.getmLat(), restaurant.getmLong());
-        mMap.addMarker(new MarkerOptions().position(restaurantLocation).title(currentRestaurant.getmName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(restaurantLocation));
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -153,11 +130,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        Log.d("LAT",String.valueOf(location.getLatitude()));
+
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
         markerOptions.title("Current Position");
-//        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-//        mCurrLocationMarker = mMap.addMarker(markerOptions);
 
         //move map camera
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));

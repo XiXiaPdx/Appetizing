@@ -13,7 +13,6 @@ import com.xixia.appetizing.Constants;
 import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.R;
 import com.xixia.appetizing.Services.AppDataSingleton;
-import com.xixia.appetizing.Services.GpsService;
 import com.xixia.appetizing.Services.UnSplashClient;
 import com.xixia.appetizing.Services.UnSplashServiceGenerator;
 

@@ -48,7 +48,6 @@ import com.xixia.appetizing.Models.UserProfile;
 import com.xixia.appetizing.R;
 import com.xixia.appetizing.Services.AppDataSingleton;
 import com.xixia.appetizing.Services.EndLessScrollListener;
-import com.xixia.appetizing.Services.GpsService;
 import com.xixia.appetizing.Services.SpinnerService;
 import com.xixia.appetizing.Services.SplashCustomRecyclerView;
 import com.xixia.appetizing.Services.UnSplashClient;
@@ -78,7 +77,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends BaseActivity implements SplashPicsAdapter.OpenBottomSheet, GpsService.RevealSearch, View.OnClickListener {
+public class MainActivity extends BaseActivity implements SplashPicsAdapter.OpenBottomSheet, View.OnClickListener {
     private FirebaseDatabase mFireBaseDatabase;
     private FirebaseAuth mFireBaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -96,7 +95,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     private ChildEventListener mDescribedFoodListener;
     private SpinnerService mSpinnerService;
     private YelpAPIFactory apiFactory;
-    private CoordinateOptions mSearchCoordinate;
     private FragmentManager mFragmentManager;
     @BindView(R.id.coordinator) CoordinatorLayout mCoordinator;
     @BindView(R.id.bottom_sheet) View mBottomSheet;
@@ -263,11 +261,10 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         Map<String, String> params = new HashMap<>();
         params.put("category_filter", "restaurants");
         params.put("term", searchTerm);
-        Call<SearchResponse> call = yelpAPI.search(mSearchCoordinate, params);
+        Call<SearchResponse> call = yelpAPI.search("Portland", params);
         Callback<SearchResponse> callback = new Callback<SearchResponse>() {
             @Override
             public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
-                mSpinnerService.removeSpinner();
                 SearchResponse searchResponse = response.body();
                 StringBuilder stringBuilder = new StringBuilder();
                 int count = 0;
@@ -282,8 +279,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 Toast.makeText(MainActivity.this, stringBuilder.toString(), Toast.LENGTH_LONG).show();
                 Intent intent = new Intent (MainActivity.this, MapsActivity.class);
                 intent.putExtra("restaurants", Parcels.wrap(searchedRestaurants));
-                intent.putExtra("myLat", mSearchCoordinate.latitude());
-                intent.putExtra("myLong", mSearchCoordinate.longitude());
                 intent.putExtra("searchTerm", mDescriptionText.getText().toString().trim());
                 startActivity(intent);
                 overridePendingTransition(R.anim.slide_from_left, R.anim.slide_to_right);
@@ -386,7 +381,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             mPicsRecyclerView.addOnScrollListener(mEndLessScrollListener);
         }
         setDescriptionTextWatcher();
-        GpsService.getInstance(this);
     }
 
 
@@ -454,7 +448,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
         @Override
     public void openSheet(int pictureIndex) {
-            mSearchButton.setVisibility(View.INVISIBLE);
             mSubmitEditButton.setVisibility(View.INVISIBLE);
             switch (mBottomSheetBehavior.getState()){
             case BottomSheetBehavior.STATE_EXPANDED:
@@ -462,21 +455,29 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 break;
         }
             setLargePic(pictureIndex);
+            String searchPhrase = mAllPictures.get(pictureIndex).getFoodDescription();
+            if (searchPhrase != null){
+                mSearchButton.setVisibility(View.VISIBLE);
+                mSearchButton.setAlpha(0.0f);
+                mSearchButton.animate().alpha(1.0f);
+            } else {
+                mSearchButton.setVisibility(View.GONE);
+            }
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
             //this is just needed once, on first time open bottom sheet. Without, the stateChange callback doesn't pick up the changes in state for some reason
             mCoordinator.setVisibility(View.VISIBLE);
         }
 
-    @Override
-    public void revealSearchButton(CoordinateOptions coordinate){
-        mSearchCoordinate = coordinate;
-        String searchPhrase = mDescriptionText.getText().toString().trim();
-        if (!searchPhrase.contains("Describe food") ){
-            mSearchButton.setVisibility(View.VISIBLE);
-            mSearchButton.setAlpha(0.0f);
-            mSearchButton.animate().alpha(1.0f);
-        }
-    }
+//    @Override
+//    public void revealSearchButton(CoordinateOptions coordinate){
+//        mSearchCoordinate = coordinate;
+//        String searchPhrase = mDescriptionText.getText().toString().trim();
+//        if (!searchPhrase.contains("Describe food") ){
+//            mSearchButton.setVisibility(View.VISIBLE);
+//            mSearchButton.setAlpha(0.0f);
+//            mSearchButton.animate().alpha(1.0f);
+//        }
+
 
     public void setBottomSheetCallBack(){
         mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
@@ -556,9 +557,8 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             mSearchButton.animate().alpha(1.0f);
         }
         if(view == mSearchButton){
-            mSpinnerService.showSpinner();
             String searchPhrase = mDescriptionText.getText().toString().trim();
-            yelpCall(mDescriptionText.getText().toString().trim());
+            yelpCall(searchPhrase);
         }
     }
 
