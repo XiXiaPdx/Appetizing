@@ -284,6 +284,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 intent.putExtra("restaurants", Parcels.wrap(searchedRestaurants));
                 intent.putExtra("myLat", mSearchCoordinate.latitude());
                 intent.putExtra("myLong", mSearchCoordinate.longitude());
+                intent.putExtra("searchTerm", mDescriptionText.getText().toString().trim());
                 startActivity(intent);
                 overridePendingTransition(R.anim.slide_from_left, R.anim.slide_to_right);
             }
@@ -516,9 +517,8 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 .with(this)
                 .load(mSelectedPic.getUrls()
                         .getRegular())
-//                .resize(50, 50)
-//                .onlyScaleDown()
-                .fit()
+                .resize(screenWidth, screenWidth)
+                .onlyScaleDown()
                 .into(mLargeSpashPic);
         mCardView.setLayoutParams(new ConstraintLayout.LayoutParams(circleDiameter,circleDiameter));
         mCardView.setRadius(circleDiameter/2);
