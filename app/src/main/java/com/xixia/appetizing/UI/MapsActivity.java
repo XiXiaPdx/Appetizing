@@ -26,6 +26,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.xixia.appetizing.Constants;
 import com.xixia.appetizing.Models.GooglePlaces.GoogePlace;
+import com.xixia.appetizing.Models.GooglePlaces.Result;
 import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.R;
 import com.xixia.appetizing.Services.UnSplashClient;
@@ -33,6 +34,7 @@ import com.xixia.appetizing.Services.UnSplashServiceGenerator;
 
 import org.parceler.Parcels;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -101,10 +103,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .addApi(LocationServices.API)
                 .build();
         mGoogleApiClient.connect();
-    }
-
-    public String getUrl(){
-        return  "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
     }
 
     @Override
@@ -185,7 +183,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     @Override
                     public void onSuccess(@io.reactivex.annotations.NonNull GoogePlace googePlace) {
-                        Log.d("Success", "Success");
+                        showNearbyPlaces(googePlace.getResults());
 
                     }
 
@@ -196,18 +194,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 });
     }
 
-    private void ShowNearbyPlaces(List<HashMap<String, String>> nearbyPlacesList) {
+    private void showNearbyPlaces(List<Result> nearbyPlacesList) {
         for (int i = 0; i < nearbyPlacesList.size(); i++) {
-            Log.d("onPostExecute","Entered into showing locations");
+            Log.d("onPostExecute",nearbyPlacesList.get(i).getName());
             MarkerOptions markerOptions = new MarkerOptions();
-            HashMap<String, String> googlePlace = nearbyPlacesList.get(i);
-            double lat = Double.parseDouble(googlePlace.get("lat"));
-            double lng = Double.parseDouble(googlePlace.get("lng"));
-            String placeName = googlePlace.get("place_name");
-            String vicinity = googlePlace.get("vicinity");
+
+            double lat = nearbyPlacesList.get(i).getGeometry().getLocation().getLat();
+            double lng = nearbyPlacesList.get(i).getGeometry().getLocation().getLng();
+            String placeName = nearbyPlacesList.get(i).getName();
             LatLng latLng = new LatLng(lat, lng);
             markerOptions.position(latLng);
-            markerOptions.title(placeName + " : " + vicinity);
+            markerOptions.title(placeName);
             mMap.addMarker(markerOptions);
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
             //move map camera
