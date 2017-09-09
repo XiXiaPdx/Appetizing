@@ -1,6 +1,7 @@
 package com.xixia.appetizing.Services;
 
 import com.xixia.appetizing.Constants;
+import com.xixia.appetizing.Models.GooglePlaces.GoogePlace;
 import com.xixia.appetizing.Models.SplashPic;
 
 import java.util.List;
@@ -25,13 +26,13 @@ public interface UnSplashClient {
     );
 
     @GET
-    Single<ResponseBody> yelp(
+    Single<GoogePlace> nearbyPlaces(
             @Url String url,
-            @Query("ll") String latLong
+            @Query("location") String latLong,
+            @Query("keyword") String searchTerm,
+            @Query("key") String key
     );
 
-// Yelp search
-    //radius_filter in meteters
-    //ll= [latitude value], [longitude value]
+
 
 }

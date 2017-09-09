@@ -20,14 +20,27 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.xixia.appetizing.Constants;
+import com.xixia.appetizing.Models.GooglePlaces.GoogePlace;
+import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.R;
+import com.xixia.appetizing.Services.UnSplashClient;
+import com.xixia.appetizing.Services.UnSplashServiceGenerator;
 
 import org.parceler.Parcels;
 
+import java.util.HashMap;
 import java.util.List;
+
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -126,7 +139,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        Log.d("LAT",String.valueOf(location.getLatitude()));
+        mMap.clear();
+        Log.d("DOuble LAT", String.valueOf(latLng.latitude));
+        String mLatLng = makeString(latLng);
+        //make method that shows nearby. Use retrofit to make call here.
+
+        getNearbyPlaces(mLatLng);
+
+        // On Response, loop through and create markers with
+        //
+        // ShowNearbyPlaces(nearbyPlacesList);
+
 
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
@@ -141,5 +164,55 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
 
+    }
+
+    public String makeString(LatLng latLng){
+
+        return String.valueOf(latLng.latitude)+","+String.valueOf(latLng.longitude);
+    }
+
+    private void getNearbyPlaces(String latLng){
+        Log.d("LATLONG", latLng);
+        UnSplashClient client = UnSplashServiceGenerator.createService(UnSplashClient.class);
+        Single<GoogePlace> call = client.nearbyPlaces("https://maps.googleapis.com/maps/api/place/nearbysearch/json?rankby=distance&type=restaurant", latLng, mSearchTerm, getString(R.string.google_maps_key));
+        call.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<GoogePlace>() {
+                    @Override
+                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(@io.reactivex.annotations.NonNull GoogePlace googePlace) {
+                        Log.d("Success", "Success");
+
+                    }
+
+                    @Override
+                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+                    }
+                });
+    }
+
+    private void ShowNearbyPlaces(List<HashMap<String, String>> nearbyPlacesList) {
+        for (int i = 0; i < nearbyPlacesList.size(); i++) {
+            Log.d("onPostExecute","Entered into showing locations");
+            MarkerOptions markerOptions = new MarkerOptions();
+            HashMap<String, String> googlePlace = nearbyPlacesList.get(i);
+            double lat = Double.parseDouble(googlePlace.get("lat"));
+            double lng = Double.parseDouble(googlePlace.get("lng"));
+            String placeName = googlePlace.get("place_name");
+            String vicinity = googlePlace.get("vicinity");
+            LatLng latLng = new LatLng(lat, lng);
+            markerOptions.position(latLng);
+            markerOptions.title(placeName + " : " + vicinity);
+            mMap.addMarker(markerOptions);
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            //move map camera
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+        }
     }
 }
