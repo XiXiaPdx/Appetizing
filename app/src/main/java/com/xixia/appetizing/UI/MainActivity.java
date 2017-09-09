@@ -41,7 +41,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 import com.xixia.appetizing.Adapters.SplashPicsAdapter;
 import com.xixia.appetizing.Constants;
-import com.xixia.appetizing.Models.Restaurant;
 import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.Models.DescribedPicture;
 import com.xixia.appetizing.Models.UserProfile;
@@ -52,19 +51,10 @@ import com.xixia.appetizing.Services.SpinnerService;
 import com.xixia.appetizing.Services.SplashCustomRecyclerView;
 import com.xixia.appetizing.Services.UnSplashClient;
 import com.xixia.appetizing.Services.UnSplashServiceGenerator;
-import com.yelp.clientlib.connection.YelpAPI;
-import com.yelp.clientlib.connection.YelpAPIFactory;
-import com.yelp.clientlib.entities.Business;
-import com.yelp.clientlib.entities.SearchResponse;
-import com.yelp.clientlib.entities.options.CoordinateOptions;
-
-import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -73,9 +63,6 @@ import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MainActivity extends BaseActivity implements SplashPicsAdapter.OpenBottomSheet, View.OnClickListener {
     private FirebaseDatabase mFireBaseDatabase;
@@ -93,8 +80,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     private CustomBottomSheet mBottomSheetBehavior;
     private SplashPic mSelectedPic;
     private ChildEventListener mDescribedFoodListener;
-    private SpinnerService mSpinnerService;
-    private YelpAPIFactory apiFactory;
     private FragmentManager mFragmentManager;
     @BindView(R.id.coordinator) CoordinatorLayout mCoordinator;
     @BindView(R.id.bottom_sheet) View mBottomSheet;
@@ -132,7 +117,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         mFireBaseDatabase = FirebaseDatabase.getInstance();
         mFireBaseAuth = FirebaseAuth.getInstance();
         mAllPictures = AppDataSingleton.getmAllPictures();
-        mSpinnerService = new SpinnerService(this);
         Log.d("CREATE", "SIZE OF PICTURES "+ mAllPictures.size());
         setmPicsRecyclerView();
         notCurrentlyLoading = true;
@@ -255,50 +239,12 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     }
 
     public void yelpCall(String searchTerm){
-        final List<Restaurant> searchedRestaurants= new ArrayList<>();
-        apiFactory = new YelpAPIFactory(Constants.YELP_CONSUMER_KEY, Constants.YELP_CONSUMER_SECRET, Constants.YELP_TOKEN, Constants.YELP_TOKEN_SECRET);
-        YelpAPI yelpAPI = apiFactory.createAPI();
-        Map<String, String> params = new HashMap<>();
-        params.put("category_filter", "restaurants");
-        params.put("term", searchTerm);
-        Call<SearchResponse> call = yelpAPI.search("Portland", params);
-        Callback<SearchResponse> callback = new Callback<SearchResponse>() {
-            @Override
-            public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
-                SearchResponse searchResponse = response.body();
-                StringBuilder stringBuilder = new StringBuilder();
-                int count = 0;
-                for (Business business: searchResponse.businesses()){
-                    stringBuilder.append(business.name()+", ");
-                    Restaurant newRestaurant = createRestaurant(business);
-                    searchedRestaurants.add(newRestaurant);
-                    count++;
-                    if (count == 5){ break;}
-                }
 
-                Toast.makeText(MainActivity.this, stringBuilder.toString(), Toast.LENGTH_LONG).show();
                 Intent intent = new Intent (MainActivity.this, MapsActivity.class);
-                intent.putExtra("restaurants", Parcels.wrap(searchedRestaurants));
                 intent.putExtra("searchTerm", mDescriptionText.getText().toString().trim());
                 startActivity(intent);
                 overridePendingTransition(R.anim.slide_from_left, R.anim.slide_to_right);
-            }
-            @Override
-            public void onFailure(Call<SearchResponse> call, Throwable t) {
-                Log.d("FAILED YELP", t.toString());
-            }
-        };
-        call.enqueue(callback);
     }
-
-    public Restaurant createRestaurant(Business business){
-         Double mLat = business.location().coordinate().latitude();
-        Double mLong = business.location().coordinate().longitude();
-        String mName = business.name();
-
-        return new Restaurant(mLat, mLong, mName);
-    }
-
 
     @Override
     public void onStart(){

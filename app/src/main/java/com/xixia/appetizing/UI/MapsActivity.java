@@ -16,20 +16,14 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.UiSettings;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.xixia.appetizing.Models.Restaurant;
 import com.xixia.appetizing.R;
-import com.yelp.clientlib.entities.Business;
 
 import org.parceler.Parcels;
 
@@ -38,7 +32,6 @@ import java.util.List;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private GoogleMap mMap;
-    private List<Restaurant> mRestaurants;
     private Double mLat;
     private Double mLong;
     private String mSearchTerm;
@@ -55,7 +48,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        mRestaurants = Parcels.unwrap(getIntent().getParcelableExtra("restaurants"));
         mSearchTerm = getIntent().getStringExtra("searchTerm");
         Log.d("SEARCH TERM", mSearchTerm);
     }
@@ -96,6 +88,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .addApi(LocationServices.API)
                 .build();
         mGoogleApiClient.connect();
+    }
+
+    public String getUrl(){
+        return  "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
     }
 
     @Override
