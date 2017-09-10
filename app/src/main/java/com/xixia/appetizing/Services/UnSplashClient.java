@@ -29,7 +29,7 @@ public interface UnSplashClient {
     Single<GoogePlace> nearbyPlaces(
             @Url String url,
             @Query("location") String latLong,
-            @Query("keyword") String searchTerm,
+            @Query("name") String searchTerm,
             @Query("key") String key
     );
 

@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -29,20 +30,29 @@ import com.xixia.appetizing.Models.GooglePlaces.GoogePlace;
 import com.xixia.appetizing.Models.GooglePlaces.Result;
 import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.R;
+import com.xixia.appetizing.Services.SpinnerService;
 import com.xixia.appetizing.Services.UnSplashClient;
 import com.xixia.appetizing.Services.UnSplashServiceGenerator;
+import com.yelp.clientlib.connection.YelpAPI;
+import com.yelp.clientlib.connection.YelpAPIFactory;
+import com.yelp.clientlib.entities.Business;
+import com.yelp.clientlib.entities.SearchResponse;
 
 import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -54,6 +64,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationRequest mLocationRequest;
     private Location mLastLocation;
     private Marker mCurrLocationMarker;
+    private YelpAPIFactory apiFactory;
+    private SpinnerService mSpinnerService;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +78,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
         mSearchTerm = getIntent().getStringExtra("searchTerm");
         Log.d("SEARCH TERM", mSearchTerm);
+        mSpinnerService = new SpinnerService(this);
     }
 
 
@@ -170,28 +184,60 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void getNearbyPlaces(String latLng){
-        Log.d("LATLONG", latLng);
-        UnSplashClient client = UnSplashServiceGenerator.createService(UnSplashClient.class);
-        Single<GoogePlace> call = client.nearbyPlaces("https://maps.googleapis.com/maps/api/place/nearbysearch/json?rankby=distance&type=restaurant", latLng, mSearchTerm, getString(R.string.google_maps_key));
-        call.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<GoogePlace>() {
-                    @Override
-                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
 
-                    }
+//        final List<Restaurant> searchedRestaurants= new ArrayList<>();
+        apiFactory = new YelpAPIFactory(Constants.YELP_CONSUMER_KEY, Constants.YELP_CONSUMER_SECRET, Constants.YELP_TOKEN, Constants.YELP_TOKEN_SECRET);
+        YelpAPI yelpAPI = apiFactory.createAPI();
+        Map<String, String> params = new HashMap<>();
+        params.put("category_filter", "restaurants");
+        params.put("term", mSearchTerm);
+        Call<SearchResponse> call = yelpAPI.search(latLng, params);
+        Callback<SearchResponse> callback = new Callback<SearchResponse>() {
+            @Override
+            public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
+                SearchResponse searchResponse = response.body();
+                StringBuilder stringBuilder = new StringBuilder();
+                int count = 0;
+                for (Business business: searchResponse.businesses()){
+                    stringBuilder.append(business.name()+", ");
+//                    Restaurant newRestaurant = createRestaurant(business);
+//                    searchedRestaurants.add(newRestaurant);
+                    count++;
+                    if (count == 5){ break;}
+                }
 
-                    @Override
-                    public void onSuccess(@io.reactivex.annotations.NonNull GoogePlace googePlace) {
-                        showNearbyPlaces(googePlace.getResults());
+                Toast.makeText(MapsActivity.this, stringBuilder.toString(), Toast.LENGTH_LONG).show();
+            }
+            @Override
+            public void onFailure(Call<SearchResponse> call, Throwable t) {
+                Log.d("FAILED YELP", t.toString());
+            }
+        };
+        call.enqueue(callback);
 
-                    }
 
-                    @Override
-                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-
-                    }
-                });
+//        Log.d("LATLONG", latLng);
+//        UnSplashClient client = UnSplashServiceGenerator.createService(UnSplashClient.class);
+//        Single<GoogePlace> call = client.nearbyPlaces("https://maps.googleapis.com/maps/api/place/nearbysearch/json?rankby=distance&type=restaurant", latLng, mSearchTerm, getString(R.string.google_maps_key));
+//        call.subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new SingleObserver<GoogePlace>() {
+//                    @Override
+//                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onSuccess(@io.reactivex.annotations.NonNull GoogePlace googePlace) {
+//                        showNearbyPlaces(googePlace.getResults());
+//
+//                    }
+//
+//                    @Override
+//                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+//
+//                    }
+//                });
     }
 
     private void showNearbyPlaces(List<Result> nearbyPlacesList) {
