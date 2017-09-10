@@ -121,6 +121,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        mSpinnerService.showSpinner();
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(1000);
         mLocationRequest.setFastestInterval(1000);
@@ -154,14 +155,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.clear();
         Log.d("DOuble LAT", String.valueOf(latLng.latitude));
         String mLatLng = makeString(latLng);
-        //make method that shows nearby. Use retrofit to make call here.
-
         getNearbyPlaces(mLatLng);
-
-        // On Response, loop through and create markers with
-        //
-        // ShowNearbyPlaces(nearbyPlacesList);
-
 
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
@@ -200,13 +194,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 int count = 0;
                 for (Business business: searchResponse.businesses()){
                     stringBuilder.append(business.name()+", ");
-//                    Restaurant newRestaurant = createRestaurant(business);
-//                    searchedRestaurants.add(newRestaurant);
                     count++;
                     if (count == 5){ break;}
                 }
+                mSpinnerService.removeSpinner();
+                showNearbyPlaces(searchResponse.businesses());
 
-                Toast.makeText(MapsActivity.this, stringBuilder.toString(), Toast.LENGTH_LONG).show();
             }
             @Override
             public void onFailure(Call<SearchResponse> call, Throwable t) {
@@ -240,22 +233,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //                });
     }
 
-    private void showNearbyPlaces(List<Result> nearbyPlacesList) {
+    private void showNearbyPlaces(List<Business> nearbyPlacesList) {
         for (int i = 0; i < nearbyPlacesList.size(); i++) {
-            Log.d("onPostExecute",nearbyPlacesList.get(i).getName());
             MarkerOptions markerOptions = new MarkerOptions();
 
-            double lat = nearbyPlacesList.get(i).getGeometry().getLocation().getLat();
-            double lng = nearbyPlacesList.get(i).getGeometry().getLocation().getLng();
-            String placeName = nearbyPlacesList.get(i).getName();
+            double lat = nearbyPlacesList.get(i).location().coordinate().latitude();
+            double lng = nearbyPlacesList.get(i).location().coordinate().longitude();
+            String placeName = nearbyPlacesList.get(i).name();
             LatLng latLng = new LatLng(lat, lng);
             markerOptions.position(latLng);
             markerOptions.title(placeName);
             mMap.addMarker(markerOptions);
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
             //move map camera
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+//            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+//            mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
         }
     }
 }
