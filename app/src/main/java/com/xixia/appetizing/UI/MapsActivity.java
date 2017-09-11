@@ -2,6 +2,7 @@ package com.xixia.appetizing.UI;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Camera;
 import android.location.Location;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -21,6 +22,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -75,6 +77,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private SpinnerService mSpinnerService;
     private StaggeredGridLayoutManager mRestaurantGridManager;
     private RestaurantAdapter mRestaurantAdapter;
+    private List<Business> mRestaurantList;
+    private Marker mOpenMarker;
 
     @BindView(R.id.restaurantRecycler) RecyclerView mRestaurantScroller;
 
@@ -111,8 +115,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                Toast.makeText(MapsActivity.this, String.valueOf(marker.getTag()), Toast.LENGTH_SHORT).show();
-                return false;
+                if(mOpenMarker != null ){
+                    mOpenMarker.hideInfoWindow();
+                }
+                marker.showInfoWindow();
+                mOpenMarker = marker;
+                int index = (int) marker.getTag();
+                Business restaurant = mRestaurantList.get(index);
+                double lat = restaurant.location().coordinate().latitude();
+                double lng = restaurant.location().coordinate().longitude();
+                LatLng latLng = new LatLng(lat, lng);
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,13));
+                mRestaurantScroller.scrollToPosition(index);
+                return true;
             }
         });
 
@@ -211,6 +226,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
                 SearchResponse searchResponse = response.body();
+                mRestaurantList = searchResponse.businesses();
                 StringBuilder stringBuilder = new StringBuilder();
                 int count = 0;
                 for (Business business: searchResponse.businesses()){

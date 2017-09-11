@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.xixia.appetizing.Models.SplashPic;
@@ -12,6 +13,9 @@ import com.xixia.appetizing.R;
 import com.yelp.clientlib.entities.Business;
 
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Created by macbook on 9/10/17.
@@ -37,7 +41,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
 
     @Override
     public void onBindViewHolder(RestaurantAdapter.RestaurantViewHolder holder, int position) {
-
+        holder.mRestaurantName.setText(mRestaurants.get(position).name());
     }
 
     @Override
@@ -48,11 +52,12 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
     public class RestaurantViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         //view fields on the single restaurant view here
         private Context mSingleRestaurantViewContext;
+        @BindView(R.id.restaurantName) TextView mRestaurantName;
 
         public RestaurantViewHolder(View itemView) {
             super(itemView);
             mSingleRestaurantViewContext = itemView.getContext();
-
+            ButterKnife.bind(this, itemView);
 
         }
 
