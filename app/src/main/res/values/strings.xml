@@ -4,7 +4,7 @@
     <string name="photographer_placeholder">photographer name and link goes here</string>
     <string name="user_node">Users</string>
     <string name="user_food_description">UserDescriptions</string>
-    <string name="what_to_eat">Describe food, then find food.</string>
+    <string name="what_to_eat">Describe food.</string>
     <string name="title_activity_maps">Map</string>
     <string name="instruction_one">1. Tap on picture that makes you hungry   </string>
     <string name="instruction_two">2. Describe what YOU\'RE thinking of eating</string>

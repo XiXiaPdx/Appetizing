@@ -6,12 +6,16 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -39,6 +43,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 import com.xixia.appetizing.Adapters.SplashPicsAdapter;
 import com.xixia.appetizing.Constants;
 import com.xixia.appetizing.Models.SplashPic;
@@ -393,13 +398,13 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
         @Override
     public void openSheet(int pictureIndex) {
+            setLargePic(pictureIndex);
             mSubmitEditButton.setVisibility(View.INVISIBLE);
             switch (mBottomSheetBehavior.getState()){
             case BottomSheetBehavior.STATE_EXPANDED:
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 break;
         }
-            setLargePic(pictureIndex);
             String searchPhrase = mAllPictures.get(pictureIndex).getFoodDescription();
             if (searchPhrase != null){
                 mSearchButton.setVisibility(View.VISIBLE);
@@ -410,19 +415,10 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             }
             mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
             //this is just needed once, on first time open bottom sheet. Without, the stateChange callback doesn't pick up the changes in state for some reason
-            mCoordinator.setVisibility(View.VISIBLE);
+            if(!mCoordinator.isShown()) {
+                mCoordinator.setVisibility(View.VISIBLE);
+            }
         }
-
-//    @Override
-//    public void revealSearchButton(CoordinateOptions coordinate){
-//        mSearchCoordinate = coordinate;
-//        String searchPhrase = mDescriptionText.getText().toString().trim();
-//        if (!searchPhrase.contains("Describe food") ){
-//            mSearchButton.setVisibility(View.VISIBLE);
-//            mSearchButton.setAlpha(0.0f);
-//            mSearchButton.animate().alpha(1.0f);
-//        }
-
 
     public void setBottomSheetCallBack(){
         mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
@@ -441,7 +437,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 if(newState == 3) {
                     Log.d("STATE VISIBLE", "STATE VISIBLE");
                     mCoordinator.setVisibility(View.VISIBLE);
-                    mLargeSpashPic.setScaleType(ImageView.ScaleType.CENTER);
                 }
             }
 
@@ -455,17 +450,52 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
     public void setLargePic(int pictureIndex){
         android.view.Display display = ((android.view.WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        int circleDiameter = (int)((double) display.getWidth()* .8);
-
+        final int circleDiameter = (int)((double) display.getWidth()* .8);
+        Log.d("CIRCLE DIAMETER", String.valueOf(circleDiameter));
         int screenWidth = display.getWidth();
         mSelectedPic = mAllPictures.get(pictureIndex);
+
+
         Picasso
                 .with(this)
                 .load(mSelectedPic.getUrls()
                         .getRegular())
-                .resize(screenWidth, screenWidth)
-                .onlyScaleDown()
-                .into(mLargeSpashPic);
+                .into(new Target() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        RoundedBitmapDrawable roundFoodPic = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
+                        String height = String.valueOf(roundFoodPic.getIntrinsicHeight());
+                        String width =String.valueOf(roundFoodPic.getIntrinsicWidth());
+                        Log.d("HEight", height );
+                        Log.d("WIDTH", width);
+
+                        roundFoodPic.setCornerRadius(circleDiameter/2);
+                        mCardView.setPreventCornerOverlap(false);
+                        mLargeSpashPic.setImageDrawable(roundFoodPic);
+                        Log.d("LOADED", "LOADED");
+                    }
+
+                    @Override
+                    public void onBitmapFailed(Drawable errorDrawable) {
+                        Log.e("ERROR", "ERROR LOADING");
+
+
+                    }
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                    }
+                });
+
+
+//        LolliLop and above.
+//              Picasso
+//                .with(this)
+//                .load(mSelectedPic.getUrls()
+//                        .getRegular())
+//                .into(mLargeSpashPic);
+
         mCardView.setLayoutParams(new ConstraintLayout.LayoutParams(circleDiameter,circleDiameter));
         mCardView.setRadius(circleDiameter/2);
         String foodDescription = mSelectedPic.getFoodDescription();
