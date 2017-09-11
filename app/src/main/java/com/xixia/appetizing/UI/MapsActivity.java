@@ -2,7 +2,6 @@ package com.xixia.appetizing.UI;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.graphics.Camera;
 import android.location.Location;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -10,19 +9,18 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSnapHelper;
+import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SnapHelper;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -33,19 +31,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.xixia.appetizing.Adapters.RestaurantAdapter;
 import com.xixia.appetizing.Constants;
-import com.xixia.appetizing.Models.GooglePlaces.GoogePlace;
-import com.xixia.appetizing.Models.GooglePlaces.Result;
-import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.R;
 import com.xixia.appetizing.Services.SpinnerService;
-import com.xixia.appetizing.Services.UnSplashClient;
-import com.xixia.appetizing.Services.UnSplashServiceGenerator;
 import com.yelp.clientlib.connection.YelpAPI;
 import com.yelp.clientlib.connection.YelpAPIFactory;
 import com.yelp.clientlib.entities.Business;
 import com.yelp.clientlib.entities.SearchResponse;
-
-import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,11 +45,6 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.reactivex.Single;
-import io.reactivex.SingleObserver;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -75,10 +61,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker mCurrLocationMarker;
     private YelpAPIFactory apiFactory;
     private SpinnerService mSpinnerService;
-    private StaggeredGridLayoutManager mRestaurantGridManager;
+    private LinearLayoutManager mRLM;
     private RestaurantAdapter mRestaurantAdapter;
     private List<Business> mRestaurantList;
     private Marker mOpenMarker;
+    private List<Marker> mAllMarkers;
 
     @BindView(R.id.restaurantRecycler) RecyclerView mRestaurantScroller;
 
@@ -87,13 +74,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        mAllMarkers = new ArrayList<>();
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         ButterKnife.bind(this);
-        mRestaurantGridManager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
-        mRestaurantScroller.setLayoutManager(mRestaurantGridManager);
+        mRLM = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL ,false);
+        mRestaurantScroller.setLayoutManager(mRLM);
         mSearchTerm = getIntent().getStringExtra("searchTerm");
         Log.d("SEARCH TERM", mSearchTerm);
         mSpinnerService = new SpinnerService(this);
@@ -115,18 +103,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                if(mOpenMarker != null ){
-                    mOpenMarker.hideInfoWindow();
-                }
-                marker.showInfoWindow();
-                mOpenMarker = marker;
-                int index = (int) marker.getTag();
-                Business restaurant = mRestaurantList.get(index);
-                double lat = restaurant.location().coordinate().latitude();
-                double lng = restaurant.location().coordinate().longitude();
-                LatLng latLng = new LatLng(lat, lng);
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,13));
-                mRestaurantScroller.smoothScrollToPosition(index);
+                showSelectedMarker(marker);
                 return true;
             }
         });
@@ -275,21 +252,64 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         for (int i = 0; i < nearbyPlacesList.size(); i++) {
             MarkerOptions markerOptions = new MarkerOptions();
 
+
             double lat = nearbyPlacesList.get(i).location().coordinate().latitude();
             double lng = nearbyPlacesList.get(i).location().coordinate().longitude();
             String placeName = nearbyPlacesList.get(i).name();
             LatLng latLng = new LatLng(lat, lng);
-            markerOptions.position(latLng).title(placeName);
-            mMap.addMarker(markerOptions).setTag(i);
-            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+
+            markerOptions.position(latLng).title(placeName).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            Marker newMarker = mMap.addMarker(markerOptions);
+            newMarker.setTag(i);
+            mAllMarkers.add(newMarker);
+
+
+//            markerOptions.position(latLng).title(placeName);
+//            mMap.addMarker(markerOptions).setTag(i);
+//            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
         }
     }
 
     public void setRestaurantsView(List<Business> restaurants){
         mRestaurantAdapter = new RestaurantAdapter(this, restaurants);
         mRestaurantScroller.setAdapter(mRestaurantAdapter);
-        SnapHelper snapHelper = new LinearSnapHelper();
+        PagerSnapHelper snapHelper = new PagerSnapHelper();
+//        SnapHelper snapHelper = new LinearSnapHelper();
         snapHelper.attachToRecyclerView(mRestaurantScroller);
+        mRestaurantScroller.smoothScrollToPosition(0);
+        mRestaurantScroller.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == 0) {
+                    int currentVisible = mRLM.findFirstVisibleItemPosition();
+                    setMarkerToRestaurant(currentVisible);
+                }
+
+            }
+        });
     }
+
+    public void setMarkerToRestaurant(int currentVisible){
+        Marker marker = mAllMarkers.get(currentVisible);
+        showSelectedMarker(marker);
+    }
+
+    public void showSelectedMarker(Marker marker) {
+        if (mOpenMarker != null) {
+            mOpenMarker.hideInfoWindow();
+        }
+        marker.showInfoWindow();
+        mOpenMarker = marker;
+        int index = (int) marker.getTag();
+        Business restaurant = mRestaurantList.get(index);
+        double lat = restaurant.location().coordinate().latitude();
+        double lng = restaurant.location().coordinate().longitude();
+        LatLng latLng = new LatLng(lat, lng);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,13));
+        mRestaurantScroller.smoothScrollToPosition(index);
+    }
+
+    //add back press remove on Marker clicked Listener
 }
 

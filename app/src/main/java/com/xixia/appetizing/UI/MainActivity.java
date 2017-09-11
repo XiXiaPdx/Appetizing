@@ -117,7 +117,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         mFireBaseDatabase = FirebaseDatabase.getInstance();
         mFireBaseAuth = FirebaseAuth.getInstance();
         mAllPictures = AppDataSingleton.getmAllPictures();
-        Log.d("CREATE", "SIZE OF PICTURES "+ mAllPictures.size());
         setmPicsRecyclerView();
         notCurrentlyLoading = true;
         createAuthListener();
