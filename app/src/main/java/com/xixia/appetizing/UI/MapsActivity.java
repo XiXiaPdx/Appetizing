@@ -126,7 +126,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 double lng = restaurant.location().coordinate().longitude();
                 LatLng latLng = new LatLng(lat, lng);
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,13));
-                mRestaurantScroller.scrollToPosition(index);
+                mRestaurantScroller.smoothScrollToPosition(index);
                 return true;
             }
         });
