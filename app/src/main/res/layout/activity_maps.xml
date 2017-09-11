@@ -1,8 +1,32 @@
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/map"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
+    android:background="@color/colorPrimary"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.xixia.appetizing.UI.MapsActivity" />
+    >
+
+   <android.support.v7.widget.RecyclerView
+       android:id="@+id/restaurantRecycler"
+       android:layout_width="match_parent"
+       android:layout_height="220dp"
+       android:layout_marginTop="-20dp"
+       map:layout_constraintRight_toRightOf="parent"
+       map:layout_constraintLeft_toLeftOf="parent"
+       map:layout_constraintTop_toBottomOf="@+id/map"
+       map:layout_constraintBottom_toBottomOf="parent">
+
+   </android.support.v7.widget.RecyclerView>
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="0dp"
+        android:layout_height="400dp"
+        map:layout_constraintLeft_toLeftOf="parent"
+        map:layout_constraintRight_toRightOf="parent"
+        map:layout_constraintTop_toTopOf="parent"
+        tools:context="com.xixia.appetizing.UI.MapsActivity" />
+
+</android.support.constraint.ConstraintLayout>

@@ -9,6 +9,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.LinearSnapHelper;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SnapHelper;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -25,6 +29,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.xixia.appetizing.Adapters.RestaurantAdapter;
 import com.xixia.appetizing.Constants;
 import com.xixia.appetizing.Models.GooglePlaces.GoogePlace;
 import com.xixia.appetizing.Models.GooglePlaces.Result;
@@ -45,6 +50,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -66,6 +73,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker mCurrLocationMarker;
     private YelpAPIFactory apiFactory;
     private SpinnerService mSpinnerService;
+    private StaggeredGridLayoutManager mRestaurantGridManager;
+    private RestaurantAdapter mRestaurantAdapter;
+    @BindView(R.id.restaurantRecycler) RecyclerView mRestaurantScroller;
 
 
     @Override
@@ -76,6 +86,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        ButterKnife.bind(this);
+        mRestaurantGridManager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
+        mRestaurantScroller.setLayoutManager(mRestaurantGridManager);
         mSearchTerm = getIntent().getStringExtra("searchTerm");
         Log.d("SEARCH TERM", mSearchTerm);
         mSpinnerService = new SpinnerService(this);
@@ -199,6 +212,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
                 mSpinnerService.removeSpinner();
                 showNearbyPlaces(searchResponse.businesses());
+                setRestaurantsView(searchResponse.businesses());
 
             }
             @Override
@@ -250,4 +264,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //            mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
         }
     }
+
+    public void setRestaurantsView(List<Business> restaurants){
+        mRestaurantAdapter = new RestaurantAdapter(this, restaurants);
+        mRestaurantScroller.setAdapter(mRestaurantAdapter);
+        SnapHelper snapHelper = new LinearSnapHelper();
+        snapHelper.attachToRecyclerView(mRestaurantScroller);
+    }
+
 }
+
