@@ -75,6 +75,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private SpinnerService mSpinnerService;
     private StaggeredGridLayoutManager mRestaurantGridManager;
     private RestaurantAdapter mRestaurantAdapter;
+
     @BindView(R.id.restaurantRecycler) RecyclerView mRestaurantScroller;
 
 
@@ -107,6 +108,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                Toast.makeText(MapsActivity.this, String.valueOf(marker.getTag()), Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
 
         //Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -255,13 +263,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             double lng = nearbyPlacesList.get(i).location().coordinate().longitude();
             String placeName = nearbyPlacesList.get(i).name();
             LatLng latLng = new LatLng(lat, lng);
-            markerOptions.position(latLng);
-            markerOptions.title(placeName);
-            mMap.addMarker(markerOptions);
+            markerOptions.position(latLng).title(placeName);
+            mMap.addMarker(markerOptions).setTag(i);
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-            //move map camera
-//            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-//            mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
         }
     }
 
@@ -271,6 +275,5 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SnapHelper snapHelper = new LinearSnapHelper();
         snapHelper.attachToRecyclerView(mRestaurantScroller);
     }
-
 }
 
