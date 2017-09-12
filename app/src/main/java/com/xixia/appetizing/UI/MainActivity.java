@@ -400,13 +400,14 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             if(!mCoordinator.isShown()) {
                 mCoordinator.setVisibility(View.VISIBLE);
             }
-            setLargePic(pictureIndex);
             mSubmitEditButton.setVisibility(View.INVISIBLE);
             switch (mBottomSheetBehavior.getState()){
             case BottomSheetBehavior.STATE_EXPANDED:
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 break;
         }
+            setLargePic(pictureIndex);
+
             String searchPhrase = mAllPictures.get(pictureIndex).getFoodDescription();
             if (searchPhrase != null){
                 mSearchButton.setVisibility(View.VISIBLE);
@@ -415,8 +416,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             } else {
                 mSearchButton.setVisibility(View.GONE);
             }
-//            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-            //this is just needed once, on first time open bottom sheet. Without, the stateChange callback doesn't pick up the changes in state for some reason
         }
 
     public void setBottomSheetCallBack(){
