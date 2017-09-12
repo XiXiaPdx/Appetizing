@@ -397,6 +397,9 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
         @Override
     public void openSheet(int pictureIndex) {
+            if(!mCoordinator.isShown()) {
+                mCoordinator.setVisibility(View.VISIBLE);
+            }
             setLargePic(pictureIndex);
             mSubmitEditButton.setVisibility(View.INVISIBLE);
             switch (mBottomSheetBehavior.getState()){
@@ -412,11 +415,8 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             } else {
                 mSearchButton.setVisibility(View.GONE);
             }
-            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+//            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
             //this is just needed once, on first time open bottom sheet. Without, the stateChange callback doesn't pick up the changes in state for some reason
-            if(!mCoordinator.isShown()) {
-                mCoordinator.setVisibility(View.VISIBLE);
-            }
         }
 
     public void setBottomSheetCallBack(){
@@ -448,22 +448,16 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     }
 
     public void setLargePic(int pictureIndex){
-//        android.view.Display display = ((android.view.WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-//        final int circleDiameter = (int)((double) display.getWidth()* .8);
-//        Log.d("CIRCLE DIAMETER", String.valueOf(circleDiameter));
-//        int screenWidth = display.getWidth();
         mSelectedPic = mAllPictures.get(pictureIndex);
 
         Target target = new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 Bitmap squareImage = cropToSquare(bitmap);
-
                 RoundedBitmapDrawable roundFoodPic = RoundedBitmapDrawableFactory.create(getResources(), squareImage);
-//                int height = roundFoodPic.getIntrinsicHeight();
-//                int width =roundFoodPic.getIntrinsicWidth();
                 roundFoodPic.setCircular(true);
                 mLargeSpashPic.setImageDrawable(roundFoodPic);
+                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                 Log.d("LOADED", "LOADED");
             }
 
@@ -474,7 +468,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
             @Override
             public void onPrepareLoad(Drawable placeHolderDrawable) {
-//                mLargeSpashPic.setImageDrawable(placeHolderDrawable);
+                mLargeSpashPic.setImageDrawable(placeHolderDrawable);
             }
         };
 
@@ -482,19 +476,9 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 .with(this)
                 .load(mSelectedPic.getUrls()
                         .getRegular())
-                .placeholder(R.mipmap.ic_launcher_round)
                 .into(target);
         mLargeSpashPic.setTag(target);
         mLargeSpashPic.setScaleType(ImageView.ScaleType.CENTER_CROP);
-
-
-//        LolliLop and above.
-//              Picasso
-//                .with(this)
-//                .load(mSelectedPic.getUrls()
-//                        .getRegular())
-//                .into(mLargeSpashPic);
-
 
         String foodDescription = mSelectedPic.getFoodDescription();
             if (foodDescription == null || foodDescription.length() == 0){

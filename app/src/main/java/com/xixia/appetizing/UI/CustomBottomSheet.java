@@ -3,8 +3,10 @@ package com.xixia.appetizing.UI;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Matrix;
+import android.graphics.drawable.Drawable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -56,10 +58,13 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
     public boolean onTouchEvent(CoordinatorLayout parent, V child, MotionEvent event){
         final int action = event.getActionMasked();
         Log.d("TOUCH EVENT", event.toString());
+        Drawable originalPic =  largeSplashPic.getDrawable();
 
         if(parent.isShown()) {
             if(action == MotionEvent.ACTION_POINTER_UP){
-                largeSplashPic.setScaleType(ImageView.ScaleType.CENTER);
+                // these two things don't fix the problem
+//                largeSplashPic.setImageMatrix(new Matrix());
+//                largeSplashPic.setImageDrawable(originalPic);
                 settingOrigin = true;
             }
 
