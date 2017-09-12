@@ -58,27 +58,29 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
     public boolean onTouchEvent(CoordinatorLayout parent, V child, MotionEvent event){
         final int action = event.getActionMasked();
         Log.d("TOUCH EVENT", event.toString());
-        Drawable originalPic =  largeSplashPic.getDrawable();
+//        Drawable originalPic =  largeSplashPic.getDrawable();
+        Matrix original = largeSplashPic.getImageMatrix();
 
         if(parent.isShown()) {
             if(action == MotionEvent.ACTION_POINTER_UP){
-                // these two things don't fix the problem
-//                largeSplashPic.setImageMatrix(new Matrix());
+                Log.d("POINTER UP", "POINTER UP");
+//                largeSplashPic.setImageMatrix(original);
+//                largeSplashPic.invalidate();
 //                largeSplashPic.setImageDrawable(originalPic);
                 settingOrigin = true;
             }
 
 
-            if(action == MotionEvent.ACTION_MOVE && !mScaleDetector.isInProgress()){
-                Log.d("MOVING", "YYY: " + mScaleDetector.getFocusY()  + "  XXX: " + mScaleDetector.getFocusX() );
-
-                final float newOriginY = initialTouchY - (mScaleDetector.getFocusY() - initialTouchY);
-
-                final float newOriginX = initialTouchX - (mScaleDetector.getFocusX() - initialTouchX);
-                
-                matrix.setTranslate(newOriginX, newOriginY);
-                largeSplashPic.setImageMatrix(matrix);
-            }
+//            if(action == MotionEvent.ACTION_MOVE && !mScaleDetector.isInProgress()){
+//                Log.d("MOVING", "YYY: " + mScaleDetector.getFocusY()  + "  XXX: " + mScaleDetector.getFocusX() );
+//
+//                final float newOriginY = initialTouchY - (mScaleDetector.getFocusY() - initialTouchY);
+//
+//                final float newOriginX = initialTouchX - (mScaleDetector.getFocusX() - initialTouchX);
+//
+//                matrix.setTranslate(newOriginX, newOriginY);
+//                largeSplashPic.setImageMatrix(matrix);
+//            }
 
             mScaleDetector.onTouchEvent(event);
             return true;
@@ -93,14 +95,17 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
             largeSplashPic.setScaleType(ImageView.ScaleType.MATRIX);
             if(settingOrigin) {
                 //negative because what is under the finger IS NOT THE ORIGIN. But should be relative to it.
+
+                //this also sets the pivot point for scaling. So can scale from touch point
                 initialTouchY = detector.getFocusY();
                 initialTouchX = detector.getFocusX();
                 settingOrigin = false;
             }
             Log.d("ORIGIN", "YYY: "+ initialTouchY +"  XXX: "+ initialTouchX);
+
             scaleFactor *= detector.getScaleFactor();
-            scaleFactor = Math.max(0.1f, Math.min(scaleFactor, 5.0f));
-            matrix.setScale(scaleFactor, scaleFactor);
+            scaleFactor = Math.max(1.0f, Math.min(scaleFactor, 5.0f));
+            matrix.setScale(scaleFactor, scaleFactor, initialTouchX , initialTouchY );
             largeSplashPic.setImageMatrix(matrix);
             return true;
         }
