@@ -89,7 +89,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     @BindView(R.id.coordinator) CoordinatorLayout mCoordinator;
     @BindView(R.id.bottom_sheet) View mBottomSheet;
     @BindView(R.id.largeSplashPic) ImageView mLargeSpashPic;
-    @BindView(R.id.cardViewLargePic) CardView mCardView;
     @BindView(R.id.descriptionText) TextView mDescriptionText;
     @BindView(R.id.viewSwitcher) ViewSwitcher mViewSwitcher;
     @BindView(R.id.editDescriptionText) EditText mEditTextField;
@@ -455,38 +454,44 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         int screenWidth = display.getWidth();
         mSelectedPic = mAllPictures.get(pictureIndex);
 
+        Target target = new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                RoundedBitmapDrawable roundFoodPic = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
+                String height = String.valueOf(roundFoodPic.getIntrinsicHeight());
+                String width =String.valueOf(roundFoodPic.getIntrinsicWidth());
+                Log.d("HEight", height );
+                Log.d("WIDTH", width);
+                Log.d("FROM", from.toString());
+
+                roundFoodPic.setCircular(true);
+                mLargeSpashPic.setImageDrawable(roundFoodPic);
+//                        mLargeSpashPic.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                Log.d("LOADED", "LOADED");
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+                Log.e("ERROR", "ERROR LOADING");
+
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+                mLargeSpashPic.setImageDrawable(placeHolderDrawable);
+
+            }
+        };
+
 
         Picasso
                 .with(this)
                 .load(mSelectedPic.getUrls()
                         .getRegular())
-                .into(new Target() {
-                    @Override
-                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        RoundedBitmapDrawable roundFoodPic = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
-                        String height = String.valueOf(roundFoodPic.getIntrinsicHeight());
-                        String width =String.valueOf(roundFoodPic.getIntrinsicWidth());
-                        Log.d("HEight", height );
-                        Log.d("WIDTH", width);
-
-                        roundFoodPic.setCornerRadius(circleDiameter/2);
-                        mCardView.setPreventCornerOverlap(false);
-                        mLargeSpashPic.setImageDrawable(roundFoodPic);
-                        Log.d("LOADED", "LOADED");
-                    }
-
-                    @Override
-                    public void onBitmapFailed(Drawable errorDrawable) {
-                        Log.e("ERROR", "ERROR LOADING");
-
-
-                    }
-
-                    @Override
-                    public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                    }
-                });
+                .resize(2000,2000)
+                .into(target);
+        mLargeSpashPic.setTag(target);
 
 
 //        LolliLop and above.
@@ -496,8 +501,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 //                        .getRegular())
 //                .into(mLargeSpashPic);
 
-        mCardView.setLayoutParams(new ConstraintLayout.LayoutParams(circleDiameter,circleDiameter));
-        mCardView.setRadius(circleDiameter/2);
+
         String foodDescription = mSelectedPic.getFoodDescription();
             if (foodDescription == null || foodDescription.length() == 0){
                 mDescriptionText.setText(getString(R.string.what_to_eat));
