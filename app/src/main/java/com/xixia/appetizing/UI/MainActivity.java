@@ -448,50 +448,44 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     }
 
     public void setLargePic(int pictureIndex){
-        android.view.Display display = ((android.view.WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        final int circleDiameter = (int)((double) display.getWidth()* .8);
-        Log.d("CIRCLE DIAMETER", String.valueOf(circleDiameter));
-        int screenWidth = display.getWidth();
+//        android.view.Display display = ((android.view.WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+//        final int circleDiameter = (int)((double) display.getWidth()* .8);
+//        Log.d("CIRCLE DIAMETER", String.valueOf(circleDiameter));
+//        int screenWidth = display.getWidth();
         mSelectedPic = mAllPictures.get(pictureIndex);
 
         Target target = new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                RoundedBitmapDrawable roundFoodPic = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
-                String height = String.valueOf(roundFoodPic.getIntrinsicHeight());
-                String width =String.valueOf(roundFoodPic.getIntrinsicWidth());
-                Log.d("HEight", height );
-                Log.d("WIDTH", width);
-                Log.d("FROM", from.toString());
+                Bitmap squareImage = cropToSquare(bitmap);
 
+                RoundedBitmapDrawable roundFoodPic = RoundedBitmapDrawableFactory.create(getResources(), squareImage);
+//                int height = roundFoodPic.getIntrinsicHeight();
+//                int width =roundFoodPic.getIntrinsicWidth();
                 roundFoodPic.setCircular(true);
                 mLargeSpashPic.setImageDrawable(roundFoodPic);
-//                        mLargeSpashPic.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 Log.d("LOADED", "LOADED");
             }
 
             @Override
             public void onBitmapFailed(Drawable errorDrawable) {
                 Log.e("ERROR", "ERROR LOADING");
-
-
             }
 
             @Override
             public void onPrepareLoad(Drawable placeHolderDrawable) {
-                mLargeSpashPic.setImageDrawable(placeHolderDrawable);
-
+//                mLargeSpashPic.setImageDrawable(placeHolderDrawable);
             }
         };
-
 
         Picasso
                 .with(this)
                 .load(mSelectedPic.getUrls()
                         .getRegular())
-                .resize(2000,2000)
+                .placeholder(R.mipmap.ic_launcher_round)
                 .into(target);
         mLargeSpashPic.setTag(target);
+        mLargeSpashPic.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
 
 //        LolliLop and above.
@@ -509,6 +503,27 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 mDescriptionText.setText(foodDescription);
             }
     }
+
+    public Bitmap cropToSquare(Bitmap rectangle){
+        Bitmap squareImage = null;
+        int squareSize;
+        int startX = 0;
+        int startY = 0;
+        int height = rectangle.getHeight();
+        int width = rectangle.getWidth();
+        if (height <= width ){
+            squareSize = height;
+            int originOffset = (width - height)/2;
+            startX = originOffset;
+        } else {
+            squareSize = width;
+            int originOffset = (height -width)/2;
+            startY = originOffset;
+        }
+        squareImage = Bitmap.createBitmap(rectangle,startX,startY,squareSize,squareSize);
+        return squareImage;
+    }
+
 
     @Override
     public void onClick(View view) {
