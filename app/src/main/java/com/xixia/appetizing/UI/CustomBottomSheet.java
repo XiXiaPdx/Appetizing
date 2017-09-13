@@ -3,6 +3,7 @@ package com.xixia.appetizing.UI;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
@@ -96,8 +97,11 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
 
             scaleFactor *= detector.getScaleFactor();
             scaleFactor = Math.max(1.0f, Math.min(scaleFactor, 5.0f));
-            matrix.setScale(scaleFactor, scaleFactor, scalePivotX , scalePivotY );
+            int squareImageHeight = largeSplashPic.getMeasuredHeight();
+            matrix.setScale(scaleFactor, scaleFactor, scalePivotX - (squareImageHeight/4) , scalePivotY);
+            matrix.postTranslate(squareImageHeight/8, squareImageHeight/8);
             largeSplashPic.setImageMatrix(matrix);
+            largeSplashPic.invalidate();
             return true;
         }
     }
