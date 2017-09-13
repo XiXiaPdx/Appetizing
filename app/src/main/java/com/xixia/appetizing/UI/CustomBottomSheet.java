@@ -9,6 +9,8 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -23,6 +25,7 @@ import com.xixia.appetizing.R;
 public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
     private Context mContext;
     private static ScaleGestureDetector mScaleDetector;
+    private static GestureDetector mLongPressListener;
     private  static Matrix matrix;
     private static View rootView;
     private static Boolean settingOrigin;
@@ -30,10 +33,13 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
     private static float scaleFactor = 1.f;
     private float initialTouchY;
     private float initialTouchX;
+    private Boolean vibrated = false;
+
     public CustomBottomSheet(Context context) {
         super();
         mContext = context;
         mScaleDetector = new ScaleGestureDetector(mContext, new ScaleListener());
+        mLongPressListener = new GestureDetector(mContext, new LongPressListener());
         matrix = new Matrix();
         rootView = ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
         largeSplashPic = rootView.findViewById(R.id.largeSplashPic);
@@ -48,7 +54,7 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
     public boolean onInterceptTouchEvent(CoordinatorLayout parent, V child, MotionEvent event) {
         Log.d("MOTION", event.toString());
         // true sends the event to OnTouch, where UI changes should happen.
-       if(event.getPointerCount() == 2) {
+       if(event.getPointerCount() == 2 || (event.getPointerCount() ==1 && (event.getEventTime() - event.getDownTime())> 200)) {
            return true;
        }
        return false;
@@ -58,19 +64,18 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
     public boolean onTouchEvent(CoordinatorLayout parent, V child, MotionEvent event){
         final int action = event.getActionMasked();
         Log.d("TOUCH EVENT", event.toString());
-//        Drawable originalPic =  largeSplashPic.getDrawable();
-        Matrix original = largeSplashPic.getImageMatrix();
 
         if(parent.isShown()) {
-            if(action == MotionEvent.ACTION_POINTER_UP){
-                Log.d("POINTER UP", "POINTER UP");
-//                largeSplashPic.setImageMatrix(original);
-//                largeSplashPic.invalidate();
-//                largeSplashPic.setImageDrawable(originalPic);
-                settingOrigin = true;
+            switch (action) {
+                case MotionEvent.ACTION_POINTER_UP:
+                    Log.d("POINTER UP", "POINTER UP");
+                    settingOrigin = true;
+                    break;
+                case MotionEvent.ACTION_UP:
+                    Log.d("UP", " UP");
+                    vibrated = false;
+                    break;
             }
-
-
 //            if(action == MotionEvent.ACTION_MOVE && !mScaleDetector.isInProgress()){
 //                Log.d("MOVING", "YYY: " + mScaleDetector.getFocusY()  + "  XXX: " + mScaleDetector.getFocusX() );
 //
@@ -82,9 +87,25 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
 //                largeSplashPic.setImageMatrix(matrix);
 //            }
 
-            mScaleDetector.onTouchEvent(event);
+            if (event.getPointerCount() == 1  && event.getAction() != MotionEvent.ACTION_UP && event.getAction() != MotionEvent.ACTION_CANCEL && !vibrated) {
+                Log.d("Vibrate", "Vibate");
+                largeSplashPic.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                vibrated = true;
+            }  else if (event.getPointerCount() == 2) {
+                mScaleDetector.onTouchEvent(event);
+            }
             return true;
         } else return false;
+    }
+
+    private class LongPressListener extends GestureDetector.SimpleOnGestureListener{
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            super.onLongPress(e);
+            Log.d("LONG PRESS", "LONG PRESS");
+
+        }
     }
 
     private class ScaleListener
