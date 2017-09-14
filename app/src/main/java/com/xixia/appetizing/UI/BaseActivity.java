@@ -13,6 +13,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,6 +28,8 @@ import com.xixia.appetizing.Services.AppDataSingleton;
 import com.xixia.appetizing.Fragments.InstructionOne;
 import com.xixia.appetizing.Fragments.InstructionThree;
 import com.xixia.appetizing.Fragments.InstructionTwo;
+
+import butterknife.BindView;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
@@ -65,6 +68,10 @@ public abstract class BaseActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.overflow_menu, menu);
+        MenuItem menuItem = menu.findItem(R.id.action_instructions);
+        if (getClass().getSimpleName().equals(MapsActivity.class.getSimpleName())){
+            menuItem.setVisible(false);
+        }
         return true;
     }
 
@@ -134,13 +141,13 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (toolbar != null) {
             if (useToolbar()) {
                 String activityName = getClass().getSimpleName();
-
                 setSupportActionBar(toolbar);
                 if (activityName.equals(MainActivity.class.getSimpleName())){
                     getSupportActionBar().setDisplayHomeAsUpEnabled(false);
                 } else {
                     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                 }
+
             } else {
                 toolbar.setVisibility(View.GONE);
             }

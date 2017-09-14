@@ -26,7 +26,7 @@ public class UnSplashServiceGenerator {
     private static Retrofit retrofit = builder.build();
 
     private static OkHttpClient.Builder httpClient =
-            new OkHttpClient.Builder().connectTimeout(5, TimeUnit.MINUTES);
+            new OkHttpClient.Builder().connectTimeout(5, TimeUnit.SECONDS);
 
     private static HttpLoggingInterceptor logging =
             new HttpLoggingInterceptor()

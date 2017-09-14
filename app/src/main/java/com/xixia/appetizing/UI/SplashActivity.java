@@ -16,6 +16,7 @@ import com.xixia.appetizing.Services.AppDataSingleton;
 import com.xixia.appetizing.Services.UnSplashClient;
 import com.xixia.appetizing.Services.UnSplashServiceGenerator;
 
+import java.net.SocketTimeoutException;
 import java.util.List;
 
 import io.reactivex.Single;
@@ -36,7 +37,7 @@ public class SplashActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if(isOnline(this)) {
-            unSplash30Call();
+                unSplash30Call();
         } else  {
             displayWarningDialog();
         }
@@ -74,28 +75,52 @@ public class SplashActivity extends BaseActivity {
     public void unSplash30Call(){
         UnSplashClient client = UnSplashServiceGenerator.createService(UnSplashClient.class);
         Single<List<SplashPic>> call = client.pictures(Constants.UNSPLASH_ID);
-        call
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<List<SplashPic>>() {
-                    @Override
-                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
 
-                    }
+            call
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new SingleObserver<List<SplashPic>>() {
+                        @Override
+                        public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
 
-                    @Override
-                    public void onSuccess(@io.reactivex.annotations.NonNull List<SplashPic> splashPics) {
-                        AppDataSingleton.setmAllPictures(splashPics);
-                        Intent intent = new Intent(SplashActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        finish();
-                        overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
-                    }
+                        }
 
-                    @Override
-                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-                        Log.d("ERROR", e.toString());
-                    }
-                });
+                        @Override
+                        public void onSuccess(@io.reactivex.annotations.NonNull List<SplashPic> splashPics) {
+                            if (splashPics == null){
+                                //it can happen that UnSplash fails...but the respones.body would be null and REtrofit lets it go here. Check for that.
+                                displayApiCallErrorDialog();
+                            } else {
+                                AppDataSingleton.setmAllPictures(splashPics);
+                                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                                startActivity(intent);
+                                finish();
+                                overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
+                            }
+                        }
+
+                        @Override
+                        public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+                            //this is displaying for SocketTimeOut , which does happen.
+                            displayApiCallErrorDialog();
+                        }
+                    });
     }
+
+    public void displayApiCallErrorDialog() {
+        AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        builder.setMessage("The interwebs are gummed up. Try again!")
+                .setTitle("Something is stuck... ")
+                .setNeutralButton("Try again", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int i) {
+                                dialog.dismiss();
+                                unSplash30Call();
+                            }
+                        }
+                );
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+    }
+
 }

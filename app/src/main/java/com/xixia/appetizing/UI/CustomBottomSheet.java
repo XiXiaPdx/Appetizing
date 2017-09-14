@@ -72,9 +72,9 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
                     break;
             }
 
-            if (event.getPointerCount() == 2 && event.getAction() != MotionEvent.ACTION_UP && event.getAction() != MotionEvent.ACTION_CANCEL && event.getAction() != MotionEvent.ACTION_POINTER_UP && !vibrated) {
+            if ((event.getPointerCount() == 2 && !vibrated) && (event.getAction() != MotionEvent.ACTION_UP || event.getAction() != MotionEvent.ACTION_CANCEL || event.getAction() != MotionEvent.ACTION_POINTER_UP)) {
                 largeSplashPic.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
-                Log.d("Vibrate", "Vibate");
+                Log.d("Vibrate", "Vibrate");
                 vibrated = true;
             }
             mScaleDetector.onTouchEvent(event);

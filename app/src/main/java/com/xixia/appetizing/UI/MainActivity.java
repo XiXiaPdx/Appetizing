@@ -246,7 +246,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 Intent intent = new Intent (MainActivity.this, MapsActivity.class);
                 intent.putExtra("searchTerm", mDescriptionText.getText().toString().trim());
                 startActivity(intent);
-                overridePendingTransition(R.anim.slide_from_left, R.anim.slide_to_right);
+                overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
     }
 
     @Override
