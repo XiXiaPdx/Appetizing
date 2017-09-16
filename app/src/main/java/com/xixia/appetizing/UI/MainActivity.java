@@ -10,13 +10,11 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.Editable;
@@ -50,12 +48,12 @@ import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.Models.DescribedPicture;
 import com.xixia.appetizing.Models.UserProfile;
 import com.xixia.appetizing.R;
-import com.xixia.appetizing.Services.AppDataSingleton;
 import com.xixia.appetizing.Services.EndLessScrollListener;
-import com.xixia.appetizing.Services.SpinnerService;
 import com.xixia.appetizing.Services.SplashCustomRecyclerView;
 import com.xixia.appetizing.Services.UnSplashClient;
 import com.xixia.appetizing.Services.UnSplashServiceGenerator;
+
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -81,6 +79,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     private EndLessScrollListener mEndLessScrollListener;
     private TextWatcher mDescriptionTextWatcher;
     private List<SplashPic> mAllPictures = new ArrayList<>();
+    private List<DescribedPicture> mDescribedPictures = new ArrayList<>();
     private Boolean notCurrentlyLoading;
     private CustomBottomSheet mBottomSheetBehavior;
     private SplashPic mSelectedPic;
@@ -120,7 +119,8 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         mPicsRecyclerView.setLayoutManager(mPicGridLayOut);
         mFireBaseDatabase = FirebaseDatabase.getInstance();
         mFireBaseAuth = FirebaseAuth.getInstance();
-        mAllPictures = AppDataSingleton.getmAllPictures();
+//        mAllPictures = AppDataSingleton.getmAllPictures();
+        mAllPictures = Parcels.unwrap(getIntent().getParcelableExtra("splashPics"));
         setmPicsRecyclerView();
         notCurrentlyLoading = true;
         createAuthListener();
@@ -227,7 +227,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                         List<SplashPic> descriptionAddedPics =  matchNewPicsWithDescribed(splashPics);
 
                         mAllPictures.addAll(descriptionAddedPics);
-                        AppDataSingleton.setmAllPictures(mAllPictures);
+//                        AppDataSingleton.setmAllPictures(mAllPictures);
                         mSplashPicsAdapter.morePicturesLoaded(mAllPictures);
                         notCurrentlyLoading = true;
 
@@ -336,7 +336,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     @Override
     public void onPause(){
         super.onPause();
-        Log.d("PAUSE", "PAUSE");
+        Log.d("MAIN PAUSE", "PAUSE");
 
         if (mAuthListener != null) {
             mFireBaseAuth.removeAuthStateListener(mAuthListener);
@@ -356,16 +356,21 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     DescribedPicture description = dataSnapshot.getValue(DescribedPicture.class);
-                    AppDataSingleton.addToDescribedPictures(description);
+//                    AppDataSingleton.addToDescribedPictures(description);
+                    mDescribedPictures.add(description);
                     //filter each described pic through allPictures and add description. notifyitemchanged on that position.
-                    Log.d("SIZE", String.valueOf(AppDataSingleton.getmDescribedPictures().size()));
+
+//                    Log.d("SIZE", String.valueOf(AppDataSingleton.getmDescribedPictures().size()));
+                    Log.d("SIZE", String.valueOf(mDescribedPictures.size()));
                     matchDescriptionWithAllPics(description);
                 }
 
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                     DescribedPicture description = dataSnapshot.getValue(DescribedPicture.class);
-                    AppDataSingleton.addToDescribedPictures(description);
+//                    AppDataSingleton.addToDescribedPictures(description);
+
+                    mDescribedPictures.add(description);
                     matchDescriptionWithAllPics(description);
                 }
 
@@ -558,9 +563,11 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 //this isn't permanent change...???
 //                pic.setFoodDescription(description.getFoodDescription());
                 // this permanently changes the data in the app that this picture is now described.
+
                 mAllPictures.get(count).setFoodDescription(description.getFoodDescription());
-                AppDataSingleton.setmAllPictures(mAllPictures);
-                mSplashPicsAdapter.descriptionAdded(count);
+//                AppDataSingleton.setmAllPictures(mAllPictures);
+
+                mSplashPicsAdapter.descriptionAdded(count, mAllPictures);
             }
             count++;
         }
@@ -568,10 +575,12 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
     public List<SplashPic> matchNewPicsWithDescribed(List<SplashPic> newPics){
         int newPicCount = 0;
-        List <DescribedPicture> allDescribed = AppDataSingleton.getmDescribedPictures();
+//        List <DescribedPicture> allDescribed = AppDataSingleton.getmDescribedPictures();
+//        List <DescribedPicture> allDescribed = mDescribedPictures;
+
         List<SplashPic> modifiedPics = new ArrayList<>();
         for(SplashPic pic: newPics){
-            for (DescribedPicture description: allDescribed){
+            for (DescribedPicture description: mDescribedPictures){
              if (pic.getId().equals(description.getPicID())){
                  Log.d("MATCH MATCH", "MATCH");
                  pic.setFoodDescription(description.getFoodDescription());

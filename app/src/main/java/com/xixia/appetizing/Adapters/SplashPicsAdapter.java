@@ -15,7 +15,6 @@ import com.squareup.picasso.Picasso;
 import com.xixia.appetizing.Constants;
 import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.R;
-import com.xixia.appetizing.Services.AppDataSingleton;
 
 import java.util.List;
 
@@ -64,8 +63,8 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
         notifyItemRangeInserted(itemStart, morePictures.size());
     }
 
-    public void descriptionAdded(int position){
-        mPictures = AppDataSingleton.getmAllPictures();
+    public void descriptionAdded(int position, List<SplashPic> newPictures){
+        mPictures = newPictures;
         Log.d("Description ADDED MATCH", "MATCH AT "+String.valueOf(position));
         notifyItemChanged(position);
     }

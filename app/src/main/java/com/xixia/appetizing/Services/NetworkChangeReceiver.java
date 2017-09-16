@@ -29,10 +29,11 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         }
     }
 
-    private boolean isOnline(Context context) {
+    public static boolean isOnline(Context context) {
         try {
-            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            ConnectivityManager cm = (ConnectivityManager) context.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo netInfo = cm.getActiveNetworkInfo();
+
             //should check null because in airplane mode it will be null
             return (netInfo != null && netInfo.isConnected());
         } catch (NullPointerException e) {

@@ -66,6 +66,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
     private List<Business> mRestaurantList;
     private Marker mOpenMarker;
     private List<Marker> mAllMarkers;
+    private RecyclerView.OnScrollListener scrollListener;
 
     @BindView(R.id.restaurantRecycler) RecyclerView mRestaurantScroller;
 
@@ -270,17 +271,20 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
 //        SnapHelper snapHelper = new LinearSnapHelper();
         snapHelper.attachToRecyclerView(mRestaurantScroller);
         mRestaurantScroller.smoothScrollToPosition(0);
-        mRestaurantScroller.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+         scrollListener = new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == 0) {
                     int currentVisible = mRLM.findFirstCompletelyVisibleItemPosition();
-                    setMarkerToRestaurant(currentVisible);
+                    if (currentVisible != -1) {
+                        setMarkerToRestaurant(currentVisible);
+                    }
                 }
-
             }
-        });
+        };
+        mRestaurantScroller.addOnScrollListener(scrollListener);
     }
 
     public void setMarkerToRestaurant(int currentVisible){
@@ -301,6 +305,13 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         LatLng latLng = new LatLng(lat, lng);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,13));
         mRestaurantScroller.smoothScrollToPosition(index);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d("MAP PAUSE", "PAUSE");
+        mRestaurantScroller.removeOnScrollListener(scrollListener);
     }
 
     //add back press remove on Marker clicked Listener

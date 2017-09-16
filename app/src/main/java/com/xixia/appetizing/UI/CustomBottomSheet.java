@@ -25,17 +25,17 @@ import com.xixia.appetizing.R;
 
 public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
     private Context mContext;
-    private static ScaleGestureDetector mScaleDetector;
-    private  static Matrix matrix;
-    private static View rootView;
-    private static ImageView largeSplashPic;
-    private static float scaleFactor = 1.f;
+//    private static ScaleGestureDetector mScaleDetector;
+    private Matrix matrix;
+    private View rootView;
+    private ImageView largeSplashPic;
+    private float scaleFactor = 1.f;
     private Boolean vibrated = false;
 
     public CustomBottomSheet(Context context) {
         super();
         mContext = context;
-        mScaleDetector = new ScaleGestureDetector(mContext, new ScaleListener());
+//        mScaleDetector = new ScaleGestureDetector(mContext, new ScaleListener());
         matrix = new Matrix();
         rootView = ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
         largeSplashPic = rootView.findViewById(R.id.largeSplashPic);
@@ -73,10 +73,10 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
             }
 
             if ((event.getPointerCount() == 2 && !vibrated) && (event.getAction() != MotionEvent.ACTION_UP || event.getAction() != MotionEvent.ACTION_CANCEL || event.getAction() != MotionEvent.ACTION_POINTER_UP)) {
-                largeSplashPic.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
-                Log.d("Vibrate", "Vibrate");
+                child.findViewById(R.id.largeSplashPic).performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
                 vibrated = true;
             }
+            ScaleGestureDetector mScaleDetector = new ScaleGestureDetector(parent.getContext(), new ScaleListener());
             mScaleDetector.onTouchEvent(event);
             return true;
         } else return false;
