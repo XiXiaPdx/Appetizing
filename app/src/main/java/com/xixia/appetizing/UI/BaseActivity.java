@@ -22,6 +22,8 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.firebase.ui.auth.AuthUI;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.xixia.appetizing.Adapters.InstructionPagerAdapter;
 import com.xixia.appetizing.R;
 import com.xixia.appetizing.Fragments.InstructionOne;
@@ -36,6 +38,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     private GestureDetector mTapListener;
     private ViewPager mViewPager;
     private AlertDialog mAlertDialog;
+    private FirebaseAuth mFireBaseAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +48,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         mIPA = new InstructionPagerAdapter(mFragmentManager);
         mTapListener = new GestureDetector(this, new TapListener());
         registerReceiver(broadcastReceiver, new IntentFilter("INTERNET_LOST"));
+        mFireBaseAuth = FirebaseAuth.getInstance();
     }
 
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -97,12 +101,16 @@ public abstract class BaseActivity extends AppCompatActivity {
                 break;
             case R.id.action_logout:
                 //current manual testing shows this basically restarts the app from fresh start
-                AuthUI.getInstance().signOut(this);
-                Intent intent = new Intent(getBaseContext(), SplashActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                finish();
-                overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
+                if(getClass().getSimpleName().equals(MainActivity.class.getSimpleName())) {
+                    AuthUI.getInstance().signOut(this);
+                } else {
+                    AuthUI.getInstance().signOut(this);
+                    Intent intent = new Intent(this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                    finish();
+                    overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
+                }
                 break;
             case android.R.id.home:
                 finish();

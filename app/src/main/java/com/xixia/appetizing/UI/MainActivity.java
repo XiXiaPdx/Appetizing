@@ -70,8 +70,8 @@ import io.reactivex.schedulers.Schedulers;
 public class MainActivity extends BaseActivity implements SplashPicsAdapter.OpenBottomSheet, View.OnClickListener {
     private FirebaseDatabase mFireBaseDatabase;
     private FirebaseAuth mFireBaseAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseUser mFirebaseUser;
+    private FirebaseAuth.AuthStateListener mAuthListener;
     private static final int RC_SIGN_IN = 1;
     private SplashCustomRecyclerView mPicsRecyclerView;
     private SplashPicsAdapter mSplashPicsAdapter;
@@ -85,6 +85,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     private SplashPic mSelectedPic;
     private ChildEventListener mDescribedFoodListener;
     private FragmentManager mFragmentManager;
+    private Boolean logOutFromMaps = false;
     @BindView(R.id.coordinator) CoordinatorLayout mCoordinator;
     @BindView(R.id.bottom_sheet) View mBottomSheet;
     @BindView(R.id.largeSplashPic) ImageView mLargeSpashPic;
@@ -121,9 +122,12 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         mFireBaseAuth = FirebaseAuth.getInstance();
 //        mAllPictures = AppDataSingleton.getmAllPictures();
         mAllPictures = Parcels.unwrap(getIntent().getParcelableExtra("splashPics"));
-        setmPicsRecyclerView();
         notCurrentlyLoading = true;
+        if(getIntent().getBooleanExtra("MAP", false)){
+            // do something...I want to connect auth listener sooner and then log out here.
+        }
         createAuthListener();
+        setmPicsRecyclerView();
     }
 
     public void createAuthListener(){
@@ -131,14 +135,16 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+                logOutFromMaps=false;
                 if (currentUser != null){
                     //If logout intent has to go to Main (which it currently does not...and working) a fix is add && mAllPictures is 0 or not 0, I forget. in the scenario of a logout and log back, the bug is the setDescribed is accidentally called twice. Once in AuthAttach and once in Result Ok for sign in. Need a boolean to only have one.
-                    Log.d("USER NOT NULL", "USER NOT NULL");
                     mFirebaseUser = currentUser;
                     if (mDescribedFoodListener == null) {
                         setDescribedPictures();
                     }
                 } else {
+                    Log.d("USER NULL", "USER NULL");
+
                     startActivityForResult(
                             AuthUI.getInstance()
                                     .createSignInIntentBuilder()
@@ -318,6 +324,12 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     }
 
     @Override
+    public void onNewIntent(Intent intent){
+        super.onNewIntent(intent);
+//        logOutFromMaps = true;
+    }
+
+    @Override
     public void onResume(){
         super.onResume();
         Log.d("onRESUME", "RESUME");
@@ -330,6 +342,9 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             mPicsRecyclerView.addOnScrollListener(mEndLessScrollListener);
         }
         setDescriptionTextWatcher();
+//        if(logOutFromMaps){
+//            AuthUI.getInstance().signOut(this);
+//        }
     }
 
 
