@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -29,6 +30,7 @@ import com.xixia.appetizing.R;
 import com.xixia.appetizing.Fragments.InstructionOne;
 import com.xixia.appetizing.Fragments.InstructionThree;
 import com.xixia.appetizing.Fragments.InstructionTwo;
+import com.xixia.appetizing.Services.NetworkChangeReceiver;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
@@ -37,8 +39,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     private InstructionPagerAdapter mIPA;
     private GestureDetector mTapListener;
     private ViewPager mViewPager;
-    private AlertDialog mAlertDialog;
-    private FirebaseAuth mFireBaseAuth;
+    private BroadcastReceiver broadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,21 +48,22 @@ public abstract class BaseActivity extends AppCompatActivity {
         mFragmentManager=getSupportFragmentManager();
         mIPA = new InstructionPagerAdapter(mFragmentManager);
         mTapListener = new GestureDetector(this, new TapListener());
-        registerReceiver(broadcastReceiver, new IntentFilter("INTERNET_LOST"));
-        mFireBaseAuth = FirebaseAuth.getInstance();
     }
 
-    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            displayWarningDialog();
-            unregisterReceiver(broadcastReceiver);
-        }
-    };
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        broadcastReceiver = new NetworkChangeReceiver();
+        registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+    }
+
+
 
     @Override
     public void onBackPressed(){
         super.onBackPressed();
+        finish();
         overridePendingTransition(R.anim.slide_from_left, R.anim.slide_to_right);
     }
 
@@ -101,16 +103,14 @@ public abstract class BaseActivity extends AppCompatActivity {
                 break;
             case R.id.action_logout:
                 //current manual testing shows this basically restarts the app from fresh start
-                if(getClass().getSimpleName().equals(MainActivity.class.getSimpleName())) {
-                    AuthUI.getInstance().signOut(this);
-                } else {
-                    AuthUI.getInstance().signOut(this);
-                    Intent intent = new Intent(this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    startActivity(intent);
-                    finish();
-                    overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
-                }
+
+//                AuthUI.getInstance().signOut(this);
+                Intent intent = new Intent(this, SplashActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                finish();
+                overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
+
                 break;
             case android.R.id.home:
                 finish();
@@ -154,7 +154,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     private class TapListener
             extends GestureDetector.SimpleOnGestureListener {
 
-
         @Override
         public boolean onDown(MotionEvent e) {
             return super.onDown(e);
@@ -173,25 +172,18 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
-    public void displayWarningDialog() {
-        AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-        builder.setMessage("Many Appetizing capabilities will not work without internet")
-                .setTitle("No Internet")
-                .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int i) {
-                                dialog.dismiss();
-                            }
-                        }
-                );
-        mAlertDialog = builder.create();
-        mAlertDialog.show();
-    }
 
     @Override
-    public void onDestroy(){
-        super.onDestroy();
+    public void onPause (){
+        super.onPause();
         Log.d("BROADCAST", "UN_REGISTERED");
         unregisterReceiver(broadcastReceiver);
     }
+
+//    @Override
+//    public void onDestroy(){
+//        super.onDestroy();
+////        Log.d("BROADCAST", "UN_REGISTERED");
+////        getApplicationContext().unregisterReceiver(broadcastReceiver);
+//    }
 }

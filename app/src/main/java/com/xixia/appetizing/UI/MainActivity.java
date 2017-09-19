@@ -5,7 +5,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
@@ -85,7 +84,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     private SplashPic mSelectedPic;
     private ChildEventListener mDescribedFoodListener;
     private FragmentManager mFragmentManager;
-    private Boolean logOutFromMaps = false;
     @BindView(R.id.coordinator) CoordinatorLayout mCoordinator;
     @BindView(R.id.bottom_sheet) View mBottomSheet;
     @BindView(R.id.largeSplashPic) ImageView mLargeSpashPic;
@@ -115,17 +113,12 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         setBottomSheetCallBack();
         mPicsRecyclerView = findViewById(R.id.PicsRecycler);
         mSplashPicsAdapter = new SplashPicsAdapter();
-        //what other features of staggered grid can we do???
         mPicGridLayOut = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         mPicsRecyclerView.setLayoutManager(mPicGridLayOut);
         mFireBaseDatabase = FirebaseDatabase.getInstance();
         mFireBaseAuth = FirebaseAuth.getInstance();
-//        mAllPictures = AppDataSingleton.getmAllPictures();
         mAllPictures = Parcels.unwrap(getIntent().getParcelableExtra("splashPics"));
         notCurrentlyLoading = true;
-        if(getIntent().getBooleanExtra("MAP", false)){
-            // do something...I want to connect auth listener sooner and then log out here.
-        }
         createAuthListener();
         setmPicsRecyclerView();
     }
@@ -135,7 +128,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-                logOutFromMaps=false;
                 if (currentUser != null){
                     //If logout intent has to go to Main (which it currently does not...and working) a fix is add && mAllPictures is 0 or not 0, I forget. in the scenario of a logout and log back, the bug is the setDescribed is accidentally called twice. Once in AuthAttach and once in Result Ok for sign in. Need a boolean to only have one.
                     mFirebaseUser = currentUser;
@@ -256,12 +248,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     }
 
     @Override
-    public void onStart(){
-        super.onStart();
-        Log.d("START", "STARt");
-    }
-
-    @Override
     public void onActivityResult(int request, int result, Intent data) {
         super.onActivityResult(request, result, data);
         Log.d("RESULT", "RESULT");
@@ -286,9 +272,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                                 } else {
                                     //check if AllPictures is null.
                                     if (mAllPictures.size()==0) {
-//                                        Intent intent = new Intent(getBaseContext(), SplashActivity.class);
-//                                        startActivity(intent);
-//                                        finish();
                                         unSplash30Call();
                                     } else
                                     setDescribedPictures();
@@ -307,26 +290,12 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                         break;
                 }
                 break;
-            case 1000:
-                switch (result) {
-                    case Activity.RESULT_OK:
-
-                        break;
-                    case Activity.RESULT_CANCELED:
-                        // The user was asked to change settings, but chose not to
-                        Toast.makeText(this, "Location Service not Enabled", Toast.LENGTH_SHORT).show();
-                        break;
-                    default:
-                        break;
-                }
-                break;
         }
     }
 
     @Override
     public void onNewIntent(Intent intent){
         super.onNewIntent(intent);
-//        logOutFromMaps = true;
     }
 
     @Override
@@ -342,9 +311,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             mPicsRecyclerView.addOnScrollListener(mEndLessScrollListener);
         }
         setDescriptionTextWatcher();
-//        if(logOutFromMaps){
-//            AuthUI.getInstance().signOut(this);
-//        }
+
     }
 
 
@@ -354,12 +321,18 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         Log.d("MAIN PAUSE", "PAUSE");
 
         if (mAuthListener != null) {
+            Log.d("MAIN PAUSE", "AUTH REMOVED");
+
             mFireBaseAuth.removeAuthStateListener(mAuthListener);
         }
         if (mEndLessScrollListener != null){
+            Log.d("MAIN PAUSE", "SCROLL REMOVED");
+
             mPicsRecyclerView.removeOnScrollListener(mEndLessScrollListener);
         }
         if (mDescriptionTextWatcher != null) {
+            Log.d("MAIN PAUSE", "TEXT WATCHER REMOVED");
+
             mDescriptionText.removeTextChangedListener(mDescriptionTextWatcher);
         }
     }
@@ -590,8 +563,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
     public List<SplashPic> matchNewPicsWithDescribed(List<SplashPic> newPics){
         int newPicCount = 0;
-//        List <DescribedPicture> allDescribed = AppDataSingleton.getmDescribedPictures();
-//        List <DescribedPicture> allDescribed = mDescribedPictures;
 
         List<SplashPic> modifiedPics = new ArrayList<>();
         for(SplashPic pic: newPics){
@@ -607,30 +578,5 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             newPicCount++;
         }
         return modifiedPics;
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case Constants.GET_LOCATION_PERMISSION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d("GRANTED", "GRANTED");
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-
-                } else {
-                Log.d("DENIED", "DENIED");
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                }
-                return;
-            }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
-        }
     }
 }

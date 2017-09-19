@@ -7,11 +7,11 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.xixia.appetizing.Constants;
 import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.R;
-import com.xixia.appetizing.Services.NetworkChangeReceiver;
 import com.xixia.appetizing.Services.UnSplashClient;
 import com.xixia.appetizing.Services.UnSplashServiceGenerator;
 
@@ -36,24 +36,33 @@ public class SplashActivity extends BaseActivity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(NetworkChangeReceiver.isOnline(this)) {
-                unSplash30Call();
+
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        Log.d("Splash RESUME", "RESUME");
+
+        if(isOnline()) {
+            unSplash30Call();
         } else  {
             displayWarningDialog();
         }
     }
 
-//    private boolean isOnline(Context context) {
-//        try {
-//            ConnectivityManager cm = (ConnectivityManager) context.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-//            NetworkInfo netInfo = cm.getActiveNetworkInfo();
-//            //should check null because in airplane mode it will be null
-//            return (netInfo != null && netInfo.isConnectedOrConnecting());
-//        } catch (NullPointerException e) {
-//            e.printStackTrace();
-//            return false;
-//        }
-//    }
+    public  boolean isOnline() {
+        try {
+            ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo netInfo = cm.getActiveNetworkInfo();
+
+            //should check null because in airplane mode it will be null
+            return (netInfo != null && netInfo.isConnected());
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     public void displayWarningDialog() {
         AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
@@ -91,7 +100,6 @@ public class SplashActivity extends BaseActivity {
                                 //it can happen that UnSplash fails...but the respones.body would be null and REtrofit lets it go here. Check for that.
                                 displayApiCallErrorDialog();
                             } else {
-//                                AppDataSingleton.setmAllPictures(splashPics);
                                 Intent intent = new Intent(SplashActivity.this, MainActivity.class);
                                 intent.putExtra("splashPics", Parcels.wrap(splashPics));
                                 startActivity(intent);
@@ -106,6 +114,8 @@ public class SplashActivity extends BaseActivity {
                             displayApiCallErrorDialog();
                         }
                     });
+        Log.d("NOT SUBSCRIBED", "ANYMORE");
+        call.unsubscribeOn(AndroidSchedulers.mainThread());
     }
 
     public void displayApiCallErrorDialog() {

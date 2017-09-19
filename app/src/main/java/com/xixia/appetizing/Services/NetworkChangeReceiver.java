@@ -14,22 +14,30 @@ import android.util.Log;
  */
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
+    private AlertDialog mAlertDialog;
+
+    public NetworkChangeReceiver(){
+
+    };
 
 
     @Override
     public void onReceive(Context context, Intent intent) {
+
+        Log.d("IN ONRECEIVE", "IN ONRECEIVE");
         try
         {
             if (isOnline(context)) {
             } else {
-                context.sendBroadcast(new Intent("INTERNET_LOST"));
+                Log.d("NO INternet", "NO internet");
+                displayWarningDialog(context);
             }
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
     }
 
-    public static boolean isOnline(Context context) {
+    public  boolean isOnline(Context context) {
         try {
             ConnectivityManager cm = (ConnectivityManager) context.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo netInfo = cm.getActiveNetworkInfo();
@@ -40,5 +48,20 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public void displayWarningDialog(Context context) {
+        AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
+        builder.setMessage("Many Appetizing capabilities will not work without internet")
+                .setTitle("No Internet")
+                .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int i) {
+                                dialog.dismiss();
+                            }
+                        }
+                );
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 }
