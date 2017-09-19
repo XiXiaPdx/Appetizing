@@ -10,6 +10,7 @@ public class PhotographerName {
     private String first_name;
     private String last_name;
     private String name;
+    private String username;
 
     public PhotographerName (){}
 
@@ -24,4 +25,5 @@ public class PhotographerName {
     public String getName() {
         return name;
     }
+    public String getUsername() {return username;}
 }

@@ -103,7 +103,7 @@ public class SplashActivity extends BaseActivity {
                                 Intent intent = new Intent(SplashActivity.this, MainActivity.class);
                                 intent.putExtra("splashPics", Parcels.wrap(splashPics));
                                 startActivity(intent);
-                                finish();
+//                                finish();
                                 overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
                             }
                         }
@@ -115,7 +115,7 @@ public class SplashActivity extends BaseActivity {
                         }
                     });
         Log.d("NOT SUBSCRIBED", "ANYMORE");
-        call.unsubscribeOn(AndroidSchedulers.mainThread());
+        call.unsubscribeOn(Schedulers.io());
     }
 
     public void displayApiCallErrorDialog() {

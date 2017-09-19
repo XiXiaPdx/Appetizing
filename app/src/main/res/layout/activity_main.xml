@@ -34,7 +34,7 @@
 
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/coordinator"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -63,5 +63,17 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/PicsRecycler" />
+
+    <TextView
+        android:id="@+id/unSplash"
+        android:layout_width="380dp"
+        android:layout_height="wrap_content"
+        android:text="photos from UnSplash"
+        android:textSize="16sp"
+        android:textColor="@color/colorLightBlue"
+        android:textAlignment="textEnd"
+        android:background="@color/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
 
 </android.support.constraint.ConstraintLayout>

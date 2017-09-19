@@ -2,11 +2,11 @@ package com.xixia.appetizing.UI;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
@@ -27,7 +27,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.firebase.ui.auth.AuthUI;
@@ -92,6 +91,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     @BindView(R.id.editDescriptionText) EditText mEditTextField;
     @BindView(R.id.submitEdit) ImageButton mSubmitEditButton;
     @BindView(R.id.searchButton) ImageButton mSearchButton;
+    @BindView(R.id.unSplash) TextView mUnSplashHome;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,6 +102,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         mSearchButton.setOnClickListener(this);
         mDescriptionText.setOnClickListener(this);
         mEditTextField.setOnClickListener(this);
+        mUnSplashHome.setOnClickListener(this);
         Animation in = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left);
         Animation out = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
         mViewSwitcher.setInAnimation(in);
@@ -529,6 +530,12 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         if(view == mSearchButton){
             String searchPhrase = mDescriptionText.getText().toString().trim();
             yelpCall(searchPhrase);
+        }
+        if(view == mUnSplashHome){
+            String url = "https://unsplash.com";
+            Intent intent = new Intent (Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(url));
+            startActivity(intent);
         }
     }
 

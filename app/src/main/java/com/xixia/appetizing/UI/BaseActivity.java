@@ -51,12 +51,12 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
 
-    @Override
-    protected void onResume(){
-        super.onResume();
-        broadcastReceiver = new NetworkChangeReceiver();
-        registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-    }
+//    @Override
+//    protected void onResume(){
+//        super.onResume();
+//        broadcastReceiver = new NetworkChangeReceiver();
+//        registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+//    }
 
 
 
@@ -177,7 +177,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     public void onPause (){
         super.onPause();
         Log.d("BROADCAST", "UN_REGISTERED");
-        unregisterReceiver(broadcastReceiver);
+//        unregisterReceiver(broadcastReceiver);
     }
 
 //    @Override

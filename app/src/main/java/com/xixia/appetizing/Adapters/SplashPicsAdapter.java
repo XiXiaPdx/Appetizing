@@ -108,7 +108,8 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
         @Override
         public void onClick(View view) {
             if (view == mPhotographerName){
-                String url = mPictures.get(getAdapterPosition()).getLinks().getHtml();
+                String username = mPictures.get(getAdapterPosition()).getUser().getUsername();
+                String url = "https://unsplash.com/@"+username+"?utm_source=appetizing&utm_medium=referral&utm_campaign=api-credit";
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse(url));
                 context.startActivity(intent);
@@ -116,7 +117,6 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
 
             if (view == mPictureView) {
                 mOpenBottomsheet.openSheet(getAdapterPosition());
-//                GpsService.getCurrentLocation();
             }
         }
     }
