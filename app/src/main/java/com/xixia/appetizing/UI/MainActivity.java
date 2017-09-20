@@ -71,7 +71,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     private FirebaseUser mFirebaseUser;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private static final int RC_SIGN_IN = 1;
-//    private SplashCustomRecyclerView mPicsRecyclerView;
     private SplashPicsAdapter mSplashPicsAdapter;
     private StaggeredGridLayoutManager mPicGridLayOut;
     private EndLessScrollListener mEndLessScrollListener;
@@ -83,6 +82,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     private SplashPic mSelectedPic;
     private ChildEventListener mDescribedFoodListener;
     private FragmentManager mFragmentManager;
+    private DatabaseReference mUserDescriptionsRef;
     @BindView(R.id.coordinator) CoordinatorLayout mCoordinator;
     @BindView(R.id.bottom_sheet) View mBottomSheet;
     @BindView(R.id.largeSplashPic) ImageView mLargeSpashPic;
@@ -121,7 +121,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         setBottomSheetCallBack();
 
         mDescribedPictures = new ArrayList<>();
-        //        mPicsRecyclerView = findViewById(R.id.PicsRecycler);
 
         mSplashPicsAdapter = new SplashPicsAdapter();
         mPicGridLayOut = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
@@ -491,7 +490,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
     public void setDescribedPictures(){
         if (mDescribedFoodListener == null) {
-            DatabaseReference mUserDescriptionsRef = mFireBaseDatabase.getReference(getString(R.string.user_food_description));
+            mUserDescriptionsRef = mFireBaseDatabase.getReference(getString(R.string.user_food_description)).child(mFirebaseUser.getUid());
             mDescribedFoodListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -526,7 +525,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
                 }
             };
-            mUserDescriptionsRef.child(mFirebaseUser.getUid()).addChildEventListener(mDescribedFoodListener);
+            mUserDescriptionsRef.addChildEventListener(mDescribedFoodListener);
         }
     }
 
@@ -635,7 +634,10 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
             mDescriptionText.removeTextChangedListener(mDescriptionTextWatcher);
         }
-//        mPicsRecyclerView.setAdapter(null);
+        if (mDescribedFoodListener != null){
+            mUserDescriptionsRef.removeEventListener(mDescribedFoodListener);
+        }
+        mPicsRecyclerView.setAdapter(null);
     }
 
     @Override

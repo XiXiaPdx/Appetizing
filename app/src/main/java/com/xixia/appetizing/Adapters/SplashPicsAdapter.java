@@ -27,7 +27,6 @@ import butterknife.ButterKnife;
 
 public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.PictureViewHolder>{
     private List<SplashPic> mPictures;
-    private Context context;
     private OpenBottomSheet mOpenBottomsheet;
 
     public SplashPicsAdapter(){}
@@ -35,7 +34,6 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
     public SplashPicsAdapter(Context context, List<SplashPic> pictures) {
         super ();
         mOpenBottomsheet = (OpenBottomSheet) context;
-        this.context = context;
         mPictures = pictures;
     }
 
@@ -85,7 +83,7 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
 
         public void bindPicture (SplashPic picture){
             Picasso
-                    .with(mContext)
+                    .with(mContext.getApplicationContext())
                     .load(picture.getUrls()
                             .getRegular())
                     .resize(Constants.MAX_Width, Constants.MAX_Height)
