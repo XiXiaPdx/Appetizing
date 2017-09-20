@@ -635,9 +635,9 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             mDescriptionText.removeTextChangedListener(mDescriptionTextWatcher);
         }
         if (mDescribedFoodListener != null){
+            //this was the last listner that was causing the memory leak.
             mUserDescriptionsRef.removeEventListener(mDescribedFoodListener);
         }
-        mPicsRecyclerView.setAdapter(null);
     }
 
     @Override

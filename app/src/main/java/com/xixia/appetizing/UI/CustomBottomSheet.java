@@ -27,6 +27,7 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
     private Context mContext;
     private Matrix matrix;
     private View rootView;
+    private static ScaleGestureDetector mScaleDetector;
     private ImageView largeSplashPic;
     private float scaleFactor = 1.f;
     private Boolean vibrated = false;
@@ -34,6 +35,8 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
     public CustomBottomSheet(Context context) {
         super();
         mContext = context;
+        mScaleDetector = new ScaleGestureDetector(mContext, new ScaleListener());
+        Log.d("CREATE SCALE", mScaleDetector.toString());
         matrix = new Matrix();
         rootView = ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
         largeSplashPic = rootView.findViewById(R.id.largeSplashPic);
@@ -46,6 +49,7 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
     @Override
     public boolean onInterceptTouchEvent(CoordinatorLayout parent, V child, MotionEvent event) {
         Log.d("MOTION", event.toString());
+
         // true sends the event to OnTouch, where UI changes should happen.
        if(event.getPointerCount() == 2 ) {
            return true;
@@ -56,8 +60,6 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
     @Override
     public boolean onTouchEvent(CoordinatorLayout parent, V child, MotionEvent event){
         final int action = event.getActionMasked();
-        Log.d("TOUCH EVENT", event.toString());
-
         if(parent.isShown()) {
             switch (action) {
                 case MotionEvent.ACTION_POINTER_UP:
@@ -74,8 +76,12 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
                 child.findViewById(R.id.largeSplashPic).performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
                 vibrated = true;
             }
-            ScaleGestureDetector mScaleDetector = new ScaleGestureDetector(parent.getContext(), new ScaleListener());
-            mScaleDetector.onTouchEvent(event);
+            Log.d("TOUCH EVENT", event.toString());
+            if (mScaleDetector == null) {
+                Log.d("ScALE IS NULL", "NUL NULL");
+            } else {
+                mScaleDetector.onTouchEvent(event);
+            }
             return true;
         } else return false;
     }

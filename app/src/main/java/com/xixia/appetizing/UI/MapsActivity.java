@@ -57,13 +57,9 @@ import retrofit2.Response;
 public class MapsActivity extends BaseActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private GoogleMap mMap;
-    private Double mLat;
-    private Double mLong;
     private String mSearchTerm;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
-    private Location mLastLocation;
-    private Marker mCurrLocationMarker;
     private YelpAPIFactory apiFactory;
     private LinearLayoutManager mRLM;
     private RestaurantAdapter mRestaurantAdapter;
@@ -157,10 +153,9 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
 
     @Override
     public void onLocationChanged(Location location) {
-        mLastLocation = location;
-        if (mCurrLocationMarker != null) {
-            mCurrLocationMarker.remove();
-        }
+//        if (mCurrLocationMarker != null) {
+//            mCurrLocationMarker.remove();
+//        }
 
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
@@ -204,6 +199,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
                 removeSpinner();
                 showNearbyPlaces(mRestaurantList);
                 setRestaurantsView(mRestaurantList);
+                apiFactory=null;
             }
             @Override
             public void onFailure(Call<SearchResponse> call, Throwable t) {
@@ -295,6 +291,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         mGoogleApiClient.disconnect();
         mRestaurantScroller.setAdapter(null);
         mMap.clear();
+        mAllMarkers.clear();
     }
 
     //add back press remove on Marker clicked Listener
