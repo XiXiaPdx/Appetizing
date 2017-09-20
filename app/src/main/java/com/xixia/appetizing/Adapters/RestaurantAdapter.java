@@ -5,9 +5,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.xixia.appetizing.Constants;
 import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.R;
 import com.yelp.clientlib.entities.Business;
@@ -40,7 +42,11 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
 
     @Override
     public void onBindViewHolder(RestaurantAdapter.RestaurantViewHolder holder, int position) {
-        holder.mRestaurantName.setText(mRestaurants.get(position).name());
+        Business restaurant = mRestaurants.get(position);
+        holder.mRestaurantName.setText(restaurant.name());
+        holder.mRestaurantRating.setText(String.valueOf(restaurant.rating())+"/5.0");
+        holder.mRestaurantAddress.setText(restaurant.location().address().get(0));
+        holder.bindPicture(restaurant);
     }
 
     @Override
@@ -51,15 +57,36 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
     public class RestaurantViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         //view fields on the single restaurant view here
         @BindView(R.id.restaurantName) TextView mRestaurantName;
+        @BindView(R.id.restaurantImage) ImageView mRestaurantImage;
+        @BindView(R.id.rating) TextView mRestaurantRating;
+        @BindView(R.id.address) TextView mRestaurantAddress;
+        @BindView(R.id.ratingIcon) ImageView mRatingIcon;
+        private Context mContext;
+
 
         public RestaurantViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            mContext = itemView.getContext();
 
         }
 
-        public void bindPicture (String pictureUrl) {
-            //Picasso
+        public void bindPicture (Business business) {
+            String pictureUrl = business.imageUrl();
+            String ratingIcon = business.ratingImgUrlSmall();
+            Picasso
+                    .with(mContext.getApplicationContext())
+                    .load(pictureUrl)
+                    .resize(500, 500)
+                    .onlyScaleDown()
+                    .centerCrop()
+                    .into(mRestaurantImage);
+            Picasso
+                    .with(mContext.getApplicationContext())
+                    .load(ratingIcon)
+                    .fit()
+                    .centerCrop()
+                    .into(mRatingIcon);
         }
 
         @Override

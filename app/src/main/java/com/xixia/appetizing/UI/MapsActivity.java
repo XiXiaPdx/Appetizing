@@ -94,6 +94,8 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         mMap = googleMap;
         mMap.getUiSettings().setAllGesturesEnabled(true);
         mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setMapToolbarEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -287,10 +289,11 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
     public void onPause() {
         super.onPause();
         Log.d("MAP PAUSE", "PAUSE");
-        mRestaurantScroller.removeOnScrollListener(scrollListener);
+        mRestaurantScroller.clearOnScrollListeners();
         mGoogleApiClient.disconnect();
         mRestaurantScroller.setAdapter(null);
         mMap.clear();
+        mMap = null;
         mAllMarkers.clear();
     }
 

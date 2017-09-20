@@ -67,7 +67,7 @@
         android:id="@+id/unSplash"
         android:layout_width="380dp"
         android:layout_height="wrap_content"
-        android:text="photos from UnSplash"
+        android:text="photos from Unsplash"
         android:textSize="16sp"
         android:textColor="@color/colorLightBlue"
         android:textAlignment="textEnd"
