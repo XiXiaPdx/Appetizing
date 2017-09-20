@@ -26,11 +26,10 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
     private List<Business> mRestaurants;
 
     public RestaurantAdapter (){};
-    public RestaurantAdapter (Context context, List<Business> restaurants){
+    public RestaurantAdapter (List<Business> restaurants){
         super();
         mRestaurants = restaurants;
     }
-
 
     @Override
     public RestaurantAdapter.RestaurantViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -51,12 +50,10 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
 
     public class RestaurantViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         //view fields on the single restaurant view here
-        private Context mSingleRestaurantViewContext;
         @BindView(R.id.restaurantName) TextView mRestaurantName;
 
         public RestaurantViewHolder(View itemView) {
             super(itemView);
-            mSingleRestaurantViewContext = itemView.getContext();
             ButterKnife.bind(this, itemView);
 
         }

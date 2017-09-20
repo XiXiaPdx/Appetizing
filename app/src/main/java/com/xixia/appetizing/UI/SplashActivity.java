@@ -44,12 +44,18 @@ public class SplashActivity extends BaseActivity {
         super.onResume();
         Log.d("Splash RESUME", "RESUME");
 
+        // while the splash background is being displayed, API call to get photos and pass to Main Activity
+
         if(isOnline()) {
             unSplash30Call();
         } else  {
             displayWarningDialog();
         }
     }
+
+    /*
+    Check to make sure there is internet
+     */
 
     public  boolean isOnline() {
         try {
@@ -80,6 +86,10 @@ public class SplashActivity extends BaseActivity {
         mAlertDialog.show();
     }
 
+    /*
+    Retrofit call for photos. It is a RxJava single.
+     */
+
 
     public void unSplash30Call(){
         UnSplashClient client = UnSplashServiceGenerator.createService(UnSplashClient.class);
@@ -103,7 +113,6 @@ public class SplashActivity extends BaseActivity {
                                 Intent intent = new Intent(SplashActivity.this, MainActivity.class);
                                 intent.putExtra("splashPics", Parcels.wrap(splashPics));
                                 startActivity(intent);
-//                                finish();
                                 overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
                             }
                         }

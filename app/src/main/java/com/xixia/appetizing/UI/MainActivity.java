@@ -71,13 +71,13 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     private FirebaseUser mFirebaseUser;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private static final int RC_SIGN_IN = 1;
-    private SplashCustomRecyclerView mPicsRecyclerView;
+//    private SplashCustomRecyclerView mPicsRecyclerView;
     private SplashPicsAdapter mSplashPicsAdapter;
     private StaggeredGridLayoutManager mPicGridLayOut;
     private EndLessScrollListener mEndLessScrollListener;
     private TextWatcher mDescriptionTextWatcher;
-    private List<SplashPic> mAllPictures = new ArrayList<>();
-    private List<DescribedPicture> mDescribedPictures = new ArrayList<>();
+    private List<SplashPic> mAllPictures;
+    private List<DescribedPicture> mDescribedPictures;
     private Boolean notCurrentlyLoading;
     private CustomBottomSheet mBottomSheetBehavior;
     private SplashPic mSelectedPic;
@@ -92,39 +92,88 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     @BindView(R.id.submitEdit) ImageButton mSubmitEditButton;
     @BindView(R.id.searchButton) ImageButton mSearchButton;
     @BindView(R.id.unSplash) TextView mUnSplashHome;
+    @BindView(R.id.PicsRecycler) SplashCustomRecyclerView mPicsRecyclerView;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         mFragmentManager = getSupportFragmentManager();
+
+        // Click listeners
         mSubmitEditButton.setOnClickListener(this);
         mSearchButton.setOnClickListener(this);
         mDescriptionText.setOnClickListener(this);
         mEditTextField.setOnClickListener(this);
         mUnSplashHome.setOnClickListener(this);
+
+        //Animation for a textview in the view Switcher
         Animation in = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left);
         Animation out = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
         mViewSwitcher.setInAnimation(in);
         mViewSwitcher.setOutAnimation(out);
+
+        //BottomSheet that is created when a picture in the recyclerView is clicked
         mBottomSheetBehavior = new CustomBottomSheet(this);
         mBottomSheetBehavior= (CustomBottomSheet) BottomSheetBehavior.from(mBottomSheet);
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         mBottomSheetBehavior.setPeekHeight(0);
         setBottomSheetCallBack();
-        mPicsRecyclerView = findViewById(R.id.PicsRecycler);
+
+        mDescribedPictures = new ArrayList<>();
+        //        mPicsRecyclerView = findViewById(R.id.PicsRecycler);
+
         mSplashPicsAdapter = new SplashPicsAdapter();
         mPicGridLayOut = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        mPicsRecyclerView.setLayoutManager(mPicGridLayOut);
         mFireBaseDatabase = FirebaseDatabase.getInstance();
         mFireBaseAuth = FirebaseAuth.getInstance();
         mAllPictures = Parcels.unwrap(getIntent().getParcelableExtra("splashPics"));
         notCurrentlyLoading = true;
-        createAuthListener();
         setmPicsRecyclerView();
+        setAuthListener();
     }
 
-    public void createAuthListener(){
+    /*
+
+    The below are three methods called in On Create
+
+     */
+
+    public void setBottomSheetCallBack(){
+        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                if(mViewSwitcher.getCurrentView() != mDescriptionText && newState == 4) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    closeKeyShowNext(imm);
+                }
+
+                Log.d("STATE STATE", String.valueOf(newState));
+                if(newState == 4) {
+                    Log.d("GONE GONE GONE", "GONE GONE GONE");
+                    mCoordinator.setVisibility(View.GONE);
+                }
+                if(newState == 3) {
+                    Log.d("STATE VISIBLE", "STATE VISIBLE");
+                    mCoordinator.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+            }
+        });
+
+    }
+
+    public void setmPicsRecyclerView(){
+        mPicsRecyclerView.setLayoutManager(mPicGridLayOut);
+        mSplashPicsAdapter = new SplashPicsAdapter(this, mAllPictures);
+        mPicsRecyclerView.setAdapter(mSplashPicsAdapter);
+    }
+
+    public void setAuthListener(){
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -137,7 +186,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                     }
                 } else {
                     Log.d("USER NULL", "USER NULL");
-
                     startActivityForResult(
                             AuthUI.getInstance()
                                     .createSignInIntentBuilder()
@@ -153,7 +201,84 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         };
     }
 
-    public void createRecyclerEndLessScroll(){
+    /*
+
+    The above are three methods called in On Create
+
+     */
+
+    /*
+
+     OnActivityResult is activated by the FireBase AuthListener
+
+     */
+
+    @Override
+    public void onActivityResult(int request, int result, Intent data) {
+        super.onActivityResult(request, result, data);
+        Log.d("RESULT", "RESULT");
+
+        switch (request){
+            case RC_SIGN_IN:
+                switch (result){
+                    case RESULT_OK:
+                        mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                        final DatabaseReference mUserRef = mFireBaseDatabase.getReference(getString(R.string.user_node));
+
+                        //query for current user UID. If it exists, the snapshot will be NOT NULl. No new profile created. If null, new user and new profile created.
+                        mUserRef.orderByChild("mUserUID").equalTo(mFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.getValue() == null){
+                                    String username = mFirebaseUser.getDisplayName();
+                                    String useremail = mFirebaseUser.getEmail();
+                                    String userUID = mFirebaseUser.getUid();
+                                    UserProfile newUser = new UserProfile(username, useremail, userUID);
+                                    mUserRef.child(userUID).setValue(newUser);
+                                } else {
+                                    //check if AllPictures is null.
+                                    if (mAllPictures.size()==0) {
+                                        unSplash30Call();
+                                    } else
+                                        setDescribedPictures();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                        break;
+                    case RESULT_CANCELED:
+                        Log.d("BACK ARROW", "BACK ARROW IN SIGN IN SCREEN");
+                        finish();
+                        break;
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        Log.d("onRESUME", "RESUME");
+        if (mAuthListener != null) {
+            Log.d("AUTHLISTENER", "AUTHLISTNER ADDED");
+            mFireBaseAuth.addAuthStateListener(mAuthListener);
+        }
+        setRecyclerEndLessScroll();
+        if (mEndLessScrollListener != null){
+            mPicsRecyclerView.addOnScrollListener(mEndLessScrollListener);
+        }
+        setDescriptionTextWatcher();
+    }
+
+    /*
+    The below are two methods set in OnResume
+     */
+
+    public void setRecyclerEndLessScroll(){
         Log.d("SCROLL CREATEd", "SCROLL CREATED");
         mEndLessScrollListener = new EndLessScrollListener(mPicGridLayOut) {
             @Override
@@ -206,6 +331,14 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
     }
 
+    /*
+    The above are two methods set in OnResume
+     */
+
+    /*
+    This is a Retrofit call using an RxJava single to get more photos from UnSplash. It's used in the Endless Scroll Listener
+     */
+
     public void unSplash30Call(){
         UnSplashClient client = UnSplashServiceGenerator.createService(UnSplashClient.class);
         Single<List<SplashPic>> call = client.pictures(Constants.UNSPLASH_ID);
@@ -235,159 +368,21 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                     @Override
                     public void onError(@io.reactivex.annotations.NonNull Throwable e) {
                         Log.d("ERROR", e.toString());
-
                     }
                 });
     }
 
-    public void yelpCall(String searchTerm){
+    /*
+    After a user selects a picture with a description, googleMapsCall will go to the MapsActivity and show a map of nearby restaurants
+     */
 
+    public void googleMapsCall(String searchTerm){
                 Intent intent = new Intent (MainActivity.this, MapsActivity.class);
                 intent.putExtra("searchTerm", mDescriptionText.getText().toString().trim());
                 startActivity(intent);
                 overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
     }
 
-    @Override
-    public void onActivityResult(int request, int result, Intent data) {
-        super.onActivityResult(request, result, data);
-        Log.d("RESULT", "RESULT");
-
-        switch (request){
-            case RC_SIGN_IN:
-                switch (result){
-                    case RESULT_OK:
-                        mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                        final DatabaseReference mUserRef = mFireBaseDatabase.getReference(getString(R.string.user_node));
-
-                        //query for current user UID. If it exists, the snapshot will be NOT NULl. No new profile created. If null, new user and new profile created.
-                        mUserRef.orderByChild("mUserUID").equalTo(mFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.getValue() == null){
-                                    String username = mFirebaseUser.getDisplayName();
-                                    String useremail = mFirebaseUser.getEmail();
-                                    String userUID = mFirebaseUser.getUid();
-                                    UserProfile newUser = new UserProfile(username, useremail, userUID);
-                                    mUserRef.child(userUID).setValue(newUser);
-                                } else {
-                                    //check if AllPictures is null.
-                                    if (mAllPictures.size()==0) {
-                                        unSplash30Call();
-                                    } else
-                                    setDescribedPictures();
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-                        break;
-                    case RESULT_CANCELED:
-                        Log.d("BACK ARROW", "BACK ARROW IN SIGN IN SCREEN");
-                        finish();
-                        break;
-                }
-                break;
-        }
-    }
-
-    @Override
-    public void onNewIntent(Intent intent){
-        super.onNewIntent(intent);
-    }
-
-    @Override
-    public void onResume(){
-        super.onResume();
-        Log.d("onRESUME", "RESUME");
-        if (mAuthListener != null) {
-            Log.d("AUTHLISTENER", "AUTHLISTNER ADDED");
-            mFireBaseAuth.addAuthStateListener(mAuthListener);
-        }
-        createRecyclerEndLessScroll();
-        if (mEndLessScrollListener != null){
-            mPicsRecyclerView.addOnScrollListener(mEndLessScrollListener);
-        }
-        setDescriptionTextWatcher();
-
-    }
-
-
-    @Override
-    public void onPause(){
-        super.onPause();
-        Log.d("MAIN PAUSE", "PAUSE");
-
-        if (mAuthListener != null) {
-            Log.d("MAIN PAUSE", "AUTH REMOVED");
-
-            mFireBaseAuth.removeAuthStateListener(mAuthListener);
-        }
-        if (mEndLessScrollListener != null){
-            Log.d("MAIN PAUSE", "SCROLL REMOVED");
-
-            mPicsRecyclerView.removeOnScrollListener(mEndLessScrollListener);
-        }
-        if (mDescriptionTextWatcher != null) {
-            Log.d("MAIN PAUSE", "TEXT WATCHER REMOVED");
-
-            mDescriptionText.removeTextChangedListener(mDescriptionTextWatcher);
-        }
-    }
-
-    public void setDescribedPictures(){
-        if (mDescribedFoodListener == null) {
-            DatabaseReference mUserDescriptionsRef = mFireBaseDatabase.getReference(getString(R.string.user_food_description));
-            mDescribedFoodListener = new ChildEventListener() {
-                @Override
-                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                    DescribedPicture description = dataSnapshot.getValue(DescribedPicture.class);
-//                    AppDataSingleton.addToDescribedPictures(description);
-                    mDescribedPictures.add(description);
-                    //filter each described pic through allPictures and add description. notifyitemchanged on that position.
-
-//                    Log.d("SIZE", String.valueOf(AppDataSingleton.getmDescribedPictures().size()));
-                    Log.d("SIZE", String.valueOf(mDescribedPictures.size()));
-                    matchDescriptionWithAllPics(description);
-                }
-
-                @Override
-                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                    DescribedPicture description = dataSnapshot.getValue(DescribedPicture.class);
-//                    AppDataSingleton.addToDescribedPictures(description);
-
-                    mDescribedPictures.add(description);
-                    matchDescriptionWithAllPics(description);
-                }
-
-                @Override
-                public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                }
-
-                @Override
-                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            };
-            mUserDescriptionsRef.child(mFirebaseUser.getUid()).addChildEventListener(mDescribedFoodListener);
-        }
-    }
-
-    public void setmPicsRecyclerView(){
-        Log.d("RECYCLER", "RECYCLER");
-        mSplashPicsAdapter = new SplashPicsAdapter(this, mAllPictures);
-//        mPicsRecyclerView.setHasFixedSize(true);
-        mPicsRecyclerView.setAdapter(mSplashPicsAdapter);
-    }
 
         @Override
     public void openSheet(int pictureIndex) {
@@ -411,34 +406,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 mSearchButton.setVisibility(View.GONE);
             }
         }
-
-    public void setBottomSheetCallBack(){
-        mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-            @Override
-            public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                if(mViewSwitcher.getCurrentView() != mDescriptionText && newState == 4) {
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    closeKeyShowNext(imm);
-                }
-
-                Log.d("STATE STATE", String.valueOf(newState));
-                if(newState == 4) {
-                    Log.d("GONE GONE GONE", "GONE GONE GONE");
-                    mCoordinator.setVisibility(View.GONE);
-                }
-                if(newState == 3) {
-                    Log.d("STATE VISIBLE", "STATE VISIBLE");
-                    mCoordinator.setVisibility(View.VISIBLE);
-                }
-            }
-
-            @Override
-            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-
-            }
-        });
-
-    }
 
     public void setLargePic(int pictureIndex){
         mSelectedPic = mAllPictures.get(pictureIndex);
@@ -501,6 +468,115 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         return squareImage;
     }
 
+    public void closeKeyShowNext(InputMethodManager imm){
+        imm.hideSoftInputFromWindow(mEditTextField.getWindowToken(), 0);
+        mEditTextField.setText("");
+        mViewSwitcher.showNext();
+    }
+
+    /*
+    When user describes a food picture, their description is saved to Firebase and triggers onChildAdded in DescribedFoodListener
+     */
+
+
+    public void saveDescriptionToFirebase(String foodDescription){
+         DatabaseReference mUserDescriptionsRef = mFireBaseDatabase.getReference(getString(R.string.user_food_description));
+        DescribedPicture newDescription = new DescribedPicture(mSelectedPic.getId(), foodDescription);
+         mUserDescriptionsRef.child(mFirebaseUser.getUid()).child(mSelectedPic.getId()).setValue(newDescription);
+    }
+
+    /*
+    Called when user describeds a food pic. Also upon initial loading of food pictures and matching them with user described foods
+     */
+
+    public void setDescribedPictures(){
+        if (mDescribedFoodListener == null) {
+            DatabaseReference mUserDescriptionsRef = mFireBaseDatabase.getReference(getString(R.string.user_food_description));
+            mDescribedFoodListener = new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    DescribedPicture description = dataSnapshot.getValue(DescribedPicture.class);
+                    mDescribedPictures.add(description);
+                    //filter each described pic through allPictures and add description. notifyitemchanged on that position.
+
+                    Log.d("SIZE", String.valueOf(mDescribedPictures.size()));
+                    matchDescriptionWithAllPics(description);
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                    DescribedPicture description = dataSnapshot.getValue(DescribedPicture.class);
+
+                    mDescribedPictures.add(description);
+                    matchDescriptionWithAllPics(description);
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            };
+            mUserDescriptionsRef.child(mFirebaseUser.getUid()).addChildEventListener(mDescribedFoodListener);
+        }
+    }
+
+    /*
+    Matching described food with all pictures. Calls SplashPicsAdapter to update and notifyItemHasChanged
+     */
+
+    public void matchDescriptionWithAllPics(DescribedPicture description){
+        int count = 0;
+        for(SplashPic pic: mAllPictures){
+            if(pic.getId().equals(description.getPicID())){
+                //this isn't permanent change...???
+//                pic.setFoodDescription(description.getFoodDescription());
+                // this permanently changes the data in the app that this picture is now described.
+
+                mAllPictures.get(count).setFoodDescription(description.getFoodDescription());
+//                AppDataSingleton.setmAllPictures(mAllPictures);
+
+                mSplashPicsAdapter.descriptionAdded(count, mAllPictures);
+            }
+            count++;
+        }
+    }
+
+     /*
+     This method called in OnSuccess of API Call to get more photos. When pictures are returned from API, they are matched with User's described foods and see if there is match.  If match, description added to picture. Pictures are then moved to Adapter and NotifyItemRangeUpdated is called.
+     */
+
+    public List<SplashPic> matchNewPicsWithDescribed(List<SplashPic> newPics){
+        int newPicCount = 0;
+
+        List<SplashPic> modifiedPics = new ArrayList<>();
+        for(SplashPic pic: newPics){
+            for (DescribedPicture description: mDescribedPictures){
+             if (pic.getId().equals(description.getPicID())){
+                 Log.d("MATCH MATCH", "MATCH");
+                 pic.setFoodDescription(description.getFoodDescription());
+                 break;
+             }
+            }
+            modifiedPics.add(pic);
+            Log.d("Picture Number", String.valueOf(newPicCount));
+            newPicCount++;
+        }
+        return modifiedPics;
+    }
+
+    /*
+    On Click listener code for Main
+     */
 
     @Override
     public void onClick(View view) {
@@ -520,16 +596,16 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         }
         if(view == mSubmitEditButton){
             String foodDescription = mEditTextField.getText().toString().trim();
-                saveDescriptionToFirebase(foodDescription);
-                mDescriptionText.setText(foodDescription);
-                closeKeyShowNext(imm);
+            saveDescriptionToFirebase(foodDescription);
+            mDescriptionText.setText(foodDescription);
+            closeKeyShowNext(imm);
             mSearchButton.setVisibility(View.VISIBLE);
             mSearchButton.setAlpha(0.0f);
             mSearchButton.animate().alpha(1.0f);
         }
         if(view == mSearchButton){
             String searchPhrase = mDescriptionText.getText().toString().trim();
-            yelpCall(searchPhrase);
+            googleMapsCall(searchPhrase);
         }
         if(view == mUnSplashHome){
             String url = "https://unsplash.com";
@@ -539,51 +615,32 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         }
     }
 
-    public void closeKeyShowNext(InputMethodManager imm){
-        imm.hideSoftInputFromWindow(mEditTextField.getWindowToken(), 0);
-        mEditTextField.setText("");
-        mViewSwitcher.showNext();
-    }
+    @Override
+    public void onPause(){
+        super.onPause();
+        Log.d("MAIN PAUSE", "PAUSE");
 
-    public void saveDescriptionToFirebase(String foodDescription){
-         DatabaseReference mUserDescriptionsRef = mFireBaseDatabase.getReference(getString(R.string.user_food_description));
-        DescribedPicture newDescription = new DescribedPicture(mSelectedPic.getId(), foodDescription);
-         mUserDescriptionsRef.child(mFirebaseUser.getUid()).child(mSelectedPic.getId()).setValue(newDescription);
-    }
+        if (mAuthListener != null) {
+            Log.d("MAIN PAUSE", "AUTH REMOVED");
 
-    public void matchDescriptionWithAllPics(DescribedPicture description){
-        int count = 0;
-        for(SplashPic pic: mAllPictures){
-            if(pic.getId().equals(description.getPicID())){
-                //this isn't permanent change...???
-//                pic.setFoodDescription(description.getFoodDescription());
-                // this permanently changes the data in the app that this picture is now described.
-
-                mAllPictures.get(count).setFoodDescription(description.getFoodDescription());
-//                AppDataSingleton.setmAllPictures(mAllPictures);
-
-                mSplashPicsAdapter.descriptionAdded(count, mAllPictures);
-            }
-            count++;
+            mFireBaseAuth.removeAuthStateListener(mAuthListener);
         }
+        if (mEndLessScrollListener != null){
+            Log.d("MAIN PAUSE", "SCROLL REMOVED");
+
+            mPicsRecyclerView.removeOnScrollListener(mEndLessScrollListener);
+        }
+        if (mDescriptionTextWatcher != null) {
+            Log.d("MAIN PAUSE", "TEXT WATCHER REMOVED");
+
+            mDescriptionText.removeTextChangedListener(mDescriptionTextWatcher);
+        }
+//        mPicsRecyclerView.setAdapter(null);
     }
 
-    public List<SplashPic> matchNewPicsWithDescribed(List<SplashPic> newPics){
-        int newPicCount = 0;
-
-        List<SplashPic> modifiedPics = new ArrayList<>();
-        for(SplashPic pic: newPics){
-            for (DescribedPicture description: mDescribedPictures){
-             if (pic.getId().equals(description.getPicID())){
-                 Log.d("MATCH MATCH", "MATCH");
-                 pic.setFoodDescription(description.getFoodDescription());
-                 break;
-             }
-            }
-            modifiedPics.add(pic);
-            Log.d("Picture Number", String.valueOf(newPicCount));
-            newPicCount++;
-        }
-        return modifiedPics;
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        Log.d("DESTROY MAIN", "DESTROY MAIN");
     }
 }

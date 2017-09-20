@@ -25,7 +25,6 @@ import com.xixia.appetizing.R;
 
 public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
     private Context mContext;
-//    private static ScaleGestureDetector mScaleDetector;
     private Matrix matrix;
     private View rootView;
     private ImageView largeSplashPic;
@@ -35,7 +34,6 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
     public CustomBottomSheet(Context context) {
         super();
         mContext = context;
-//        mScaleDetector = new ScaleGestureDetector(mContext, new ScaleListener());
         matrix = new Matrix();
         rootView = ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
         largeSplashPic = rootView.findViewById(R.id.largeSplashPic);

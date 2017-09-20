@@ -1,6 +1,7 @@
 package com.xixia.appetizing.UI;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -15,6 +16,10 @@ import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SnapHelper;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -32,12 +37,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.xixia.appetizing.Adapters.RestaurantAdapter;
 import com.xixia.appetizing.Constants;
 import com.xixia.appetizing.R;
-import com.xixia.appetizing.Services.SpinnerService;
 import com.yelp.clientlib.connection.YelpAPI;
 import com.yelp.clientlib.connection.YelpAPIFactory;
 import com.yelp.clientlib.entities.Business;
 import com.yelp.clientlib.entities.SearchResponse;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,13 +65,15 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
     private Location mLastLocation;
     private Marker mCurrLocationMarker;
     private YelpAPIFactory apiFactory;
-    private SpinnerService mSpinnerService;
     private LinearLayoutManager mRLM;
     private RestaurantAdapter mRestaurantAdapter;
     private List<Business> mRestaurantList;
     private Marker mOpenMarker;
     private List<Marker> mAllMarkers;
     private RecyclerView.OnScrollListener scrollListener;
+    private View spin;
+    private FrameLayout view;
+
 
     @BindView(R.id.restaurantRecycler) RecyclerView mRestaurantScroller;
 
@@ -81,11 +88,9 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         ButterKnife.bind(this);
-        mRLM = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL ,false);
+        mRLM = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL ,false);
         mRestaurantScroller.setLayoutManager(mRLM);
         mSearchTerm = getIntent().getStringExtra("searchTerm");
-        Log.d("SEARCH TERM", mSearchTerm);
-        mSpinnerService = new SpinnerService(this);
     }
 
     @Override
@@ -128,7 +133,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        mSpinnerService.showSpinner();
+        showSpinner();
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(1000);
         mLocationRequest.setFastestInterval(1000);
@@ -186,7 +191,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
 
     private void getNearbyPlaces(String latLng){
 
-//        final List<Restaurant> searchedRestaurants= new ArrayList<>();
         apiFactory = new YelpAPIFactory(Constants.YELP_CONSUMER_KEY, Constants.YELP_CONSUMER_SECRET, Constants.YELP_TOKEN, Constants.YELP_TOKEN_SECRET);
         YelpAPI yelpAPI = apiFactory.createAPI();
         Map<String, String> params = new HashMap<>();
@@ -196,19 +200,10 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         Callback<SearchResponse> callback = new Callback<SearchResponse>() {
             @Override
             public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
-                SearchResponse searchResponse = response.body();
-                mRestaurantList = searchResponse.businesses();
-                StringBuilder stringBuilder = new StringBuilder();
-                int count = 0;
-                for (Business business: searchResponse.businesses()){
-                    stringBuilder.append(business.name()+", ");
-                    count++;
-                    if (count == 5){ break;}
-                }
-                mSpinnerService.removeSpinner();
-                showNearbyPlaces(searchResponse.businesses());
-                setRestaurantsView(searchResponse.businesses());
-
+                mRestaurantList = response.body().businesses();
+                removeSpinner();
+                showNearbyPlaces(mRestaurantList);
+                setRestaurantsView(mRestaurantList);
             }
             @Override
             public void onFailure(Call<SearchResponse> call, Throwable t) {
@@ -216,30 +211,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
             }
         };
         call.enqueue(callback);
-
-
-//        Log.d("LATLONG", latLng);
-//        UnSplashClient client = UnSplashServiceGenerator.createService(UnSplashClient.class);
-//        Single<GoogePlace> call = client.nearbyPlaces("https://maps.googleapis.com/maps/api/place/nearbysearch/json?rankby=distance&type=restaurant", latLng, mSearchTerm, getString(R.string.google_maps_key));
-//        call.subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new SingleObserver<GoogePlace>() {
-//                    @Override
-//                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onSuccess(@io.reactivex.annotations.NonNull GoogePlace googePlace) {
-//                        showNearbyPlaces(googePlace.getResults());
-//
-//                    }
-//
-//                    @Override
-//                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-//
-//                    }
-//                });
     }
 
     private void showNearbyPlaces(List<Business> nearbyPlacesList) {
@@ -256,19 +227,13 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
             Marker newMarker = mMap.addMarker(markerOptions);
             newMarker.setTag(i);
             mAllMarkers.add(newMarker);
-
-
-//            markerOptions.position(latLng).title(placeName);
-//            mMap.addMarker(markerOptions).setTag(i);
-//            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
         }
     }
 
     public void setRestaurantsView(List<Business> restaurants){
-        mRestaurantAdapter = new RestaurantAdapter(this, restaurants);
+        mRestaurantAdapter = new RestaurantAdapter(restaurants);
         mRestaurantScroller.setAdapter(mRestaurantAdapter);
         PagerSnapHelper snapHelper = new PagerSnapHelper();
-//        SnapHelper snapHelper = new LinearSnapHelper();
         snapHelper.attachToRecyclerView(mRestaurantScroller);
         mRestaurantScroller.smoothScrollToPosition(0);
 
@@ -307,11 +272,29 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         mRestaurantScroller.smoothScrollToPosition(index);
     }
 
+    public void showSpinner(){
+        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(400,400);
+        params.addRule(RelativeLayout.CENTER_IN_PARENT);
+        spin = inflater.inflate(R.layout.spinner, null);
+        view=getWindow().getDecorView().findViewById(android.R.id.content);
+        view.addView(spin);
+    }
+
+    public void removeSpinner(){
+        if (spin != null) {
+            view.removeView(spin);
+        }
+    }
+
     @Override
     public void onPause() {
         super.onPause();
         Log.d("MAP PAUSE", "PAUSE");
         mRestaurantScroller.removeOnScrollListener(scrollListener);
+        mGoogleApiClient.disconnect();
+        mRestaurantScroller.setAdapter(null);
+        mMap.clear();
     }
 
     //add back press remove on Marker clicked Listener

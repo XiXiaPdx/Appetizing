@@ -5,7 +5,7 @@
         <bitmap
             android:gravity="center"
             android:scaleType="centerInside"
-            android:src="@drawable/splashback"
+            android:src="@drawable/ic_close_black_48dp"
              />
     </item>
 </layer-list>

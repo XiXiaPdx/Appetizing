@@ -73,19 +73,19 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
         @BindView(R.id.pictureItemView) ImageView mPictureView;
         @BindView(R.id.photographer) TextView mPhotographerName;
         @BindView(R.id.foodDescription) TextView mFoodDescription;
-        private Context pictureViewContext;
+        private Context mContext;
 
         public PictureViewHolder(View itemView){
             super(itemView);
             ButterKnife.bind(this, itemView);
-            pictureViewContext = itemView.getContext();
+            mContext = itemView.getContext();
             mPhotographerName.setOnClickListener(this);
             mPictureView.setOnClickListener(this);
         };
 
         public void bindPicture (SplashPic picture){
             Picasso
-                    .with(pictureViewContext)
+                    .with(mContext)
                     .load(picture.getUrls()
                             .getRegular())
                     .resize(Constants.MAX_Width, Constants.MAX_Height)
@@ -112,7 +112,7 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
                 String url = "https://unsplash.com/@"+username+"?utm_source=appetizing&utm_medium=referral&utm_campaign=api-credit";
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse(url));
-                context.startActivity(intent);
+                view.getContext().startActivity(intent);
             }
 
             if (view == mPictureView) {

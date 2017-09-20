@@ -51,19 +51,22 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
 
-//    @Override
-//    protected void onResume(){
-//        super.onResume();
-//        broadcastReceiver = new NetworkChangeReceiver();
-//        registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-//    }
+    @Override
+    protected void onResume(){
+        super.onResume();
+
+        // Listen to network changes throughout the application. This is UnRegistered in the OnPause of BaseActivity
+
+        broadcastReceiver = new NetworkChangeReceiver();
+        registerReceiver(broadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+    }
 
 
 
     @Override
     public void onBackPressed(){
         super.onBackPressed();
-        finish();
+        this.finish();
         overridePendingTransition(R.anim.slide_from_left, R.anim.slide_to_right);
     }
 
@@ -113,7 +116,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
                 break;
             case android.R.id.home:
-                finish();
+                this.finish();
                 overridePendingTransition(R.anim.slide_from_left, R.anim.slide_to_right);
                 break;
             default:
@@ -172,18 +175,10 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     public void onPause (){
         super.onPause();
         Log.d("BROADCAST", "UN_REGISTERED");
-//        unregisterReceiver(broadcastReceiver);
+        unregisterReceiver(broadcastReceiver);
     }
-
-//    @Override
-//    public void onDestroy(){
-//        super.onDestroy();
-////        Log.d("BROADCAST", "UN_REGISTERED");
-////        getApplicationContext().unregisterReceiver(broadcastReceiver);
-//    }
 }
