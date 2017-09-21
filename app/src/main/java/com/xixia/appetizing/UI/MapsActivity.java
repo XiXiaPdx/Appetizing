@@ -69,6 +69,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
     private RecyclerView.OnScrollListener scrollListener;
     private View spin;
     private FrameLayout view;
+    private Boolean makeMap=true;
 
 
     @BindView(R.id.restaurantRecycler) RecyclerView mRestaurantScroller;
@@ -92,10 +93,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.getUiSettings().setAllGesturesEnabled(true);
-        mMap.getUiSettings().setZoomControlsEnabled(true);
-        mMap.getUiSettings().setMapToolbarEnabled(true);
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+//        mMap.setPadding(0,80,0,200);
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -109,15 +107,19 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-                buildGoogleApiClient();
-                mMap.setMyLocationEnabled(true);
+                    != PackageManager.PERMISSION_GRANTED) {
+                makeMap = false;
             }
         }
-        else {
+        if (makeMap) {
             buildGoogleApiClient();
             mMap.setMyLocationEnabled(true);
         }
+
+//        mMap.getUiSettings().setAllGesturesEnabled(true);
+//        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setMapToolbarEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -295,6 +297,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         mMap.clear();
         mMap = null;
         mAllMarkers.clear();
+        mLocationRequest = null;
     }
 
     //add back press remove on Marker clicked Listener
