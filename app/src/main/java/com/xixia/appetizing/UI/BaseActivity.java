@@ -40,6 +40,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     private GestureDetector mTapListener;
     private ViewPager mViewPager;
     private BroadcastReceiver broadcastReceiver;
+    private FirebaseAuth mFireBaseAuth;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +50,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         mFragmentManager=getSupportFragmentManager();
         mIPA = new InstructionPagerAdapter(mFragmentManager);
         mTapListener = new GestureDetector(this, new TapListener());
+        mFireBaseAuth = FirebaseAuth.getInstance();
     }
 
 
@@ -74,9 +77,14 @@ public abstract class BaseActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.overflow_menu, menu);
-        MenuItem menuItem = menu.findItem(R.id.action_instructions);
+        MenuItem instructionMenuItem = menu.findItem(R.id.action_instructions);
+        MenuItem logoutMenuItem = menu.findItem(R.id.action_logout);
+
         if (getClass().getSimpleName().equals(MapsActivity.class.getSimpleName())){
-            menuItem.setVisible(false);
+            instructionMenuItem.setVisible(false);
+        }
+        if (mFireBaseAuth.getCurrentUser() == null){
+            logoutMenuItem.setVisible(false);
         }
         return true;
     }

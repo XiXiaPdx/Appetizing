@@ -21,6 +21,9 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -96,6 +99,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     @BindView(R.id.searchButton) ImageButton mSearchButton;
     @BindView(R.id.unSplash) TextView mUnSplashHome;
     @BindView(R.id.PicsRecycler) SplashCustomRecyclerView mPicsRecyclerView;
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -189,16 +193,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                     }
                 } else {
                     Log.d("USER NULL", "USER NULL");
-//                    startActivityForResult(
-//                            AuthUI.getInstance()
-//                                    .createSignInIntentBuilder()
-//                                    .setIsSmartLockEnabled(false)
-//                                    .setTheme(R.style.FirebaseAuthUITheme)
-//                                    .setAvailableProviders(
-//                                            Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-//                                                    new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-//                                    .build(),
-//                            RC_SIGN_IN);
                 }
             }
         };
@@ -227,6 +221,11 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                     case RESULT_OK:
                         mFirebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                         final DatabaseReference mUserRef = mFireBaseDatabase.getReference(getString(R.string.user_node));
+
+                        //Make Logout button appear in Overflow
+                        invalidateOptionsMenu();
+
+
 
                         //query for current user UID. If it exists, the snapshot will be NOT NULl. No new profile created. If null, new user and new profile created.
                         mUserRef.orderByChild("mUserUID").equalTo(mFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -260,6 +259,18 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 }
                 break;
         }
+    }
+
+    /*
+    Make logout button appear after log in
+     */
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu){
+        if(mFirebaseUser !=null) {
+        menu.findItem(R.id.action_logout).setVisible(true);
+        }
+        return super.onPrepareOptionsMenu(menu);
     }
 
     /*
