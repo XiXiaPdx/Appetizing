@@ -67,6 +67,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
     private Marker mOpenMarker;
     private List<Marker> mAllMarkers;
     private RecyclerView.OnScrollListener scrollListener;
+    private GoogleMap.OnMarkerClickListener clickListener;
     private View spin;
     private FrameLayout view;
     private Boolean makeMap=true;
@@ -93,15 +94,17 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-//        mMap.setPadding(0,80,0,200);
+        mMap.setPadding(0,150,0,0);
 
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+        clickListener = new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
                 showSelectedMarker(marker);
-                return true;
+                return false;
             }
-        });
+        };
+
+        mMap.setOnMarkerClickListener(clickListener);
 
         //Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -115,12 +118,9 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
             buildGoogleApiClient();
             mMap.setMyLocationEnabled(true);
         }
-
-//        mMap.getUiSettings().setAllGesturesEnabled(true);
-//        mMap.getUiSettings().setZoomControlsEnabled(true);
-        mMap.getUiSettings().setMapToolbarEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
     }
+
 
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -227,6 +227,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
             Marker newMarker = mMap.addMarker(markerOptions);
             newMarker.setTag(i);
             mAllMarkers.add(newMarker);
+
         }
     }
 
@@ -262,6 +263,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
             mOpenMarker.hideInfoWindow();
         }
         marker.showInfoWindow();
+
         mOpenMarker = marker;
         int index = (int) marker.getTag();
         Business restaurant = mRestaurantList.get(index);
@@ -293,11 +295,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         Log.d("MAP PAUSE", "PAUSE");
         mRestaurantScroller.clearOnScrollListeners();
         mGoogleApiClient.disconnect();
-        mRestaurantScroller.setAdapter(null);
-        mMap.clear();
-        mMap = null;
-        mAllMarkers.clear();
-        mLocationRequest = null;
+        mMap.setOnMarkerClickListener(null);
     }
 
     //add back press remove on Marker clicked Listener

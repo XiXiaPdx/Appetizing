@@ -107,7 +107,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             case R.id.action_logout:
                 //current manual testing shows this basically restarts the app from fresh start
 
-//                AuthUI.getInstance().signOut(this);
+                AuthUI.getInstance().signOut(this);
                 Intent intent = new Intent(this, SplashActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);

@@ -9,8 +9,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
-import com.xixia.appetizing.Constants;
-import com.xixia.appetizing.Models.SplashPic;
 import com.xixia.appetizing.R;
 import com.yelp.clientlib.entities.Business;
 
@@ -46,6 +44,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         holder.mRestaurantName.setText(restaurant.name());
         holder.mRestaurantRating.setText(String.valueOf(restaurant.rating())+"/5.0");
         holder.mRestaurantAddress.setText(restaurant.location().address().get(0));
+        holder.mCityState.setText(restaurant.location().city() +", "+restaurant.location().stateCode());
         holder.bindPicture(restaurant);
     }
 
@@ -59,8 +58,9 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         @BindView(R.id.restaurantName) TextView mRestaurantName;
         @BindView(R.id.restaurantImage) ImageView mRestaurantImage;
         @BindView(R.id.rating) TextView mRestaurantRating;
-        @BindView(R.id.address) TextView mRestaurantAddress;
+        @BindView(R.id.streetAddress) TextView mRestaurantAddress;
         @BindView(R.id.ratingIcon) ImageView mRatingIcon;
+        @BindView(R.id.cityState) TextView mCityState;
         private Context mContext;
 
 
