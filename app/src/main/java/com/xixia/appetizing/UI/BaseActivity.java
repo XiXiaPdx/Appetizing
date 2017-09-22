@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -32,6 +33,8 @@ import com.xixia.appetizing.Fragments.InstructionThree;
 import com.xixia.appetizing.Fragments.InstructionTwo;
 import com.xixia.appetizing.Services.NetworkChangeReceiver;
 
+import butterknife.ButterKnife;
+
 public abstract class BaseActivity extends AppCompatActivity {
 
     Toolbar toolbar;
@@ -41,6 +44,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     private ViewPager mViewPager;
     private BroadcastReceiver broadcastReceiver;
     private FirebaseAuth mFireBaseAuth;
+    private TabLayout mDotsTab;
+
 
 
     @Override
@@ -94,23 +99,42 @@ public abstract class BaseActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // action with ID action_refresh was selected
             case R.id.action_instructions:
-
                 mViewPager = this.findViewById(R.id.viewpager);
-                mViewPager.setVisibility(View.VISIBLE);
-                mViewPager.setAlpha(0.0f);
-                mViewPager.animate().alpha(1.0f).translationY(toolbar.getHeight()).setDuration(500).setListener(null);
+                mDotsTab = this.findViewById(R.id.dots_layout);
 
-                mIPA.addFrag(new InstructionOne(), "ONE");
-                mIPA.addFrag(new InstructionTwo(), "TWO");
-                mIPA.addFrag(new InstructionThree(), "THREE");
-                mViewPager.setAdapter(mIPA);
-                mViewPager.setOnTouchListener(new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View view, MotionEvent motionEvent) {
-                        mTapListener.onTouchEvent(motionEvent);
-                        return false;
+                if(!mViewPager.isShown()) {
+                    mViewPager.setVisibility(View.VISIBLE);
+                    mViewPager.setAlpha(0.0f);
+                    mViewPager.animate().alpha(1.0f).translationY(toolbar.getHeight()).setDuration(500).setListener(null);
+
+                    mDotsTab.setupWithViewPager(mViewPager, false);
+                    mDotsTab.setVisibility(View.VISIBLE);
+                    mDotsTab.setAlpha(0.0f);
+                    mDotsTab.animate().alpha(1.0f).translationY(toolbar.getHeight()).setDuration(500).setListener(null);
+
+                    if (mIPA.getCount() == 0) {
+                        mIPA.addFrag(new InstructionOne(), "ONE");
+                        mIPA.addFrag(new InstructionTwo(), "TWO");
+                        mIPA.addFrag(new InstructionThree(), "THREE");
                     }
-                });
+                    mViewPager.setAdapter(mIPA);
+                    mViewPager.setOnTouchListener(new View.OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View view, MotionEvent motionEvent) {
+                            mTapListener.onTouchEvent(motionEvent);
+                            return false;
+                        }
+                    });
+                    mDotsTab.setOnTouchListener(new View.OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View view, MotionEvent motionEvent) {
+                            mTapListener.onTouchEvent(motionEvent);
+                            return false;
+                        }
+                    });
+                } else {
+                    closeInstructions();
+                }
                 break;
             case R.id.action_logout:
                 //current manual testing shows this basically restarts the app from fresh start
@@ -172,15 +196,27 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-            mViewPager.animate().alpha(0.0f).translationY(0).setDuration(500).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    super.onAnimationEnd(animation);
-                    mViewPager.setVisibility(View.GONE);
-                }
-            });
+                closeInstructions();
             return super.onSingleTapConfirmed(e);
         }
+    }
+
+    public void closeInstructions(){
+        mViewPager.animate().alpha(0.0f).translationY(0).setDuration(500).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                mViewPager.setVisibility(View.GONE);
+            }
+        });
+
+        mDotsTab.animate().alpha(0.0f).translationY(0).setDuration(500).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                mDotsTab.setVisibility(View.GONE);
+            }
+        });
     }
 
     @Override
