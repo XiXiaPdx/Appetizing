@@ -2,7 +2,9 @@ package com.xixia.appetizing.UI;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -83,6 +85,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     private ChildEventListener mDescribedFoodListener;
     private FragmentManager mFragmentManager;
     private DatabaseReference mUserDescriptionsRef;
+    private AlertDialog mAlertDialog;
     @BindView(R.id.coordinator) CoordinatorLayout mCoordinator;
     @BindView(R.id.bottom_sheet) View mBottomSheet;
     @BindView(R.id.largeSplashPic) ImageView mLargeSpashPic;
@@ -185,16 +188,16 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                     }
                 } else {
                     Log.d("USER NULL", "USER NULL");
-                    startActivityForResult(
-                            AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .setIsSmartLockEnabled(false)
-                                    .setTheme(R.style.FirebaseAuthUITheme)
-                                    .setAvailableProviders(
-                                            Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-                                                    new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-                                    .build(),
-                            RC_SIGN_IN);
+//                    startActivityForResult(
+//                            AuthUI.getInstance()
+//                                    .createSignInIntentBuilder()
+//                                    .setIsSmartLockEnabled(false)
+//                                    .setTheme(R.style.FirebaseAuthUITheme)
+//                                    .setAvailableProviders(
+//                                            Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+//                                                    new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+//                                    .build(),
+//                            RC_SIGN_IN);
                 }
             }
         };
@@ -208,7 +211,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
     /*
 
-     OnActivityResult is activated by the FireBase AuthListener
+     OnActivityResult is activated by a Login Event of FireBase Auth
 
      */
 
@@ -256,6 +259,31 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 }
                 break;
         }
+    }
+
+    /*
+    Alert Dialog if user wants to use app further. Needs to log in or create account
+     */
+
+    public void displayNeedToLoginDialog() {
+        AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        builder.setMessage("Please Login to use search features")
+                .setTitle("You Are Not Logged In...")
+                .setNegativeButton("Not Now", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        dialog.dismiss();
+                    }
+                })
+                .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int i) {
+                                dialog.dismiss();
+                            }
+                        }
+                );
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
     }
 
     @Override
@@ -327,7 +355,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             }
         };
         mEditTextField.addTextChangedListener(mDescriptionTextWatcher);
-
     }
 
     /*
@@ -581,12 +608,17 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     public void onClick(View view) {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (view == mDescriptionText){
-            if (mViewSwitcher.getCurrentView() == mDescriptionText ) {
-                mViewSwitcher.showNext();
-                mEditTextField.requestFocus();
-                imm.showSoftInput(mEditTextField, InputMethodManager.SHOW_IMPLICIT);
+            if(mFirebaseUser != null) {
+                if (mViewSwitcher.getCurrentView() == mDescriptionText) {
+                    mViewSwitcher.showNext();
+                    mEditTextField.requestFocus();
+                    imm.showSoftInput(mEditTextField, InputMethodManager.SHOW_IMPLICIT);
+                } else {
+                    closeKeyShowNext(imm);
+                }
             } else {
-                closeKeyShowNext(imm);
+                //show Alert Dialog that you need to login or create an account
+                displayNeedToLoginDialog();
             }
         }
         if(view == mEditTextField){
