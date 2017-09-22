@@ -184,6 +184,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                     //If logout intent has to go to Main (which it currently does not...and working) a fix is add && mAllPictures is 0 or not 0, I forget. in the scenario of a logout and log back, the bug is the setDescribed is accidentally called twice. Once in AuthAttach and once in Result Ok for sign in. Need a boolean to only have one.
                     mFirebaseUser = currentUser;
                     if (mDescribedFoodListener == null) {
+                        Log.d("LOGGED IN", "SETTING DESCRIBED FOODS");
                         setDescribedPictures();
                     }
                 } else {
@@ -279,6 +280,16 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                             @Override
                             public void onClick(DialogInterface dialog, int i) {
                                 dialog.dismiss();
+                                startActivityForResult(
+                            AuthUI.getInstance()
+                                    .createSignInIntentBuilder()
+                                    .setIsSmartLockEnabled(false)
+                                    .setTheme(R.style.FirebaseAuthUITheme)
+                                    .setAvailableProviders(
+                                            Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+                                                    new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                                    .build(),
+                            RC_SIGN_IN);
                             }
                         }
                 );
@@ -385,7 +396,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                         List<SplashPic> descriptionAddedPics =  matchNewPicsWithDescribed(splashPics);
 
                         mAllPictures.addAll(descriptionAddedPics);
-//                        AppDataSingleton.setmAllPictures(mAllPictures);
                         mSplashPicsAdapter.morePicturesLoaded(mAllPictures);
                         notCurrentlyLoading = true;
 
