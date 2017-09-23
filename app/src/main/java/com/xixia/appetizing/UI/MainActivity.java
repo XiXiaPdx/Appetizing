@@ -127,7 +127,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         mBottomSheetBehavior.setPeekHeight(0);
         setBottomSheetCallBack();
 
-        mDescribedPictures = new ArrayList<>();
+//        mDescribedPictures = new ArrayList<>();
 
         mSplashPicsAdapter = new SplashPicsAdapter();
         mPicGridLayOut = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
@@ -335,9 +335,14 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         mEndLessScrollListener = new EndLessScrollListener(mPicGridLayOut) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                while(notCurrentlyLoading) {
-                    notCurrentlyLoading = false;
-                    unSplash30Call();
+                if(notCurrentlyLoading) {
+                    //check for user logged in
+                    if(mFirebaseUser != null) {
+                        notCurrentlyLoading = false;
+                        unSplash30Call();
+                    } else {
+                        displayNeedToLoginDialog();
+                    }
                 }
             }
         };
@@ -407,8 +412,8 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                         //possible this might get triggered too soon when main loads...
 
                         //filter new pics through described
-                        List<SplashPic> descriptionAddedPics =  matchNewPicsWithDescribed(splashPics);
 
+                        List<SplashPic> descriptionAddedPics =  matchNewPicsWithDescribed(splashPics);
                         mAllPictures.addAll(descriptionAddedPics);
                         mSplashPicsAdapter.morePicturesLoaded(mAllPictures);
                         notCurrentlyLoading = true;
@@ -542,10 +547,16 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     public void setDescribedPictures(){
         if (mDescribedFoodListener == null) {
             mUserDescriptionsRef = mFireBaseDatabase.getReference(getString(R.string.user_food_description)).child(mFirebaseUser.getUid());
+            mDescribedPictures = new ArrayList<>();
             mDescribedFoodListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     DescribedPicture description = dataSnapshot.getValue(DescribedPicture.class);
+
+                    /*
+                    this is causing a duplication everytime returning from Maps. The temp solution was to reset the Array everytime above.
+                     */
+
                     mDescribedPictures.add(description);
                     //filter each described pic through allPictures and add description. notifyitemchanged on that position.
 
@@ -588,13 +599,10 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         int count = 0;
         for(SplashPic pic: mAllPictures){
             if(pic.getId().equals(description.getPicID())){
-                //this isn't permanent change...???
-//                pic.setFoodDescription(description.getFoodDescription());
+
                 // this permanently changes the data in the app that this picture is now described.
 
                 mAllPictures.get(count).setFoodDescription(description.getFoodDescription());
-//                AppDataSingleton.setmAllPictures(mAllPictures);
-
                 mSplashPicsAdapter.descriptionAdded(count, mAllPictures);
             }
             count++;
