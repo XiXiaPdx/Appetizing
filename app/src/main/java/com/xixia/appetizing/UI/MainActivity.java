@@ -225,8 +225,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                         //Make Logout button appear in Overflow
                         invalidateOptionsMenu();
 
-
-
                         //query for current user UID. If it exists, the snapshot will be NOT NULl. No new profile created. If null, new user and new profile created.
                         mUserRef.orderByChild("mUserUID").equalTo(mFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
@@ -321,6 +319,11 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
             mPicsRecyclerView.addOnScrollListener(mEndLessScrollListener);
         }
         setDescriptionTextWatcher();
+
+        if ( mFirebaseUser != null && mDescribedFoodListener == null){
+            Log.d("DESCRIBE LISTENER", "DESCRIBGE LISTENER");
+            setDescribedPictures();
+        }
     }
 
     /*
@@ -634,6 +637,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                     mViewSwitcher.showNext();
                     mEditTextField.requestFocus();
                     imm.showSoftInput(mEditTextField, InputMethodManager.SHOW_IMPLICIT);
+
                 } else {
                     closeKeyShowNext(imm);
                 }
@@ -690,6 +694,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         if (mDescribedFoodListener != null){
             //this was the last listner that was causing the memory leak.
             mUserDescriptionsRef.removeEventListener(mDescribedFoodListener);
+            mDescribedFoodListener = null;
         }
     }
 
