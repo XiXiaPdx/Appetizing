@@ -33,6 +33,8 @@ import com.xixia.appetizing.Fragments.InstructionThree;
 import com.xixia.appetizing.Fragments.InstructionTwo;
 import com.xixia.appetizing.Services.NetworkChangeReceiver;
 
+import java.util.Arrays;
+
 import butterknife.ButterKnife;
 
 public abstract class BaseActivity extends AppCompatActivity {
@@ -84,12 +86,16 @@ public abstract class BaseActivity extends AppCompatActivity {
         inflater.inflate(R.menu.overflow_menu, menu);
         MenuItem instructionMenuItem = menu.findItem(R.id.action_instructions);
         MenuItem logoutMenuItem = menu.findItem(R.id.action_logout);
+        MenuItem loginMenuItem = menu.findItem(R.id.action_login);
 
         if (getClass().getSimpleName().equals(MapsActivity.class.getSimpleName())){
             instructionMenuItem.setVisible(false);
         }
         if (mFireBaseAuth.getCurrentUser() == null){
             logoutMenuItem.setVisible(false);
+        }
+        if (mFireBaseAuth.getCurrentUser() != null){
+            loginMenuItem.setVisible(false);
         }
         return true;
     }
@@ -146,6 +152,18 @@ public abstract class BaseActivity extends AppCompatActivity {
                 finish();
                 overridePendingTransition(R.anim.slide_from_right, R.anim.slide_to_left);
 
+                break;
+            case R.id.action_login:
+                startActivityForResult(
+                        AuthUI.getInstance()
+                                .createSignInIntentBuilder()
+                                .setIsSmartLockEnabled(false)
+                                .setTheme(R.style.FirebaseAuthUITheme)
+                                .setAvailableProviders(
+                                        Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+                                                new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                                .build(),
+                        1);
                 break;
             case android.R.id.home:
                 this.finish();

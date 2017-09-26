@@ -9,6 +9,10 @@
         android:id="@+id/action_logout"
         android:title="Log Out">
     </item>
+    <item
+        android:id="@+id/action_login"
+        android:title="Log In">
+    </item>
 </menu>
 
     <!-- this adds an icon just to the left of the overflow menu 3 dots -->
