@@ -6,9 +6,11 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
@@ -91,6 +93,8 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     private FragmentManager mFragmentManager;
     private DatabaseReference mUserDescriptionsRef;
     private AlertDialog mAlertDialog;
+    private SharedPreferences mSharedPref;
+    private SharedPreferences.Editor mPrefEditor;
     @BindView(R.id.coordinator) CoordinatorLayout mCoordinator;
     @BindView(R.id.bottom_sheet) View mBottomSheet;
     @BindView(R.id.largeSplashPic) ImageView mLargeSpashPic;
@@ -193,6 +197,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                     mFirebaseUser = currentUser;
                     if (mDescribedFoodListener == null) {
                         Log.d("LOGGED IN", "SETTING DESCRIBED FOODS");
+                        //app starts with user already logged in
                         setDescribedPictures();
                     }
                 } else {
@@ -241,7 +246,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                                     mUserRef.child(userUID).setValue(newUser);
                                 } else {
                                     // User logged in, show welcome message at top
-
 
                                     //check if AllPictures is null.
                                     if (mAllPictures.size()==0) {
@@ -322,6 +326,10 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     @Override
     public void onResume(){
         super.onResume();
+
+        mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        mPrefEditor = mSharedPref.edit();
+
         Log.d("onRESUME", "RESUME");
         if (mAuthListener != null) {
             Log.d("AUTHLISTENER", "AUTHLISTNER ADDED");
@@ -335,6 +343,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
         if ( mFirebaseUser != null && mDescribedFoodListener == null){
             Log.d("DESCRIBE LISTENER", "DESCRIBGE LISTENER");
+            //when user comes back from Maps, still logged in and listener is gone
             setDescribedPictures();
         }
     }
@@ -454,6 +463,10 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
         @Override
     public void openSheet(int pictureIndex) {
+
+            //save pictureIndex into shared preferences.
+            mPrefEditor.putInt("picture", pictureIndex ).apply();
+
             if(!mCoordinator.isShown()) {
                 mCoordinator.setVisibility(View.VISIBLE);
             }
@@ -610,12 +623,18 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
     public void matchDescriptionWithAllPics(DescribedPicture description){
         int count = 0;
+        int clickedPic = mSharedPref.getInt("picture", -1);
         for(SplashPic pic: mAllPictures){
             if(pic.getId().equals(description.getPicID())){
-
-                // this permanently changes the data in the app that this picture is now described.
-
+                // get picture index from sharedPeferences
+                Log.d("CLICKED", String.valueOf(clickedPic)+" , count ="+count);
                 mAllPictures.get(count).setFoodDescription(description.getFoodDescription());
+
+                //above, description matched and set. Check if BottomSheet state is 3 and pic matches stored click index
+                 if(mBottomSheetBehavior.getState() == 3 && count == clickedPic ){
+                     //then set the description text of Bottom Sheet to be description text
+                    mDescriptionText.setText(description.getFoodDescription());
+                 }
                 mSplashPicsAdapter.descriptionAdded(count, mAllPictures);
             }
             count++;
