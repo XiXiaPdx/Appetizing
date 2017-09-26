@@ -162,13 +162,10 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                     closeKeyShowNext(imm);
                 }
 
-                Log.d("STATE STATE", String.valueOf(newState));
                 if(newState == 4) {
-                    Log.d("GONE GONE GONE", "GONE GONE GONE");
                     mCoordinator.setVisibility(View.GONE);
                 }
                 if(newState == 3) {
-                    Log.d("STATE VISIBLE", "STATE VISIBLE");
                     mCoordinator.setVisibility(View.VISIBLE);
                 }
             }
@@ -196,12 +193,10 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                     //If logout intent has to go to Main (which it currently does not...and working) a fix is add && mAllPictures is 0 or not 0, I forget. in the scenario of a logout and log back, the bug is the setDescribed is accidentally called twice. Once in AuthAttach and once in Result Ok for sign in. Need a boolean to only have one.
                     mFirebaseUser = currentUser;
                     if (mDescribedFoodListener == null) {
-                        Log.d("LOGGED IN", "SETTING DESCRIBED FOODS");
                         //app starts with user already logged in
                         setDescribedPictures();
                     }
                 } else {
-                    Log.d("USER NULL", "USER NULL");
                 }
             }
         };
@@ -222,7 +217,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     @Override
     public void onActivityResult(int request, int result, Intent data) {
         super.onActivityResult(request, result, data);
-        Log.d("RESULT", "RESULT");
 
         switch (request){
             case RC_SIGN_IN:
@@ -262,7 +256,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                         });
                         break;
                     case RESULT_CANCELED:
-                        Log.d("BACK ARROW", "BACK ARROW IN SIGN IN SCREEN");
                         finish();
                         break;
                 }
@@ -330,9 +323,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         mSharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         mPrefEditor = mSharedPref.edit();
 
-        Log.d("onRESUME", "RESUME");
         if (mAuthListener != null) {
-            Log.d("AUTHLISTENER", "AUTHLISTNER ADDED");
             mFireBaseAuth.addAuthStateListener(mAuthListener);
         }
         setRecyclerEndLessScroll();
@@ -342,7 +333,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         setDescriptionTextWatcher();
 
         if ( mFirebaseUser != null && mDescribedFoodListener == null){
-            Log.d("DESCRIBE LISTENER", "DESCRIBGE LISTENER");
             //when user comes back from Maps, still logged in and listener is gone
             setDescribedPictures();
         }
@@ -353,7 +343,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
      */
 
     public void setRecyclerEndLessScroll(){
-        Log.d("SCROLL CREATEd", "SCROLL CREATED");
         mEndLessScrollListener = new EndLessScrollListener(mPicGridLayOut) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
@@ -444,7 +433,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
 
                     @Override
                     public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-                        Log.d("ERROR", e.toString());
                     }
                 });
     }
@@ -499,7 +487,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 roundFoodPic.setCircular(true);
                 mLargeSpashPic.setImageDrawable(roundFoodPic);
                 mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                Log.d("LOADED", "LOADED");
             }
 
             @Override
@@ -586,7 +573,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                     mDescribedPictures.add(description);
                     //filter each described pic through allPictures and add description. notifyitemchanged on that position.
 
-                    Log.d("SIZE", String.valueOf(mDescribedPictures.size()));
                     matchDescriptionWithAllPics(description);
                 }
 
@@ -627,7 +613,6 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         for(SplashPic pic: mAllPictures){
             if(pic.getId().equals(description.getPicID())){
                 // get picture index from sharedPeferences
-                Log.d("CLICKED", String.valueOf(clickedPic)+" , count ="+count);
                 mAllPictures.get(count).setFoodDescription(description.getFoodDescription());
 
                 //above, description matched and set. Check if BottomSheet state is 3 and pic matches stored click index
@@ -652,13 +637,11 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         for(SplashPic pic: newPics){
             for (DescribedPicture description: mDescribedPictures){
              if (pic.getId().equals(description.getPicID())){
-                 Log.d("MATCH MATCH", "MATCH");
                  pic.setFoodDescription(description.getFoodDescription());
                  break;
              }
             }
             modifiedPics.add(pic);
-            Log.d("Picture Number", String.valueOf(newPicCount));
             newPicCount++;
         }
         return modifiedPics;
@@ -714,21 +697,14 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     @Override
     public void onPause(){
         super.onPause();
-        Log.d("MAIN PAUSE", "PAUSE");
 
         if (mAuthListener != null) {
-            Log.d("MAIN PAUSE", "AUTH REMOVED");
-
             mFireBaseAuth.removeAuthStateListener(mAuthListener);
         }
         if (mEndLessScrollListener != null){
-            Log.d("MAIN PAUSE", "SCROLL REMOVED");
-
             mPicsRecyclerView.removeOnScrollListener(mEndLessScrollListener);
         }
         if (mDescriptionTextWatcher != null) {
-            Log.d("MAIN PAUSE", "TEXT WATCHER REMOVED");
-
             mDescriptionText.removeTextChangedListener(mDescriptionTextWatcher);
         }
         if (mDescribedFoodListener != null){
@@ -741,6 +717,5 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     @Override
     public void onDestroy(){
         super.onDestroy();
-        Log.d("DESTROY MAIN", "DESTROY MAIN");
     }
 }

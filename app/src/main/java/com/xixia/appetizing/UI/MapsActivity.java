@@ -164,7 +164,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.clear();
-        Log.d("DOuble LAT", String.valueOf(latLng.latitude));
         String mLatLng = makeString(latLng);
         getNearbyPlaces(mLatLng);
 
@@ -207,7 +206,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
             }
             @Override
             public void onFailure(Call<SearchResponse> call, Throwable t) {
-                Log.d("FAILED YELP", t.toString());
             }
         };
         call.enqueue(callback);
@@ -292,7 +290,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
     @Override
     public void onPause() {
         super.onPause();
-        Log.d("MAP PAUSE", "PAUSE");
         mRestaurantScroller.clearOnScrollListeners();
         mGoogleApiClient.disconnect();
         mMap.setOnMarkerClickListener(null);

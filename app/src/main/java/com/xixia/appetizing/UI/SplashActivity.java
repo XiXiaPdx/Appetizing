@@ -42,7 +42,6 @@ public class SplashActivity extends BaseActivity {
     @Override
     public void onResume(){
         super.onResume();
-        Log.d("Splash RESUME", "RESUME");
 
         // while the splash background is being displayed, API call to get photos and pass to Main Activity
 
@@ -123,7 +122,6 @@ public class SplashActivity extends BaseActivity {
                             displayApiCallErrorDialog();
                         }
                     });
-        Log.d("NOT SUBSCRIBED", "ANYMORE");
         call.unsubscribeOn(Schedulers.io());
     }
 
