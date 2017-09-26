@@ -24,12 +24,10 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        Log.d("IN ONRECEIVE", "IN ONRECEIVE");
         try
         {
             if (isOnline(context)) {
             } else {
-                Log.d("NO INternet", "NO internet");
                 displayWarningDialog(context);
             }
         } catch (NullPointerException e) {

@@ -57,13 +57,11 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
     public void morePicturesLoaded(List<SplashPic> morePictures){
         int itemStart = mPictures.size();
         mPictures = morePictures;
-        Log.d("Size", String.valueOf(mPictures.size()));
         notifyItemRangeInserted(itemStart, morePictures.size());
     }
 
     public void descriptionAdded(int position, List<SplashPic> newPictures){
         mPictures = newPictures;
-        Log.d("Description ADDED MATCH", "MATCH AT "+String.valueOf(position));
         notifyItemChanged(position);
     }
 
@@ -93,11 +91,9 @@ public class SplashPicsAdapter extends RecyclerView.Adapter<SplashPicsAdapter.Pi
             //set Name here
             mPhotographerName.setText("by " + picture.getUser().getFirst_name());
             if (picture.getFoodDescription() == null) {
-                Log.d("Description NULL", "INVISIBLE");
                 mFoodDescription.setText("I can set text");
                 mFoodDescription.setVisibility(View.GONE);
             } else {
-                Log.d("Make Visible", "VISIBLE NOW");
                 mFoodDescription.setText(picture.getFoodDescription());
                 mFoodDescription.setVisibility(View.VISIBLE);
             }

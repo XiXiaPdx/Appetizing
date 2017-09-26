@@ -36,7 +36,6 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
         super();
         mContext = context;
         mScaleDetector = new ScaleGestureDetector(mContext, new ScaleListener());
-        Log.d("CREATE SCALE", mScaleDetector.toString());
         matrix = new Matrix();
         rootView = ((Activity)mContext).getWindow().getDecorView().findViewById(android.R.id.content);
         largeSplashPic = rootView.findViewById(R.id.largeSplashPic);
@@ -48,7 +47,6 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
 
     @Override
     public boolean onInterceptTouchEvent(CoordinatorLayout parent, V child, MotionEvent event) {
-        Log.d("MOTION", event.toString());
 
         // true sends the event to OnTouch, where UI changes should happen.
        if(event.getPointerCount() == 2 ) {
@@ -63,11 +61,9 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
         if(parent.isShown()) {
             switch (action) {
                 case MotionEvent.ACTION_POINTER_UP:
-                    Log.d("POINTER UP", "POINTER UP");
                     vibrated = false;
                     break;
                 case MotionEvent.ACTION_UP:
-                    Log.d("UP", " UP");
                     vibrated = false;
                     break;
             }
@@ -76,9 +72,7 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
                 child.findViewById(R.id.largeSplashPic).performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
                 vibrated = true;
             }
-            Log.d("TOUCH EVENT", event.toString());
             if (mScaleDetector == null) {
-                Log.d("ScALE IS NULL", "NUL NULL");
             } else {
                 mScaleDetector.onTouchEvent(event);
             }
@@ -96,8 +90,6 @@ public class CustomBottomSheet<V extends View> extends BottomSheetBehavior<V> {
             //this also sets the pivot point for scaling. So can scale from touch point
             float scalePivotY = detector.getFocusY();
             float scalePivotX = detector.getFocusX();
-
-            Log.d("SCALE PIVOT", "YYY: "+ scalePivotY +"  XXX: "+ scalePivotX);
 
             scaleFactor *= detector.getScaleFactor();
             scaleFactor = Math.max(1.0f, Math.min(scaleFactor, 5.0f));

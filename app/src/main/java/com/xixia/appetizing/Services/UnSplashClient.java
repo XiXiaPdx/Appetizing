@@ -1,7 +1,6 @@
 package com.xixia.appetizing.Services;
 
 import com.xixia.appetizing.Constants;
-import com.xixia.appetizing.Models.GooglePlaces.GoogePlace;
 import com.xixia.appetizing.Models.SplashPic;
 
 import java.util.List;
@@ -24,15 +23,4 @@ public interface UnSplashClient {
     Single<List<SplashPic>> pictures(
             @Query(Constants.UNSPLASH_CLIENT_ID) String clientID
     );
-
-    @GET
-    Single<GoogePlace> nearbyPlaces(
-            @Url String url,
-            @Query("location") String latLong,
-            @Query("name") String searchTerm,
-            @Query("key") String key
-    );
-
-
-
 }

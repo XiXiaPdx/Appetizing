@@ -53,7 +53,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("BASE ACTIVITY", "ACTIVATED");
         mFragmentManager=getSupportFragmentManager();
         mIPA = new InstructionPagerAdapter(mFragmentManager);
         mTapListener = new GestureDetector(this, new TapListener());
@@ -240,7 +239,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     public void onPause (){
         super.onPause();
-        Log.d("BROADCAST", "UN_REGISTERED");
         unregisterReceiver(broadcastReceiver);
     }
 }
