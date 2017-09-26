@@ -1,6 +1,8 @@
 package com.xixia.appetizing.Adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,6 +70,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
             super(itemView);
             ButterKnife.bind(this, itemView);
             mContext = itemView.getContext();
+            mRestaurantName.setOnClickListener(this);
 
         }
 
@@ -91,6 +94,12 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
 
         @Override
         public void onClick(View view) {
+            if (view == mRestaurantName) {
+                String url = mRestaurants.get(getAdapterPosition()).url();
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+                view.getContext().startActivity(intent);
+            }
 
         }
     }
