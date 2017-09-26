@@ -22,7 +22,7 @@
             android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
             android:scaleType="centerCrop"
-            android:src="@mipmap/ic_launcher_round"
+            android:src="@mipmap/ic_launcher"
             card_view:layout_constraintBottom_toBottomOf="@+id/photographer"
             card_view:layout_constraintLeft_toLeftOf="parent"
             card_view:layout_constraintRight_toRightOf="parent"

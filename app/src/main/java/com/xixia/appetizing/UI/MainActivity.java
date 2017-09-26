@@ -16,6 +16,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.Editable;
@@ -32,6 +33,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.firebase.ui.auth.AuthUI;
@@ -99,6 +101,8 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     @BindView(R.id.searchButton) ImageButton mSearchButton;
     @BindView(R.id.unSplash) TextView mUnSplashHome;
     @BindView(R.id.PicsRecycler) SplashCustomRecyclerView mPicsRecyclerView;
+    @BindView(R.id.viewpager)
+    ViewPager mViewPager;
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -236,6 +240,9 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                                     UserProfile newUser = new UserProfile(username, useremail, userUID);
                                     mUserRef.child(userUID).setValue(newUser);
                                 } else {
+                                    // User logged in, show welcome message at top
+
+
                                     //check if AllPictures is null.
                                     if (mAllPictures.size()==0) {
                                         unSplash30Call();
@@ -275,9 +282,15 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
     Alert Dialog if user wants to use app further. Needs to log in or create account
      */
 
-    public void displayNeedToLoginDialog() {
+    public void displayNeedToLoginDialog(String cause) {
+        String message=null;
+        if (cause == "scroll" ){
+            message = "Please Login to see more photos";
+        } else if (cause == "describe") {
+            message = "Please Login to describe and find your food";
+        }
         AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-        builder.setMessage("Please Login to use search features")
+        builder.setMessage(message)
                 .setTitle("You Are Not Logged In...")
                 .setNegativeButton("Not Now", new DialogInterface.OnClickListener() {
                     @Override
@@ -341,7 +354,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                         notCurrentlyLoading = false;
                         unSplash30Call();
                     } else {
-                        displayNeedToLoginDialog();
+                        displayNeedToLoginDialog("scroll");
                     }
                 }
             }
@@ -651,7 +664,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
                 }
             } else {
                 //show Alert Dialog that you need to login or create an account
-                displayNeedToLoginDialog();
+                displayNeedToLoginDialog("describe");
             }
         }
         if(view == mEditTextField){
