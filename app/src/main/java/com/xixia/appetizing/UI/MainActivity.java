@@ -1,5 +1,6 @@
 package com.xixia.appetizing.UI;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
@@ -15,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
@@ -113,6 +115,7 @@ public class MainActivity extends BaseActivity implements SplashPicsAdapter.Open
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
         mFragmentManager = getSupportFragmentManager();
 
         // Click listeners
