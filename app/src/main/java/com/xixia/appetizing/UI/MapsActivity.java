@@ -85,27 +85,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
     private FrameLayout view;
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private static final int REQUEST_CHECK_SETTINGS = 7;
-
-
-
     @BindView(R.id.restaurantRecycler) RecyclerView mRestaurantScroller;
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode){
-            case REQUEST_CHECK_SETTINGS:
-                switch (resultCode){
-                    case Activity.RESULT_OK:
-                        break;
-                    case Activity.RESULT_CANCELED:
-                        finish();
-                        break;
-                }
-
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,6 +102,23 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         mSearchTerm = getIntent().getStringExtra("searchTerm");
     }
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode){
+            case REQUEST_CHECK_SETTINGS:
+                switch (resultCode){
+                    case Activity.RESULT_OK:
+                        break;
+                    case Activity.RESULT_CANCELED:
+                        finish();
+                        break;
+                }
+        }
+    }
+
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
@@ -132,7 +129,8 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
             @Override
             public boolean onMarkerClick(Marker marker) {
                 showSelectedMarker(marker);
-                return false;
+                Log.d("MARKER CLICKED", "MARKER CLICKED");
+                return true;
             }
         };
 
@@ -416,8 +414,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
     @Override
     public void onPause() {
         super.onPause();
-        mRestaurantScroller.clearOnScrollListeners();
-        mMap.setOnMarkerClickListener(null);
+
     }
 
     //add back press remove on Marker clicked Listener
