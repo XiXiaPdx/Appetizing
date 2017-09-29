@@ -30,6 +30,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -414,7 +415,14 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
     @Override
     public void onPause() {
         super.onPause();
+        Log.d("Map On PAUSZE", "PAUSE PAUSE");
+    }
 
+    @Override
+    public void onStop(){
+        super.onStop();
+        Log.d("Map On Stop", "STOP STOP");
+        mGoogleApiClient.disconnect();
     }
 
     //add back press remove on Marker clicked Listener
