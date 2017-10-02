@@ -17,7 +17,18 @@ The user is hungry and undecided. As they scroll through the beautiful hi-res ph
 
 Once they have decided, they can click on a photo and it will generate a Yelp list of restaurants near them that serve that type of food.
 
-![Appetizing Screen Shot](./readMeRes/AppetizingScreenShot.jpg)
+![Appetizing Screen Shot](https://j.gifs.com/gLYM69.gif)
+
+![Appetizing Screen Shot](https://j.gifs.com/zKPY9r.gif)
+
+![Appetizing Screen Shot](https://j.gifs.com/Xoxpqk.gif)
+
+![Appetizing Screen Shot](https://j.gifs.com/jqQ65W.gif)
+
+![Appetizing Screen Shot](https://j.gifs.com/oQRXXN.gif)
+
+![Appetizing Screen Shot](https://j.gifs.com/jqQ65W.gif)
+
 
 ## Planning
 
