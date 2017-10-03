@@ -9,23 +9,30 @@ hungry + photographic inspiration =  Appetizing!
 
 Appetizing is a project to develop my understanding and skills with Android development. The below animations show the potential user flow when utilizing the app.
 
-![Appetizing Screen Shot](https://j.gifs.com/gLYM69.gif)
+#### Instructions in app
 
-![Appetizing Screen Shot](https://j.gifs.com/zKPY9r.gif)
+![](https://j.gifs.com/gLYM69.gif)
 
-![Appetizing Screen Shot](https://j.gifs.com/Xoxpqk.gif)
+#### Be inspired by food and get a close up
 
-![Appetizing Screen Shot](https://j.gifs.com/jqQ65W.gif)
+![](https://j.gifs.com/zKPY9r.gif)
 
-![Appetizing Screen Shot](https://j.gifs.com/oQRXXN.gif)
+#### Pinch zoom and pan
 
-![Appetizing Screen Shot](https://j.gifs.com/jqQ65W.gif)
+![](https://j.gifs.com/Xoxpqk.gif)
+#### Search and see nearest locations
+
+![](https://j.gifs.com/jqQ65W.gif)
+#### Click on marker or scroll through restaurant list
+
+![](https://j.gifs.com/oQRXXN.gif)
+
 
 ## On the PlayStore
 
 Available on the [PlayStore] (https://play.google.com/store/apps/details?id=com.xixia.appetizing&hl=en). Android version 4.4.0 / KitKat minimum.
 
-Search for "squishyfist" on your phone to narrow your results to this app. 
+Search for "squishyfist" on your phone to narrow your results to this app.
 
 ## Technologies Implemented
 
