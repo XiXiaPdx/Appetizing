@@ -1,21 +1,13 @@
 # Appetizing
-- Android capstone project for Epicodus coding school.
+#### Personal Android project after completing code school.
 
-![UnSplash Food photography](./readMeRes/sandwich.jpg)
-
-Have you ever been hungry but didn't know what you wanted to eat?
-
-Have you ever been inspired by beautiful photography?
+Have you ever been hungry but didn't know what you wanted to eat? Have you ever been inspired by beautiful photography?
 
 hungry + photographic inspiration =  Appetizing!
 
 ## What is Appetizing
 
-Appetizing is a stream of category=food photography from the UnSplash API.  
-
-The user is hungry and undecided. As they scroll through the beautiful hi-res photos, their visual senses will engage to help them make a decision on what to eat.
-
-Once they have decided, they can click on a photo and it will generate a Yelp list of restaurants near them that serve that type of food.
+Appetizing is a project to develop my understanding and skills with Android development. The below animations show the potential user flow when utilizing the app.
 
 ![Appetizing Screen Shot](https://j.gifs.com/gLYM69.gif)
 
@@ -29,115 +21,61 @@ Once they have decided, they can click on a photo and it will generate a Yelp li
 
 ![Appetizing Screen Shot](https://j.gifs.com/jqQ65W.gif)
 
+## On the PlayStore
 
-## Planning
+Available on the [PlayStore] (https://play.google.com/store/apps/details?id=com.xixia.appetizing&hl=en). Android version 4.4.0 / KitKat minimum.
 
-#### Phase 1
+Search for "squishyfist" on your phone to narrow your results to this app. 
 
-- [x] Test UnSplash API in browser. Return Json.
-- [x] Create UnSplashService class and return LogCat response.
-- [x] transform response into Picture object
-- [x] Create Recycler View for UnSplash on main
-- [x] Create Button on View Item To Search local
-- [x] Button intent moves to RestaurantActivity
-- [x] Contacted UnSplash about photo tag data. Where is it?
-- [x] UnSplash, no response. Changing course.
+## Technologies Implemented
 
+* Firebase as the database that stores and retrieves user food description.  
 
-#### Phase 2
+* FirebaseAuth for templated Log In screen by email or google
 
-Finding a stream of high quality RANDOM food pictures that are already tagged/labeled with the food name( e.g. "Pizza") is harder than I thought.
+* Retrofit and RxJava for consuming [Unsplash](https://unsplash.com/developers) and [Yelp](https://www.yelp.com/developers/documentation/v2/search_api) API.
 
-Yummly has great photos, perfectly labeled...but there is no method to get random photos from them.  Why would anyone go to a recipe site and search for random photos???
+* Google Maps API for creating a fun interactive map.  
 
-UnSpash has hi-quality, current, food photos.  You can get random photos from them in a stream.  BUT, the photos are NOT LABELED!   Actually, the photos ARE TAGGED  but the TAG isn't part of the JSON return from the API call.
+### What I learned
 
+1. Better understanding of how to spot and fix memory leaks
 
-##### New Plan:
+2.  Better understanding of the custom capabilities of Retrofit.
 
-- [x] 1. Use UnSplash to get random photo stream.
-- [x] 2. Put "Search" Icon on each picture.
-- [x] 3. Clicking "Search" opens a modal Fragment with - [ larger sized picture.
-- [x] 4. Below picture will have input field asking the user to describe the dish they see in the picture.
-- [x] 5. Below input field, 3 buttons.
-- [x] Close modal
-    * This closes the modal, goes back to main picture stream.
-- [x]  * Search Restaurants
-    * This uses their description to search Yelp API Activity for food.
-- [x] Save a user's described foods to database.
-- [x] RecyclerView of random foods will reference current user Described foods. If match, pull user description and label the food on RecyclerView.
+3. Introduction to RxJava.
 
-#### Bugs, Problems.
+4. How to use the Google Maps API for Android
 
-1. Firebase issues - multiple unexplained calls when it only should be one. No visible UI effect...just not efficient.
+5. How to use Location Services in Android to find GPS Location
 
-2.  Async issue.  RecyclerView sets pictures BEFORE Firebase Database call finishes. This causes all labels to say "Description".
+6. How to use a broadcast receiver and listen for internet connectivity changes
+
+7. How to check and ask for permission to use Location Detection on Android < M  and > M.
+
+8. How to use a BottomSheet UI element
+
+9. How to implement drag and pinch zoom for images.
+
+10. How to store, retrieve, update, and delete information from Firebase
+
+11. Became much more familiar and gained a better understanding of Java.
 
 "hacky" resolved.  Used Thread.sleep to force Firebase to wait.  
 
-#### Testing For Self-Learning
+## Prerequisites & Installation
 
-- [x] Adapter to Fragment Listener with Interface
-* Restaurant List Adapter to Fragment Restaurant List
-* click on each View Holder sends string to Fragment
-* [stack overflow reference that helped.](https://stackoverflow.com/a/37535113/8140320) Especially about passing context from fragment to Adapter to "connect" and prevent NPE error when declaring Listener.
-
-- []
-
-# Technologies
-
-Java, Android Studio
-
-## Prerequisites
-
-You will need the following software properly installed on your computer.
+If you want to use this repo, You will need the following software properly installed on your computer.
 
 * [Android Studio 2.3.2](https://developer.android.com/studio/index.html)
 
-You'll also need an API Client ID token from UnSplash. [You can get it here](https://unsplash.com/login)
+You'll also need an API Client ID token from Unspash and also Yelp.
 
-They will ask for your App name but you don't need to have one and will still get a API token. You are limited to 50 calls per hour.
+## Known Bugs
 
-
-## Installation
-
-Perform the following steps to setup the app to run in Android Studio.
-
-* #### Get the UnSplash API Client ID. [You can get it here](https://unsplash.com/login)
-
-* #### In Android Studio, open the Terminal. At the prompt, navigate into your "AndroidStudioProjects" folder.
-
-
-
-Once there, run the following command.
-```
-git clone https://github.com/XiXiaPdx/XiXiaAndroidProject.git
-```
-*  #### Navigate into the project folder
-```
-cd XiXiaAndroidProject
-```
-*  #### create file gradle.properties to hold your UnSplash Client ID token. I'm using Atom.
-```
-atom gradle.properties
-```
-* #### insert the following text into gradle.properties.
-
-```
-org.gradle.jvmargs=-Xmx1536m
-UnSplashId = "Your Client ID From UnSplash Goes Here!!!"
-
-```
-* #### Android Studio should prompt you to Gradle Sync.  At this point, a gradle sync should clear any warnings and the whole project will gradle build.
-
-* #### Run the app in the emulator. I am emulating a Nexus 6.
-
-### Login Details
-
-
-## Further Exploration
-
-
+1. On certain phones, the app will crash on Log out
+2. The text for the Restaurant Title is slightly obscured on the Maps view.
+3. Certain phrases in for described foods will crash the app.
 
 ## License
 
